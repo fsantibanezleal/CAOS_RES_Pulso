@@ -3,6 +3,21 @@
 All notable changes to FlowDNA. Format: `X.XX.XXX` (display) — see `flowdnalab.__version__`. Keep `0.x`
 while the DARTS transient-on-DFN lane and the real-data (4TU) studies are pending. Tag every release.
 
+## [0.06.000] — 2026-07-04
+
+### Added
+- **open-DARTS Step B foundation** (issue #13): DFN conformal meshing works. `dfn/dfn_mesh.py`
+  turns a GeoDFN network (`[[x1,y1,x2,y2], ...]` segments) into a conformal discrete-fracture-matrix
+  (DFM) `.msh` mesh via open-DARTS' `frac_preprocessing` (MIT, de Hoop & Voskov) + gmsh — the hard,
+  novel part of the transient-on-DFN phase. The GeoDFN output format matches `frac_preprocessing`'s
+  input, so the two engines compose directly; verified end-to-end in `tests/test_dfn_mesh.py`
+  (GeoDFN network → conformal `.msh`). A package-inconsistency in open-darts 1.5.0 is worked around
+  and documented (`create_geo_file` requires an `input_data` layer config that `frac_preprocessing`
+  never passes; we inject a single-reservoir-layer default).
+- The remaining Step-B sub-step (UnstructReservoir DFM drawdown on the mesh + MRST fidelity gate) is
+  documented in `docs/frameworks/open-darts` with the concrete API path; the `dfn` cases keep
+  `transient_simulation: pending` until it lands.
+
 ## [0.05.000] — 2026-07-04
 
 ### Added
