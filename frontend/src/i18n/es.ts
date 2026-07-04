@@ -112,6 +112,8 @@ export const es: Dict = {
     conf: 'p_g(x)=\\frac{|\\{s\\in S_g: s\\ge d(x,m_g)\\}|+1}{|S_g|+1}',
     s5h: '5 · Atribucion: Random Forest + SHAP',
     s5: 'Un Random Forest predice las etiquetas de GeoType desde los descriptores de fractura; TreeSHAP ordena que descriptores impulsan cada GeoType, contrastado contra importancia por permutacion y con gate de exactitud en held-out para que el ruido nunca se reporte como hallazgo.',
+    s6h: '6 · El nivel aprendido (modelos profundos → ONNX → en vivo)',
+    s6: 'Tres modelos profundos se entrenan offline (torch) sobre las curvas GeoType y se exportan a ONNX para correr en vivo en el navegador via onnxruntime-web: un clasificador 1D-CNN de GeoType (convoluciones dilatadas + pooling global; un acelerador aprendido rapido de la asignacion DTW), un autoencoder convolucional (una incrustacion latente del comportamiento + un puntaje de anomalia / fuera-de-distribucion por error de reconstruccion), y un encoder triplet contrastivo (una metrica donde curvas del mismo GeoType estan cerca, para recuperacion por vecino mas cercano). El pipeline offline hace el procesamiento pesado; el navegador corre los modelos exportados diminutos. Las metricas held-out se reportan honestamente por modelo.',
     refh: 'Referencias',
   },
   impl: {

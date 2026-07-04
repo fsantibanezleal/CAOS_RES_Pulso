@@ -110,6 +110,8 @@ export const en = {
     conf: 'p_g(x)=\\frac{|\\{s\\in S_g: s\\ge d(x,m_g)\\}|+1}{|S_g|+1}',
     s5h: '5 · Attribution: Random Forest + SHAP',
     s5: 'A Random Forest predicts the GeoType labels from the fracture descriptors; TreeSHAP ranks which descriptors drive each GeoType, cross-checked against permutation importance and gated on held-out accuracy so noise is never reported as a finding.',
+    s6h: '6 · The learned tier (deep models → ONNX → live)',
+    s6: 'Three deep models are trained offline (torch) on the GeoType curves and exported to ONNX so they run live in the browser via onnxruntime-web: a 1D-CNN GeoType classifier (dilated convolutions + global pooling; a fast learned accelerator of the DTW assignment), a convolutional autoencoder (a latent embedding of behaviour + a reconstruction-error anomaly / out-of-distribution score), and a contrastive triplet encoder (a metric where same-GeoType curves are close, for nearest-neighbour retrieval). The offline pipeline does the hard processing; the browser runs the tiny exported models. Held-out metrics are reported honestly per model.',
     refh: 'References',
   },
   impl: {
