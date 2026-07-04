@@ -1,4 +1,4 @@
-// Spanish locale (app i18n translation — the permitted non-English per ADR-0066/0011).
+// Spanish locale (app i18n translation, the permitted non-English per ADR-0066/0011).
 import type { Dict } from './en';
 
 export const es: Dict = {
@@ -19,6 +19,7 @@ export const es: Dict = {
     silhouette: 'silueta',
     coverage: 'cobertura',
     target: 'objetivo',
+    source: 'fuente',
     oodRate: 'tasa fuera de catalogo',
     topControl: 'control principal',
     real: 'Real 4TU',
@@ -133,12 +134,14 @@ export const es: Dict = {
   },
   exp: {
     title: 'Experimentos',
-    lead: 'Resultados por caso a traves de las cuatro familias: estudios analiticos, estudios reales 4TU, el ancla open-DARTS y los ensambles de red GeoDFN. Cada numero se lee del manifiesto comprometido.',
-    studies: 'Estudios analiticos + reales',
+    lead: 'Resultados por caso a traves de todas las lineas de estudio GeoType: estudios analiticos Warren-Root, el corpus real 4TU de reservorio fracturado, ensayos de bombeo de campo reales (AquiferTypes), y los estudios DFM simulados con open-DARTS (mas el ancla open-DARTS y los ensambles de red GeoDFN). Cada numero se lee del manifiesto comprometido.',
+    studies: 'Estudios GeoType (analitico / real 4TU / campo / DFM simulado)',
     findingsh: 'Hallazgos honestos',
     f1: 'La sensibilidad de DTW es tiempo > familia > profundidad: el tiempo del valle y la familia homogeneo-vs-doble-porosidad se atribuyen limpiamente; la profundidad pura del valle (una feature de amplitud) es el caso dificil donde el gate RF correctamente retiene la atribucion.',
-    f2: 'Los transitorios reales agrupan mucho mas limpio que los ensambles analiticos (silueta 0.58–0.86 vs 0.13–0.25). El descriptor controlador depende de la configuracion; en la config de alta permeabilidad, la intensidad de fractura es el control principal, reproduciendo parcialmente el paper.',
+    f2: 'Los transitorios reales agrupan mucho mas limpio que los ensambles analiticos (silueta 0.58 a 0.86 vs 0.13 a 0.25). El descriptor controlador depende de la configuracion; en la config de alta permeabilidad, la intensidad de fractura es el control principal, reproduciendo parcialmente el paper.',
     f3: 'El drawdown monofasico de open-DARTS reproduce el flujo radial infinito: la derivada de Bourdet se estabiliza en 0.5 y la presion corregida por skin coincide con la fuente lineal analitica a ~1%.',
+    f4: 'Los estudios DFM simulados con open-DARTS agrupan los transitorios de red de fracturas en GeoTypes y pasan el gate de fidelidad MRST (correlacion de forma de la derivada de Bourdet mediana del ensamble ~0.92 vs la referencia del paper); la atribucion revela la distancia pozo-fractura y la apertura de fractura como controles principales.',
+    f5: 'La metodologia se transfiere a datos REALES de acuiferos (ensayos de bombeo welltestpy): ambos sitios bien caracterizados son predominantemente un unico AquiferType radial infinito con algunos pozos atipicos, y el estudio combinado entre sitios es un resultado nulo honesto (el tipo no es predecible por distancia radial, tasa de bombeo o sitio).',
   },
   bench: {
     title: 'Benchmark',
@@ -149,7 +152,7 @@ export const es: Dict = {
     kh: 'Seleccion de K',
     k: 'Silueta sobre el rango candidato de K por caso, con el codo del costo total como contraste.',
     engineh: 'Validacion del motor',
-    engine: 'El drawdown de open-DARTS se valida contra la solucion analitica antes de cualquier complejidad de DFN; los transitorios simulados sobre DFN (Paso B) se contrastaran con las curvas de referencia MRST del paper.',
+    engine: 'El drawdown de open-DARTS se valida contra la solucion analitica (meseta de derivada de Bourdet 0.5, coincidencia corregida por skin ~1%) antes de cualquier complejidad de DFN. Los transitorios simulados sobre DFN (Paso B) ahora se contrastan con MRST: la derivada de Bourdet mediana del ensamble DFM cae dentro de la banda de referencia MRST del paper (cobertura p5-p95) con una correlacion de forma alineada por escala ~0.92 para los Datasets A y C. La metodologia tambien se transfiere a datos REALES de acuiferos (ensayos de bombeo welltestpy), donde ambos sitios bien caracterizados son predominantemente un unico AquiferType radial infinito y el estudio combinado es un nulo honesto.',
   },
   live: {
     intro: 'Este es el laboratorio en vivo. Arrastra los parametros de flujo de fractura y cada herramienta de la escalera recomputa en el navegador sobre la curva ajustada: los diagnosticos clasicos y las herramientas DTW/conformal en un motor TypeScript, los modelos aprendidos (1D-CNN, autoencoder, contrastivo) via onnxruntime-web. Sin servidor, sin replay.',
