@@ -3,6 +3,26 @@
 All notable changes to FlowDNA. Format: `X.XX.XXX` (display) — see `flowdnalab.__version__`. Keep `0.x`
 while the DARTS transient-on-DFN lane and the real-data (4TU) studies are pending. Tag every release.
 
+## [0.05.000] — 2026-07-04
+
+### Added
+- **The full ADR-0016 six-page web shell + ADR-0058 architecture modal** (issue #10), replacing the
+  contract-exercising replay skeleton with the real product UI (mirrors CAOS_SIMLAB):
+  - Header: brand + nav + architecture (ⓘ), language (EN/ES), theme (light/dark) and GitHub icons.
+  - Six pages via react-router (hash): **App** (the workbench) + **Introduction / Methodology /
+    Implementation / Experiments / Benchmark** as detailed prose + KaTeX equations + DOI references
+    (not card grids).
+  - **App = a real workbench** (ADR-0016, never meta-tabs): a first-level SOURCE selector
+    (Synthetic ensemble / Real 4TU sample / open-DARTS anchor), then a case, then genuine domain
+    views — GeoType catalogue (live cursor read-out), Classify-a-curve (conformal p-values +
+    prediction set + OOD, stepping the baked assignments), Attribution (RF/SHAP importances, gated),
+    Fracture network, DARTS validation, and Context. Every view runs on the committed artifact.
+  - i18n EN (source) + ES translation (react-i18next; the permitted app-i18n Spanish per ADR-0066),
+    light/dark theming (zustand + CSS variables, persisted), KaTeX, lucide icons, per-panel error
+    boundary, zero internal repo paths in UI text.
+  - Screenshot-verified across pages and both themes/languages (App workbench, Attribution,
+    Methodology KaTeX, Experiments table, architecture modal, light+ES) — 0 console errors.
+
 ## [0.04.000] — 2026-07-04
 
 ### Added

@@ -36,9 +36,13 @@ GeoDFN ensembles ──► pressure-transient simulation ──► Bourdet deriv
   compact artifacts + manifests (deterministic, seeded).
 - **Live lane** (Pyodide, browser): pure-Python analytical PTA core (Bourdet derivative +
   Warren-Root dual-porosity via Stehfest inversion) + classify-my-curve against the baked medoids.
-- **Web** (`frontend/`): React/Vite SPA — App workbench (Synthetic vs Real source selector) /
-  Introduction / Methodology / Implementation / Experiments / Benchmark, EN/ES, light/dark, ⓘ
-  architecture modal. Replays only committed, audited artifacts.
+- **Web** (`frontend/`): React 19 + Vite SPA (react-router, react-i18next, KaTeX, zustand). The
+  full ADR-0016 six-page shell — **App** workbench (Synthetic / Real 4TU / open-DARTS source
+  selector, then genuine domain views: GeoType catalogue with cursor read-out, conformal
+  classify-a-curve, RF/SHAP attribution, fracture network, DARTS validation, context) plus
+  **Introduction / Methodology / Implementation / Experiments / Benchmark** as detailed prose +
+  KaTeX + DOI refs — with EN/ES, light/dark, and the ⓘ architecture modal. Replays only committed,
+  audited artifacts.
 
 This repo is an instantiation of the CAOS product-repo archetype (ADR-0057): frozen base, rework
 only in the core (models, visualization, content). Status: **v0.03.000 — real data integrated**:
