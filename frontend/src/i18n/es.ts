@@ -34,10 +34,10 @@ export const es: Dict = {
       'Elige una fuente: el laboratorio en vivo (ajusta el flujo de fractura y corre cada herramienta en vivo en el navegador), el corpus real 4TU, o las simulaciones precomputadas. Las herramientas clasico + SOTA + novel corren en un motor TypeScript; los modelos profundos aprendidos corren via onnxruntime-web sobre el ONNX entrenado offline.',
     source: 'Fuente',
     sourceSynthetic: 'Laboratorio en vivo',
-    sourceReal: 'Muestra real 4TU',
+    sourceReal: 'Datos reales',
     sourceDarts: 'Simulaciones',
     sourceSyntheticHelp: 'Ajusta los parametros de flujo de fractura y corre cada herramienta de la escalera en vivo sobre la curva (clasico + SOTA + aprendido ONNX + novel).',
-    sourceRealHelp: 'El corpus real de transitorios de presion del paper (Datasets A/B/C). Eliges el dato; las herramientas corren sobre el.',
+    sourceRealHelp: 'Datos reales medidos: el corpus de reservorio fracturado del paper (4TU Datasets A/B/C) y las campanas de ensayos de bombeo de campo welltestpy (acuiferos Horkheimer Insel + Lauswiesen). Eliges el dato; las herramientas corren sobre el.',
     sourceDartsHelp: 'Las simulaciones pesadas precomputadas: el drawdown open-DARTS validado, las redes discretas de fractura GeoDFN, y los estudios de GeoTypes DFM (transientes de presion open-DARTS simulados sobre un ensamble de redes de fracturas, validados contra MRST).',
     case: 'Caso',
     tabs: {

@@ -99,6 +99,36 @@ def _precompute_real(case, seed: int) -> dict:
     return _run_study_stages(case, arrays, spec, flags, seed, t0)
 
 
+def _precompute_field(case, seed: int) -> dict:
+    """REAL field pumping-test study: welltestpy campaigns -> transient drawdown curves -> Bourdet
+    first derivative -> the GeoType (AquiferType) pipeline. Mirrors the 4TU real path; the curves are
+    RAW drawdown, so preprocessing differentiates them (derivative_order=1)."""
+    from .io import field_data
+    from .io.contract import validate_curves
+    from .stages.feature_extraction import arrays_from_curves
+
+    spec = case.spec
+    t0 = time.perf_counter()
+    loaded = field_data.load_field(spec.sites)
+    raw = [{"curve_id": cid, "t": t.tolist(), "p": p.tolist()}
+           for cid, t, p in zip(loaded["ids"], loaded["t"], loaded["p"])]
+    report = validate_curves(raw)
+    accepted = {r["curve_id"] for r in report.accepted}
+    keep = [i for i, cid in enumerate(loaded["ids"]) if cid in accepted]
+    if len(keep) < spec.k_max * 3:
+        raise ValueError(f"field study {case.id}: too few curves passed CONTRACT 1 ({len(keep)})")
+    arrays = arrays_from_curves(
+        case.id, [loaded["t"][i] for i in keep], [loaded["p"][i] for i in keep],
+        [loaded["features"][i] for i in keep], loaded["feature_names"],
+        n_points=spec.n_points, derivative_order=spec.derivative_order, L=spec.L, norm=spec.norm,
+    )
+    # provenance FIRST so it survives the manifest flag cap (field CONTRACT-1 can flag many curves)
+    flags = [{"provenance": f"welltestpy field campaigns {spec.sites}: "
+              f"{len(keep)}/{loaded['n_available']} usable transient drawdown curves "
+              f"(MIT, Zenodo 4139374, vault-only)"}] + report.flagged
+    return _run_study_stages(case, arrays, spec, flags, seed, t0)
+
+
 def _precompute_darts(case, seed: int) -> dict:
     from .dfn import darts_welltest
 
@@ -171,6 +201,8 @@ def precompute(case_id: str, seed: int = 42) -> dict:
         return _precompute_study(case, seed)
     if case.kind == "real":
         return _precompute_real(case, seed)
+    if case.kind == "field":
+        return _precompute_field(case, seed)
     if case.kind == "darts":
         return _precompute_darts(case, seed)
     if case.kind == "dfm":
@@ -202,10 +234,11 @@ def _darts_available() -> bool:
 
 
 def run_all(seed: int = 42,
-            kinds: tuple[str, ...] = ("study", "dfn", "real", "darts", "dfm")) -> list[dict]:
-    from .io import real_data
+            kinds: tuple[str, ...] = ("study", "dfn", "real", "darts", "dfm", "field")) -> list[dict]:
+    from .io import field_data, real_data
 
     real_ok = real_data.available()
+    field_ok = field_data.available()
     darts_ok = _darts_available()
     entries = []
     for c in registry.list_cases():
@@ -213,6 +246,9 @@ def run_all(seed: int = 42,
             continue
         if c.kind == "real" and not real_ok:
             print(f"  SKIP {c.id}: 4TU vault corpus not available (FLOWDNA_VAULT/real-curves)")
+            continue
+        if c.kind == "field" and not field_ok:
+            print(f"  SKIP {c.id}: field campaigns not available (FLOWDNA_VAULT/field)")
             continue
         if c.kind in ("darts", "dfm") and not darts_ok:
             print(f"  SKIP {c.id}: open-darts not installed (offline-only heavy engine)")
@@ -228,8 +264,8 @@ def main() -> None:
     ap.add_argument("case", nargs="?", default="all",
                     help="a case id, 'all', or 'index' (rebuild index.json from existing manifests)")
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--kinds", default="study,dfn,real,darts,dfm",
-                    help="comma list of case kinds to run (for 'all'): study,dfn,real,darts,dfm")
+    ap.add_argument("--kinds", default="study,dfn,real,darts,dfm,field",
+                    help="comma list of case kinds to run (for 'all'): study,dfn,real,darts,dfm,field")
     args = ap.parse_args()
     if args.case == "index":
         entries = rebuild_index()

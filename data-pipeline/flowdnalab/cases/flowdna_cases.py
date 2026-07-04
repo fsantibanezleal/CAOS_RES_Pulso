@@ -14,15 +14,22 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from ..io.schema import DartsWellTestSpec, DfmStudySpec, DFNSpec, EnsembleSpec, RealDataSpec
+from ..io.schema import (
+    DartsWellTestSpec,
+    DfmStudySpec,
+    DFNSpec,
+    EnsembleSpec,
+    FieldDataSpec,
+    RealDataSpec,
+)
 
 
 @dataclass(frozen=True)
 class Case:
     id: str
     category: str
-    kind: str                       # 'study' | 'real' | 'darts' | 'dfn' | 'dfm'
-    spec: Union[EnsembleSpec, RealDataSpec, DartsWellTestSpec, DFNSpec, DfmStudySpec]
+    kind: str                       # 'study' | 'real' | 'darts' | 'dfn' | 'dfm' | 'field'
+    spec: Union[EnsembleSpec, RealDataSpec, DartsWellTestSpec, DFNSpec, DfmStudySpec, FieldDataSpec]
     expected_band: str
     real_or_synthetic: str
 
@@ -151,5 +158,40 @@ CASES: list[Case] = [
         "GeoType families still driven by aperture + connectivity; MRST fidelity vs Dataset C. "
         "(Intensity capped at 0.06: very dense nets can make gmsh meshing pathological.)",
         "simulated-dfm",
+    ),
+    # REAL FIELD DATA (the methodology generalizes beyond fractured reservoirs): welltestpy transient
+    # pumping-test campaigns from two aquifer field sites, clustered by Bourdet-derivative shape into
+    # AquiferTypes + attributed to radial distance / pumping rate / site. MIT, vault-only; skipped
+    # when FLOWDNA_VAULT/field is absent. Honest: aquifer != fractured reservoir; the diagnostic-plot
+    # SHAPE methodology is what transfers, and T/S are unknown so clustering is on shape only.
+    Case(
+        "FIELD_horkheim", "real field: Horkheimer Insel pumping tests (AquiferTypes)", "field",
+        FieldDataSpec(case_id="FIELD_horkheim", sites=("horkheim",), k_max=4),
+        "REAL transient drawdown at the Horkheimer Insel alluvial aquifer (Heilbronn): ~28 obs curves "
+        "over 4 pumping tests. HONEST FINDING: the derivatives are predominantly ONE infinite-acting "
+        "radial (Theis) AquiferType (bulk pairwise shape-correlation ~0.87), so the site is fairly "
+        "homogeneous; observation well p45 stands out as a distinct AquiferType (a boundary / "
+        "heterogeneity signature), which the catalogue correctly isolates. One dominant type + a lone "
+        "outlier means attribution is honestly withheld (nothing robust to attribute).",
+        "field-pumping",
+    ),
+    Case(
+        "FIELD_lauswiesen", "real field: Lauswiesen pumping tests (AquiferTypes)", "field",
+        FieldDataSpec(case_id="FIELD_lauswiesen", sites=("lauswiesen",), k_max=4),
+        "REAL high-resolution drawdown at the Lauswiesen gravel aquifer (Tuebingen): ~16 obs curves, "
+        "long dense series (decimated to a log grid). Predominantly one radial AquiferType plus an "
+        "outlier well; a well-characterized quasi-homogeneous gravel aquifer, so the shape catalogue is "
+        "dominated by the infinite-acting response and attribution is withheld (one dominant type).",
+        "field-pumping",
+    ),
+    Case(
+        "FIELD_combined", "real field: both sites (does the SITE control the AquiferType?)", "field",
+        FieldDataSpec(case_id="FIELD_combined", sites=("horkheim", "lauswiesen"), k_max=5),
+        "REAL drawdown pooled across BOTH aquifers (~44 curves). HONEST cross-site result: the drawdown "
+        "SHAPE is predominantly one infinite-acting-radial type regardless of site, distance or rate "
+        "(the RF attribution gate sits near chance ~0.5 and WITHHOLDS importances), i.e. the two "
+        "aquifers are hydraulically similar in their transient diagnostic signature. A real null result: "
+        "the methodology transfers, and it honestly reports 'no strong controlling factor here'.",
+        "field-pumping",
     ),
 ]

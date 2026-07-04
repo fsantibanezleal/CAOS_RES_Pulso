@@ -17,7 +17,8 @@ import { LiveLab } from './LiveLab';
 type Source = 'synthetic' | 'real' | 'darts';
 
 function sourceOf(m: { real_or_synthetic: string }): Source {
-  if (m.real_or_synthetic === 'real-4tu') return 'real';
+  // real data = the 4TU fractured-reservoir corpus + the welltestpy field pumping-test campaigns
+  if (m.real_or_synthetic === 'real-4tu' || m.real_or_synthetic === 'field-pumping') return 'real';
   // the simulation source displays the open-DARTS anchor, the GeoDFN networks + the DFM GeoTypes
   if (
     m.real_or_synthetic === 'simulated-darts' ||

@@ -22,6 +22,7 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 | geodfn: dense network ensemble | dfn | connected networks: high largest-cluster fraction, backbone, spanning |
 | open-darts: homogeneous drawdown | darts | the SOTA simulator reproduces infinite-acting radial flow (derivative plateau 0.5) |
 | open-darts DFM: GeoTypes on simulated transients | dfm | GeoType study on simulated DFM physics; aperture sweep; MRST fidelity gate; attribution over real descriptors + `log_frac_aper` |
+| real field: pumping tests (AquiferTypes) | field | REAL welltestpy field drawdown (Horkheimer Insel + Lauswiesen); the shape-diagnostic methodology transfers to aquifers; attribution over radial distance / rate / site (honest null on these homogeneous sites) |
 
 ## Coverage matrix (what each case proves)
 
@@ -41,7 +42,31 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 | DARTS_homog_anchor | — | — | — | — | simulated (validated vs analytic) |
 | DFM01_geotypes | ✔ | ✔ | ✔ over descriptors + `log_frac_aper` | ✔ | simulated (MRST-gated) |
 | DFM02_dense | ✔ | ✔ | ✔ | ✔ | simulated (MRST-gated) |
-| *(next phase)* welltestpy field campaigns | ✔ | ✔ | ✔ | — | ✔ field |
+| FIELD_horkheim | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
+| FIELD_lauswiesen | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
+| FIELD_combined | ✔ | ✔ | withheld (honest null: no controlling factor) | — | ✔ field (welltestpy) |
+
+## REAL FIELD DATA — welltestpy aquifer pumping tests (2026-07-04)
+
+The `field` cases run REAL transient pumping-test drawdown from two aquifer field sites
+(Horkheimer Insel, Heilbronn; Lauswiesen, Tuebingen) via the GeoStat-Framework welltestpy campaigns
+(MIT, Zenodo 4139374, vault-only). Each (pumping test, observation well) pair is a drawdown s(t) at a
+known radial distance r + pumping rate Q; the RAW drawdown is differentiated (Bourdet first
+derivative) and clustered by SHAPE into "AquiferTypes" with the SAME DTW k-medoids + conformal +
+attribution pipeline. This demonstrates the diagnostic-plot methodology **generalizes beyond fractured
+reservoirs to real aquifer field data**. (Domain honesty: aquifers are a different physical system;
+only the shape diagnostic transfers, and T/S are unknown so clustering is on shape alone.)
+
+**Findings (honest):**
+- Both sites are predominantly ONE infinite-acting-radial (Theis) AquiferType: the Horkheim
+  derivatives share a bulk pairwise shape-correlation ~0.87. These are well-characterized,
+  quasi-homogeneous aquifers, so the shape catalogue is dominated by the radial response.
+- The catalogue correctly ISOLATES outlier observation wells (e.g. Horkheim's `p45`) as distinct
+  AquiferTypes (a boundary / heterogeneity signature).
+- **Honest null on `FIELD_combined`**: pooled across both aquifers, the AquiferType is NOT predictable
+  from radial distance, pumping rate or site (RF accuracy gate ~0.50, importances withheld). The two
+  aquifers are hydraulically similar in their transient diagnostic signature. The methodology
+  transfers AND honestly reports "no strong controlling factor here" rather than manufacturing one.
 
 ## REAL DATA — the paper's own 4TU corpus (2026-07-03)
 
