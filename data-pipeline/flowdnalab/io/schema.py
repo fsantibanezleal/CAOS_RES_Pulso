@@ -71,6 +71,40 @@ class DFNSpec:
 
 
 @dataclass(frozen=True)
+class DartsWellTestSpec:
+    """One validated open-DARTS well-test operating point (a FlowDNA *case* of kind 'darts').
+
+    Step A: a homogeneous structured single-phase drawdown validated vs the analytical solution.
+    A rate-controlled centre well produces from a square homogeneous reservoir; the simulated BHP
+    transient is compared to `pygeotypes.synthetic.homogeneous_pd`. Physical inputs are chosen so
+    the dimensionless response is engine-independent (validation is on p_wD vs t_D).
+    """
+
+    case_id: str
+    # grid (square areal, single layer). A large domain keeps the response infinite-acting (the
+    # pressure front stays far from the boundary) over the whole test — validated 2026-07-04.
+    nx: int = 101
+    ny: int = 101
+    nz: int = 1
+    dx: float = 20.0                      # cell size [m]
+    dy: float = 20.0
+    dz: float = 10.0                      # thickness [m]
+    # rock + fluid
+    permeability: float = 50.0           # [mD]
+    porosity: float = 0.2
+    p_init: float = 200.0                # initial pressure [bar]
+    temperature: float = 350.0           # [K] (geothermal single-phase water)
+    # well
+    well_rate: float = 20.0              # production rate [m3/day] (mild drawdown, stable Newton)
+    well_radius: float = 0.1             # [m]
+    # transient sampling
+    total_time: float = 1.0              # [day] (short enough to stay infinite-acting)
+    n_report_steps: int = 40             # log-spaced report times
+    # validation (skin-corrected shape + derivative plateau, well-test convention)
+    tol_rel_l2: float = 0.05
+
+
+@dataclass(frozen=True)
 class RealDataSpec:
     """One validated REAL-data operating point (a FlowDNA *case* of kind 'real').
 

@@ -38,7 +38,22 @@ before any DFN complexity.
 into an `UnstructReservoir` with discrete fractures (DFM), single-phase drawdown, BHP recorded on a
 log grid; fidelity-gated against the paper's MRST reference curves (4TU corpus in the vault).
 
-**Integration status: PENDING (honest).** Step-by-step:
+**Integration status — Step A DONE (2026-07-04), Step B pending.**
+
+*Step A (DONE, v0.04.000):* `dfn/darts_welltest.py` builds a real `StructReservoir` + `Geothermal`
+(single-phase water, isothermal) homogeneous drawdown with a rate-controlled centre well, run
+transiently over log-spaced report times; `dfn/darts_scaling.py` converts the simulated BHP(t) to
+dimensionless (t_D, p_wD) and validates against `pygeotypes.synthetic.homogeneous_pd`. **Result: the
+simulated Bourdet derivative plateaus at 0.5 (the infinite-acting radial-flow signature) and the
+skin-corrected p_wD matches the analytical line-source to ~1% (rel-L2 0.011), with an apparent skin
+of ~0.4 from the grid-block well.** Case `DARTS_homog_anchor`; validated in `tests/test_darts.py`.
+Concrete API notes (for Step B): `DrawdownModel(DartsModel)` sets `self.reservoir` + `self.physics`
+in `__init__`; `set_sim_params()` MUST precede `init()`; the Geothermal property container needs the
+full `GeothermalIAPWSFluidProps` evaluators + custom rock evaluators; BHP is read from
+`output.store_well_time_data()['well_<name>_BHP']`; a large domain + short test keep the response
+infinite-acting.
+
+*Step B (pending) — the DFN model, step-by-step:*
 
 1. Mesh the GeoDFN 2-D networks into a DARTS reservoir model (DFM/EDFM-style discrete fracture
    representation; gmsh is available via the DARTS toolchain).

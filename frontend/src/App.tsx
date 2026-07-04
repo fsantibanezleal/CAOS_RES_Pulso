@@ -5,8 +5,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { loadIndex, loadManifest, loadTrace } from './api/artifacts';
 import type { CaseIndex, CaseManifest, Trace } from './lib/contract.types';
-import { isStudyTrace } from './lib/contract.types';
-import { DfnChart, StudyChart } from './render/CurveChart';
+import { isDartsTrace, isStudyTrace } from './lib/contract.types';
+import { DartsChart, DfnChart, StudyChart } from './render/CurveChart';
 
 export default function App() {
   const [index, setIndex] = useState<CaseIndex | null>(null);
@@ -69,7 +69,14 @@ export default function App() {
           {manifest.engine.pygeotypes}) — <i>{manifest.expected_band}</i>
         </p>
       )}
-      {trace && (isStudyTrace(trace) ? <StudyChart trace={trace} /> : <DfnChart trace={trace} />)}
+      {trace &&
+        (isStudyTrace(trace) ? (
+          <StudyChart trace={trace} />
+        ) : isDartsTrace(trace) ? (
+          <DartsChart trace={trace} />
+        ) : (
+          <DfnChart trace={trace} />
+        ))}
     </main>
   );
 }

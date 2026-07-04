@@ -91,6 +91,19 @@ def _precompute_real(case, seed: int) -> dict:
     return _run_study_stages(case, arrays, spec, flags, seed, t0)
 
 
+def _precompute_darts(case, seed: int) -> dict:
+    from .dfn import darts_welltest
+
+    t0 = time.perf_counter()
+    result = darts_welltest.run_drawdown(case.spec, seed=seed)
+    run_ms = (time.perf_counter() - t0) * 1000.0
+    return export.run_darts(
+        case=case, curves=result["curves"], validation=result["validation"],
+        physical=result["physical"], metrics=result["metrics"], seed=seed, run_ms=run_ms,
+        derived_dir=str(DERIVED), manifests_dir=str(MANIFESTS), darts_version=result["darts_version"],
+    )
+
+
 def _precompute_dfn(case, seed: int) -> dict:
     from .dfn import geodfn_adapter  # offline-only import (GeoDFN wheel)
 
@@ -116,21 +129,35 @@ def precompute(case_id: str, seed: int = 42) -> dict:
         return _precompute_study(case, seed)
     if case.kind == "real":
         return _precompute_real(case, seed)
+    if case.kind == "darts":
+        return _precompute_darts(case, seed)
     if case.kind == "dfn":
         return _precompute_dfn(case, seed)
     raise ValueError(f"unknown case kind {case.kind!r}")
 
 
-def run_all(seed: int = 42, kinds: tuple[str, ...] = ("study", "dfn", "real")) -> list[dict]:
+def _darts_available() -> bool:
+    try:
+        import darts  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+def run_all(seed: int = 42, kinds: tuple[str, ...] = ("study", "dfn", "real", "darts")) -> list[dict]:
     from .io import real_data
 
     real_ok = real_data.available()
+    darts_ok = _darts_available()
     entries = []
     for c in registry.list_cases():
         if c.kind not in kinds:
             continue
         if c.kind == "real" and not real_ok:
             print(f"  SKIP {c.id}: 4TU vault corpus not available (FLOWDNA_VAULT/real-curves)")
+            continue
+        if c.kind == "darts" and not darts_ok:
+            print(f"  SKIP {c.id}: open-darts not installed (offline-only heavy engine)")
             continue
         precompute(c.id, seed=seed)
         entries.append({"case_id": c.id, "category": c.category, "manifest_path": f"manifests/{c.id}.json"})
@@ -142,8 +169,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(prog="flowdnalab.pipeline")
     ap.add_argument("case", nargs="?", default="all", help="a case id, or 'all'")
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--kinds", default="study,dfn,real",
-                    help="comma list of case kinds to run (for 'all'): study,dfn,real")
+    ap.add_argument("--kinds", default="study,dfn,real,darts",
+                    help="comma list of case kinds to run (for 'all'): study,dfn,real,darts")
     args = ap.parse_args()
     if args.case == "all":
         entries = run_all(args.seed, kinds=tuple(args.kinds.split(",")))
