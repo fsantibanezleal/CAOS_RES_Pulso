@@ -32,10 +32,10 @@ export const en = {
       'Pick a source: the live lab (tune the fracture-flow and run every tool live in the browser), the real 4TU corpus, or the precomputed simulations. Classical + SOTA + novel tools run in a TypeScript engine; the learned deep models run via onnxruntime-web on the ONNX trained offline.',
     source: 'Source',
     sourceSynthetic: 'Live lab',
-    sourceReal: 'Real 4TU sample',
+    sourceReal: 'Real data',
     sourceDarts: 'Simulations',
     sourceSyntheticHelp: 'Tune the fracture-flow parameters and run every tool in the ladder live on the curve (classical + SOTA + learned ONNX + novel).',
-    sourceRealHelp: "The source paper's actual pressure-transient corpus (Datasets A/B/C). You pick which datum; the tools run on it.",
+    sourceRealHelp: "Real measured data: the source paper's fractured-reservoir corpus (4TU Datasets A/B/C) and welltestpy field pumping-test campaigns (Horkheimer Insel + Lauswiesen aquifers). You pick which datum; the tools run on it.",
     sourceDartsHelp: 'The precomputed hard simulations: the validated open-DARTS drawdown, the GeoDFN discrete fracture networks, and the DFM GeoType studies (open-DARTS pressure transients simulated over a fracture-network ensemble, MRST-fidelity-gated).',
     case: 'Case',
     tabs: {

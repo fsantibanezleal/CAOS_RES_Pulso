@@ -221,6 +221,33 @@ class RealDataSpec:
 
 
 @dataclass(frozen=True)
+class FieldDataSpec:
+    """One validated REAL field pumping-test operating point (a FlowDNA *case* of kind 'field').
+
+    Real transient drawdown curves from welltestpy campaigns (Horkheimer Insel + Lauswiesen, MIT,
+    vault-only) clustered by Bourdet-derivative SHAPE into AquiferTypes. The curves are RAW drawdown
+    s(t), so preprocessing uses derivative_order=1 (the Bourdet first derivative), unlike the 4TU
+    corpus which is already the derivative. T and S are unknown, so clustering is on shape only.
+    """
+
+    case_id: str
+    sites: tuple[str, ...] = ("horkheim", "lauswiesen")
+    # preprocessing (raw drawdown -> Bourdet first derivative on a common log-time grid)
+    n_points: int = 96
+    derivative_order: int = 1
+    L: float = 0.2                        # Bourdet smoothing window (log cycles)
+    norm: str = "zscore"
+    # clustering
+    dtw_window: int = 10
+    k_min: int = 2
+    k_max: int = 5
+    # conformal split
+    frac_cal: float = 0.25
+    frac_test: float = 0.25
+    alpha: float = 0.15
+
+
+@dataclass(frozen=True)
 class CurveSet:
     """The preprocessed-ready ensemble handed from preprocess -> feature_extraction."""
 
