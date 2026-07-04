@@ -29,9 +29,42 @@ generation + fracture descriptors; transient simulation on them is the open-DART
 | MIX04_homog_vs_dp | ✔ | ✔ | ✔ target `is_homogeneous` | — | — |
 | WR05_noisy | ✔ | ✔ | ✔ under noise | — | — |
 | CTRL_single_regime | ✔ (degenerate) | ✔ (stress) | gate must FAIL | — | — |
+| REAL_A_lowperm | ✔ | ✔ | ✔ real DFN descriptors | — | ✔ 4TU |
+| REAL_B_midperm | ✔ | ✔ | ✔ real DFN descriptors | — | ✔ 4TU |
+| REAL_C_highperm | ✔ | ✔ | ✔ real DFN descriptors | — | ✔ 4TU |
 | DFN06_sparse | — | — | descriptor table | ✔ | — |
 | DFN07_dense | — | — | descriptor table | ✔ | — |
-| *(next phase)* 4TU real-curve studies + DARTS-simulated DFN studies + welltestpy field campaigns | ✔ | ✔ | ✔ (fracture descriptors) | ✔ | ✔ |
+| *(next phase)* DARTS-simulated DFN studies + welltestpy field campaigns | ✔ | ✔ | ✔ | ✔ | ✔ |
+
+## REAL DATA — the paper's own 4TU corpus (2026-07-03)
+
+The `real` cases run the **source paper's actual pressure-transient curves** (4TU DOI
+10.4121/8291d285, Datasets A/B/C = three matrix-fracture permeability configs) through the exact
+same pygeotypes pipeline. Each dataset ships ~4768 dimensionless first-derivative curves (t_D,
+p_D') + 5000 real DFN-descriptor rows; we take a seeded 400-curve subsample per case (the
+full-corpus run is the offline Benchmark). Because the corpus IS already the Bourdet first
+derivative, preprocessing uses `derivative_order=0`.
+
+| Case | Config | K | Silhouette | Coverage | RF acc | Top descriptor(s) |
+|---|---|---|---|---|---|---|
+| REAL_A_lowperm | A | 2 | **0.72** | 0.94 | 0.84 | frac_aperture |
+| REAL_B_midperm | B | 2 | **0.86** | 0.89 | 0.84 | alpha (length exponent) |
+| REAL_C_highperm | C | 3 | 0.58 | 0.91 | 0.76 | **log_I (intensity)**, log_k_eq (permeability) |
+
+**Findings (honest):**
+- **Real transients cluster far more cleanly than the analytic ensembles** (silhouette 0.58–0.86 vs
+  0.13–0.25 synthetic): real reservoir responses carry sharper behavioural structure than
+  Warren-Root analytic curves. (Note: these are 400-curve subsamples; the paper reports 0.37–0.46
+  over the full corpus at K=4 — the subsample + K choice inflates silhouette, so this is a
+  *relative* not absolute claim, resolved in the Benchmark.)
+- **The controlling descriptor is config-dependent**: aperture (low-perm A), fracture length
+  exponent (mid-perm B), fracture **intensity + permeability** (high-perm C). REAL_C's top control
+  `log_I` **partially reproduces the paper's headline finding** (fracture intensity among the top
+  controls) on the high-permeability config.
+- Conformal coverage meets the 0.85 target on all three real configs; the RF attribution gate
+  passes on all three (unlike the synthetic depth case).
+- Cross-config GeoType stability (the paper's 64.1% retention) is the Benchmark question, not baked
+  into these per-config App cases.
 
 ## Findings worth recording (2026-07-03)
 

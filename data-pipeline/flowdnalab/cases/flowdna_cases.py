@@ -14,15 +14,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from ..io.schema import DFNSpec, EnsembleSpec
+from ..io.schema import DFNSpec, EnsembleSpec, RealDataSpec
 
 
 @dataclass(frozen=True)
 class Case:
     id: str
     category: str
-    kind: str                       # 'study' | 'dfn'
-    spec: Union[EnsembleSpec, DFNSpec]
+    kind: str                       # 'study' | 'real' | 'dfn'
+    spec: Union[EnsembleSpec, RealDataSpec, DFNSpec]
     expected_band: str
     real_or_synthetic: str
 
@@ -80,6 +80,30 @@ CASES: list[Case] = [
                      derivative_order=1),
         "one true behaviour: silhouette collapses (~<0.2), K unstable — must run without crashing",
         "synthetic-analytic",
+    ),
+    # REAL DATA — the source paper's actual 4TU corpus (Datasets A/B/C = 3 matrix-fracture
+    # permeability configs). The parquet is already the dimensionless Bourdet first derivative, so
+    # derivative_order=0. Vault-only; skipped when FLOWDNA_VAULT/real-curves is absent.
+    Case(
+        "REAL_A_lowperm", "real 4TU: dataset A (matrix-fracture perm config A)", "real",
+        RealDataSpec(case_id="REAL_A_lowperm", dataset="A", n_subsample=400),
+        "REAL curves: GeoTypes from the paper's own transients; attribution over real DFN "
+        "descriptors (log_I intensity, connectivity, kLog permeability, backbone) should surface "
+        "fracture intensity + backbone as top controls (the paper's finding)",
+        "real-4tu",
+    ),
+    Case(
+        "REAL_B_midperm", "real 4TU: dataset B (matrix-fracture perm config B)", "real",
+        RealDataSpec(case_id="REAL_B_midperm", dataset="B", n_subsample=400),
+        "REAL curves, config B: catalogue + conformal + attribution on real data; cross-config "
+        "GeoType stability is the Benchmark question the paper studied (64.1% retention)",
+        "real-4tu",
+    ),
+    Case(
+        "REAL_C_highperm", "real 4TU: dataset C (matrix-fracture perm config C)", "real",
+        RealDataSpec(case_id="REAL_C_highperm", dataset="C", n_subsample=400),
+        "REAL curves, config C: catalogue + conformal + attribution on real data",
+        "real-4tu",
     ),
     Case(
         "DFN06_sparse", "geodfn: sparse network ensemble", "dfn",
