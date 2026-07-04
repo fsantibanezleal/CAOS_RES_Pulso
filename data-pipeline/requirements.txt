@@ -13,3 +13,8 @@ shap==0.52.0                  # TreeSHAP (attribution layer)
 # pygeotypes (CAOS_GeoTypes, private until PyPI release): installed by scripts/setup from the
 # sibling checkout — `pip install -e ../CAOS_GeoTypes[fast,attr]` — or in CI from
 # git+https with the GH_PAT secret. After the PyPI release this becomes `pygeotypes[fast,attr]==0.x`.
+# LEARNED tier (deep models -> ONNX; offline hard-processing, torch not shipped to the browser)
+torch==2.12.1
+onnx==1.22.0
+onnxscript>=0.5
+onnxruntime==1.27.0
