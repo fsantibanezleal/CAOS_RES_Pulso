@@ -79,10 +79,38 @@ export interface DfnTrace {
   transient_simulation: string;
 }
 
-export type Trace = StudyTrace | DfnTrace;
+export interface DartsTrace {
+  schema: string; // "flowdna.darts/v1"
+  case_id: string;
+  tD: number[];
+  pwD_sim: number[];
+  pwD_analytic: number[];
+  dpwD_sim: number[];
+  dpwD_analytic: number[];
+  validation: {
+    rel_l2: number;
+    plateau_error: number;
+    apparent_skin: number;
+    window: number[];
+    tol_rel_l2: number;
+    tol_plateau: number;
+    passed: boolean;
+  };
+  physical: Record<string, number>;
+}
+
+export type Trace = StudyTrace | DfnTrace | DartsTrace;
 
 export function isStudyTrace(t: Trace): t is StudyTrace {
   return t.schema.startsWith('flowdna.trace/');
+}
+
+export function isDfnTrace(t: Trace): t is DfnTrace {
+  return t.schema.startsWith('flowdna.dfn/');
+}
+
+export function isDartsTrace(t: Trace): t is DartsTrace {
+  return t.schema.startsWith('flowdna.darts/');
 }
 
 export interface ArtifactRef {
