@@ -41,9 +41,12 @@ GeoDFN ensembles ──► pressure-transient simulation ──► Bourdet deriv
   architecture modal. Replays only committed, audited artifacts.
 
 This repo is an instantiation of the CAOS product-repo archetype (ADR-0057): frozen base, rework
-only in the core (models, visualization, content). Status: **v0.01.000 — template instantiated;
-engines being wired** (the template's SIR example engine is still in place until the FlowDNA stages
-land).
+only in the core (models, visualization, content). Status: **v0.02.000 — engines wired**: the
+staged pipeline runs the real core end-to-end (pygeotypes + GeoDFN; 8 committed cases with honest
+metrics: silhouette, K table, empirical conformal coverage, OOD rate, gated attribution).
+open-DARTS 1.5.0 is installed and the transient-on-DFN lane is the explicit next phase (DFN
+artifacts carry `transient_simulation: pending` — no fake curves). The web app is still the
+contract-exercising replay skeleton; the full ADR-0016 six-page shell is next.
 
 ## Data & licenses
 
@@ -51,9 +54,12 @@ land).
   GPL-3.0) from 4TU.ResearchData, DOI
   [10.4121/8291d285-025d-4724-988d-fc747a578c0a](https://doi.org/10.4121/8291d285-025d-4724-988d-fc747a578c0a)
   — kept in the local data vault, **never committed**; this repo ships only derived compact
-  artifacts. GPL workflow code is **not vendored**; clustering/attribution are reimplemented on
+  artifacts. GPL workflow code is **not vendored**; the shape machinery is
+  [pygeotypes](https://github.com/fsantibanezleal/CAOS_GeoTypes) (Apache-2.0, ours) on
   dtaidistance + scikit-learn + shap.
 - DFN generation: [GeoDFN](https://github.com/kamelelahe/GeoDFN) (MIT) — used as a real engine.
+- Transient flow on DFNs: [open-DARTS](https://gitlab.com/open-darts/open-darts) (GPL-3) —
+  offline-only engine dependency, never vendored/shipped; integration pending (next phase).
 - See `data/README.md` for the ingestion contract and the full provenance manifest.
 
 ## Quickstart

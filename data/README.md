@@ -1,46 +1,68 @@
-# data/ — the data contract + layout
+# data/ — the data contract + layout + vault manifest
 
-This folder is governed by the **two data contracts** of ADR-0057. Replace the EXAMPLE (SIR) schema below with
-your product's real contract when you instantiate.
+Governed by the **two data contracts** of ADR-0057.
 
 ## Layout
 
 | Path | What | Git |
 |---|---|---|
-| `raw/` | private/large source inputs | **git-ignored** (never committed; staged via `scripts/fetch-data`) |
+| `raw/` | private/large source inputs | **git-ignored** (the real corpus lives in the local vault, below) |
 | `examples/` | a tiny standard-format sample that PASSES Contract 1 (clone-verify) | committed |
-| `derived/<case>/` | the compact, standard-format artifacts the web replays | committed |
+| `derived/<case>/` | the compact artifacts the web replays (`trace.json`) | committed |
 | `derived/manifests/` | per-case `<case>.json` (Contract 2) + the flat `index.json` inventory | committed |
 | `demo/` | small deterministic payload for smoke | committed |
 
+## The local data vault (outside git)
+
+Heavy data lives in `E:\_Datos\flowdna\` (set `FLOWDNA_VAULT=E:\_Datos\flowdna` for the pipeline);
+trained models in `E:\_Models\flowdna\`. Current inventory (2026-07-03):
+
+| Vault path | What | Size | License |
+|---|---|---|---|
+| `4tu-8291d285/` | the source-paper corpus (Kamel Targhi et al. 2026): `DFNs.zip` (4,850 GeoDFN geometries), `Dataset_A/B/C.zip` (pressure transients under 3 matrix-fracture permeability configs), `DOE.zip`, `Cross_Dataset_Comparison.zip`, `MRST-WellTesting.zip`, readmes | ~24.8 GB | **GPL-3** (4TU DOI 10.4121/8291d285-025d-4724-988d-fc747a578c0a) — vault-only, NEVER committed or vendored; we ship only our own derived artifacts |
+| `geodfn/<case>/` | raw GeoDFN engine outputs for the `dfn` cases (coordinates, apertures, properties per realization) | grows per run | generated locally (engine MIT) |
+
+Fetch script for the corpus: `_CAOS_MANAGE/wip/flowdna/fetch-4tu-dataset.ps1`.
+
 ## CONTRACT 1 — ingestion (raw → pipeline) — the *bring-your-own-data* gate
 
-Defined in `data-pipeline/flowdnalab/io/contract.py`. A parameter row is **accepted** iff it satisfies the schema;
-**rejected** with a reason otherwise (never silently coerced); plausible-but-suspicious rows are **flagged**.
+Defined in `data-pipeline/flowdnalab/io/contract.py`, two doors:
 
-EXAMPLE schema (an SIR parameterization — `examples/params.csv`):
+**Curves** (`validate_curves`) — a record is `{curve_id, t[], p[]}`:
 
-| Column | Unit | Range | Notes |
-|---|---|---|---|
-| `case_id` | — | non-empty | identifier |
-| `beta` | 1/day (contact rate) | (1e-6, 5.0] | outside → reject |
-| `gamma` | 1/day (recovery rate) | (1e-6, 2.0] | outside → reject |
-| `N` | individuals | [1, 1e9] | population |
-| `I0` | individuals | [0, N] | `I0 > N` → reject |
-| `days` | days | ≥1 (default 160) | horizon |
+| Requirement | Policy |
+|---|---|
+| `t`, `p` present, equal length | missing/unequal → **reject** |
+| ≥ 24 samples | fewer → **reject** |
+| finite values | NaN/Inf → **reject** |
+| `t` strictly increasing, > 0 | violation → **reject** |
+| log-time span ≥ 1.5 decades | shorter → **reject** |
+| span < 2 decades | **flag** (accepted; recorded in the manifest) |
+| > 35% material sign flips in dp (noise heuristic; material = \|dp\| > 0.1% of range) | **flag** |
 
-**Outlier policy:** missing/empty column → reject · non-numeric → reject · NaN/Inf → reject · out-of-range → reject ·
-`I0 > N` → reject · `R0 = beta/gamma > 20` → **flag** (accepted; the flag is recorded in the manifest).
+**Ensemble specs** (`validate_spec`): ω ∈ (0,1], λ > 0, noise ≤ 0.5, coherent split fractions,
+k-range sane; a calibration slice too small for the requested α (OOD unreachable:
+`n_cal/class < 1/α − 1`) is **flagged**.
 
 ## CONTRACT 2 — artifact (pipeline → web)
 
-Each pipeline run writes a compact trace (`derived/<case>/trace.json`, schema `example.trace/v1`) and a manifest
-(`derived/manifests/<case>.json`, schema `example.manifest/v2`) recording params, seed, engine+version, the
-artifact byte size, the measured **lane/gate** verdict, Contract-1 flags, and the evaluation metrics.
-`frontend/src/lib/contract.types.ts` mirrors these schemas so any drift fails the web build. The web loads ONLY
-these committed artifacts — it never recomputes (except the optional live lane, which uses the same trace schema).
+Each run writes a compact trace (`derived/<case>/trace.json`) and a manifest
+(`derived/manifests/<case>.json`, schema `flowdna.manifest/v1`) recording the spec, seed,
+engine versions (flowdnalab + pygeotypes + dtw backend / GeoDFN), artifact byte size, the measured
+**lane/gate** verdict (the gate times the LIVE primitive: generate one curve + conformally
+classify it), Contract-1 flags, and the honest evaluation metrics (silhouette, K table, EMPIRICAL
+conformal coverage vs target, OOD rate, attribution gate). Trace schemas:
+
+- `flowdna.trace/v1` — study cases: t_grid, preprocessing metadata, medoid curves, K diagnostics,
+  per-GeoType samples, **calibration scores** (what the live lane needs), assignment examples,
+  attribution table, summary.
+- `flowdna.dfn/v1` — GeoDFN cases: decimated network geometries + descriptor table + stats +
+  the explicit `transient_simulation: pending` status (no fake curves).
+
+`frontend/src/lib/contract.types.ts` mirrors these schemas so any drift fails the web build.
 
 ## Provenance / license
 
-EXAMPLE data is **synthetic** (generated by the SIR engine). A real product documents here: source, license,
-redistribution terms (public derived artifacts only; raw/private sources stay in the vault per ADR-0055).
+Committed artifacts are generated by this repo's own pipeline (analytic Warren-Root ensembles;
+GeoDFN MIT engine outputs processed by us) — safe to publish. The GPL 4TU corpus and any real
+field data stay in the vault; only OUR derived compact artifacts are committed (ADR-0055).

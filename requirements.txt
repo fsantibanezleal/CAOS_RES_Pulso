@@ -1,2 +1,6 @@
-# CORE / LIVE lane — minimal, Pyodide-safe. Pinned to the verified install (Python 3.12, 2026-06-20).
+# CORE / LIVE lane — minimal, Pyodide-safe. Pinned to the verified install (Python 3.12, 2026-07-03).
+# The live lane imports ONLY: numpy, scipy, and the pure-python pygeotypes core (no [fast]/[attr] extras).
 numpy==2.4.6
+scipy==1.17.1
+# pygeotypes core (pure python): installed by scripts/setup from the sibling checkout
+# (`pip install -e ../CAOS_GeoTypes`) until the PyPI release; in the browser it loads via micropip.
