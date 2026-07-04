@@ -57,6 +57,8 @@ export function Methodology() {
       <TeX block>{t.method.conf}</TeX>
       <h2>{t.method.s5h}</h2>
       <p>{t.method.s5}</p>
+      <h2>{t.method.s6h}</h2>
+      <p>{t.method.s6}</p>
       <h2>{t.method.refh}</h2>
       <ul className="ref">
         {refs.map(([txt, doi]) => (
