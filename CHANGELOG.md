@@ -3,6 +3,28 @@
 All notable changes to FlowDNA. Format: `X.XX.XXX` (display) — see `flowdnalab.__version__`. Keep `0.x`
 while the DARTS transient-on-DFN lane and the real-data (4TU) studies are pending. Tag every release.
 
+## [0.04.000] — 2026-07-04
+
+### Added
+- **open-DARTS transient simulation, Step A** (issue #7): a REAL single-phase drawdown validated
+  against the analytical infinite-acting radial-flow solution.
+  - `dfn/darts_welltest.py` builds a `StructReservoir` + `Geothermal` (single-phase water,
+    isothermal) homogeneous reservoir with a rate-controlled centre well, run transiently over
+    log-spaced report times; reads BHP(t) from the well time-data.
+  - `dfn/darts_scaling.py` converts the physical BHP transient to dimensionless (t_D, p_wD) and
+    validates it the well-test way: the Bourdet derivative must plateau at 0.5 (the radial-flow
+    signature) AND the skin-corrected p_wD must match the analytical line-source
+    (`pygeotypes.synthetic.homogeneous_pd`). A grid-block well's apparent skin is fit + removed
+    (expected physics, not error).
+  - **Validated:** derivative plateau error 0.041, skin-corrected rel-L2 0.011, apparent skin ~0.4
+    — the SOTA simulator produces correct pressure transients. New `darts` case kind +
+    `DartsWellTestSpec` + `DARTS_homog_anchor` case + `flowdna.darts/v1` artifact (sim vs analytical
+    overlay). `tests/test_darts.py` (pure-numpy scaling tests always; the full engine run skipped
+    without open-darts). Frontend `DartsChart` overlays simulated vs analytical p_wD + derivatives.
+  - This de-risks the whole DARTS integration; **Step B** (mesh the GeoDFN networks into an
+    `UnstructReservoir` + MRST fidelity gate) is the next phase — the `dfn` cases keep
+    `transient_simulation: pending` until then.
+
 ## [0.03.000] — 2026-07-03
 
 ### Added

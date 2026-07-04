@@ -1,6 +1,6 @@
 // Minimal replay renderers for the two FlowDNA artifact kinds (the full ADR-0016 six-page shell is
 // the next phase; this keeps the contract exercised end-to-end: index -> manifest -> trace -> pixels).
-import type { DfnTrace, StudyTrace } from '../lib/contract.types';
+import type { DartsTrace, DfnTrace, StudyTrace } from '../lib/contract.types';
 
 const W = 860;
 const H = 380;
@@ -55,6 +55,41 @@ export function StudyChart({ trace }: { trace: StudyTrace }) {
         {trace.preprocessing.derivative_order} derivative, silhouette {trace.silhouette.toFixed(3)} ·
         conformal coverage {trace.summary.coverage.toFixed(2)} / target {trace.summary.target.toFixed(2)} ·
         OOD rate {trace.summary.ood_rate.toFixed(2)}
+      </figcaption>
+    </figure>
+  );
+}
+
+export function DartsChart({ trace }: { trace: DartsTrace }) {
+  // log-log overlay: simulated vs analytical p_wD and their Bourdet derivatives
+  const lx = trace.tD.map((t) => Math.log10(t));
+  const series = [trace.pwD_sim, trace.pwD_analytic, trace.dpwD_sim, trace.dpwD_analytic];
+  const all = series.flat().filter((v) => v > 0).map((v) => Math.log10(v));
+  const yMin = Math.min(...all);
+  const yMax = Math.max(...all);
+  const sx = (x: number) => PAD + ((x - lx[0]) / (lx[lx.length - 1] - lx[0])) * (W - 2 * PAD);
+  const sy = (y: number) => H - PAD - ((Math.log10(Math.max(y, 1e-6)) - yMin) / (yMax - yMin || 1)) * (H - 2 * PAD);
+  const v = trace.validation;
+  return (
+    <figure>
+      <svg width={W} height={H} role="img" aria-label="open-DARTS drawdown vs analytical">
+        <rect width={W} height={H} fill="#0d1117" rx={8} />
+        {/* analytical (reference) dashed, simulated solid */}
+        <path d={toPath(lx, trace.pwD_analytic, sx, sy)} fill="none" stroke="#7a8699" strokeWidth={2} strokeDasharray="5 4" />
+        <path d={toPath(lx, trace.pwD_sim, sx, sy)} fill="none" stroke="#4f9cf9" strokeWidth={2.5} />
+        <path d={toPath(lx, trace.dpwD_analytic, sx, sy)} fill="none" stroke="#c98d41" strokeWidth={2} strokeDasharray="5 4" />
+        <path d={toPath(lx, trace.dpwD_sim, sx, sy)} fill="none" stroke="#f97b4f" strokeWidth={2.5} />
+        <text x={W - PAD - 180} y={PAD} fill="#4f9cf9" fontSize={12}>p_wD simulated (DARTS)</text>
+        <text x={W - PAD - 180} y={PAD + 16} fill="#7a8699" fontSize={12}>p_wD analytical (dashed)</text>
+        <text x={W - PAD - 180} y={PAD + 32} fill="#f97b4f" fontSize={12}>derivative simulated</text>
+        <text x={W - PAD - 180} y={PAD + 48} fill="#c98d41" fontSize={12}>derivative analytical (→0.5)</text>
+        <text x={PAD} y={H - 12} fill="#7a8699" fontSize={12}>log10 tD →</text>
+      </svg>
+      <figcaption style={{ color: '#7a8699', fontSize: 13 }}>
+        open-DARTS single-phase drawdown vs the analytical infinite-acting solution ·{' '}
+        <b style={{ color: v.passed ? '#41c98d' : '#f85149' }}>{v.passed ? 'VALIDATED' : 'not validated'}</b> ·
+        skin-corrected rel-L2 {v.rel_l2.toFixed(3)} (tol {v.tol_rel_l2}) · derivative plateau error{' '}
+        {v.plateau_error.toFixed(3)} (target 0.5) · apparent skin {v.apparent_skin.toFixed(2)}
       </figcaption>
     </figure>
   );

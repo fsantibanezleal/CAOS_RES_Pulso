@@ -14,15 +14,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from ..io.schema import DFNSpec, EnsembleSpec, RealDataSpec
+from ..io.schema import DartsWellTestSpec, DFNSpec, EnsembleSpec, RealDataSpec
 
 
 @dataclass(frozen=True)
 class Case:
     id: str
     category: str
-    kind: str                       # 'study' | 'real' | 'dfn'
-    spec: Union[EnsembleSpec, RealDataSpec, DFNSpec]
+    kind: str                       # 'study' | 'real' | 'darts' | 'dfn'
+    spec: Union[EnsembleSpec, RealDataSpec, DartsWellTestSpec, DFNSpec]
     expected_band: str
     real_or_synthetic: str
 
@@ -104,6 +104,16 @@ CASES: list[Case] = [
         RealDataSpec(case_id="REAL_C_highperm", dataset="C", n_subsample=400),
         "REAL curves, config C: catalogue + conformal + attribution on real data",
         "real-4tu",
+    ),
+    # open-DARTS transient simulation (Step A): a REAL single-phase drawdown validated against the
+    # analytical infinite-acting radial-flow solution. The engine's first real simulated transient.
+    Case(
+        "DARTS_homog_anchor", "open-darts: homogeneous drawdown (analytical anchor)", "darts",
+        DartsWellTestSpec(case_id="DARTS_homog_anchor"),
+        "REAL open-DARTS single-phase drawdown reproduces infinite-acting radial flow: the Bourdet "
+        "derivative plateaus at 0.5 and the skin-corrected p_wD matches the analytical line-source "
+        "to ~1%. Proves the SOTA simulator is correct before the DFN mesh (Step B).",
+        "simulated-darts",
     ),
     Case(
         "DFN06_sparse", "geodfn: sparse network ensemble", "dfn",

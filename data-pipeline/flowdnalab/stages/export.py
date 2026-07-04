@@ -7,7 +7,14 @@ from typing import Any
 
 from ..core.gate import classify_lane
 from ..core.manifest import build_case_manifest
-from ..core.trace import DFN_TRACE_SCHEMA, TRACE_SCHEMA, build_dfn_trace, build_study_trace
+from ..core.trace import (
+    DARTS_TRACE_SCHEMA,
+    DFN_TRACE_SCHEMA,
+    TRACE_SCHEMA,
+    build_darts_trace,
+    build_dfn_trace,
+    build_study_trace,
+)
 from ..io.formats import write_json
 
 
@@ -71,6 +78,37 @@ def run_study(
         case=case, seed=seed, artifact_rel=artifact_rel, artifact_schema=TRACE_SCHEMA,
         trace_bytes=trace_bytes, gate=gate, flags=_cap_flags(flags), metrics=metrics,
         extra_engines={"dtw_backend": trained["dtw_backend"]},
+    )
+    write_json(Path(manifests_dir) / f"{case.id}.json", manifest)
+    return manifest
+
+
+def run_darts(
+    *,
+    case: Any,
+    curves: dict,          # tD, pwD_sim, pwD_analytic, dpwD_sim, dpwD_analytic
+    validation: dict,      # rel_l2, plateau_error, passed, tol
+    physical: dict,        # the physical + dimensionless scaling used
+    metrics: dict,
+    seed: int,
+    run_ms: float,
+    derived_dir: str,
+    manifests_dir: str,
+    darts_version: str,
+) -> dict:
+    trace = build_darts_trace(
+        case_id=case.id, tD=curves["tD"], pwD_sim=curves["pwD_sim"],
+        pwD_analytic=curves["pwD_analytic"], dpwD_sim=curves["dpwD_sim"],
+        dpwD_analytic=curves["dpwD_analytic"], validation=validation, physical=physical,
+    )
+    artifact_rel = f"{case.id}/trace.json"
+    trace_bytes = write_json(Path(derived_dir) / artifact_rel, trace)
+    # a full reservoir simulation is native (vtk/gmsh/C++) -> never a live lane; the SPA replays it.
+    gate = classify_lane(pure_python=False, wheels={"open-darts"}, run_ms=run_ms, trace_bytes=trace_bytes)
+    manifest = build_case_manifest(
+        case=case, seed=seed, artifact_rel=artifact_rel, artifact_schema=DARTS_TRACE_SCHEMA,
+        trace_bytes=trace_bytes, gate=gate, flags=[], metrics=metrics,
+        extra_engines={"open_darts": darts_version},
     )
     write_json(Path(manifests_dir) / f"{case.id}.json", manifest)
     return manifest

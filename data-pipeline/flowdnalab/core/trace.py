@@ -14,6 +14,7 @@ import numpy as np
 
 TRACE_SCHEMA = "flowdna.trace/v1"
 DFN_TRACE_SCHEMA = "flowdna.dfn/v1"
+DARTS_TRACE_SCHEMA = "flowdna.darts/v1"
 MAX_SAMPLES_PER_GEOTYPE = 3   # example member curves committed per GeoType (besides the medoid)
 MAX_ASSIGNMENT_EXAMPLES = 12
 MAX_NETWORKS_IN_TRACE = 12    # decimated network geometries committed for the viewer
@@ -75,6 +76,33 @@ def build_study_trace(
             "ood_rate": metrics["conformal"]["ood_rate"],
             "mean_set_size": metrics["conformal"]["mean_set_size"],
         },
+    }
+
+
+def build_darts_trace(
+    *,
+    case_id: str,
+    tD: list[float],
+    pwD_sim: list[float],
+    pwD_analytic: list[float],
+    dpwD_sim: list[float],
+    dpwD_analytic: list[float],
+    validation: dict,
+    physical: dict,
+) -> dict:
+    """open-DARTS well-test artifact: the SIMULATED dimensionless response next to the ANALYTICAL
+    homogeneous solution, plus the Bourdet derivative of each and the validation verdict. The web
+    overlays sim vs analytic on a log-log plot — the honesty proof that the engine is correct."""
+    return {
+        "schema": DARTS_TRACE_SCHEMA,
+        "case_id": case_id,
+        "tD": _r(tD),
+        "pwD_sim": _r(pwD_sim),
+        "pwD_analytic": _r(pwD_analytic),
+        "dpwD_sim": _r(dpwD_sim),
+        "dpwD_analytic": _r(dpwD_analytic),
+        "validation": validation,
+        "physical": physical,
     }
 
 
