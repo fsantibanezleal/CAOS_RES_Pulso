@@ -11,7 +11,10 @@ from flowdnalab.core.manifest import build_index
 from flowdnalab.io.schema import DFNSpec
 
 
-def test_degenerate_control_runs_and_reports_low_quality():
+def test_degenerate_control_runs_and_reports_low_quality(tmp_path, monkeypatch):
+    # write to a tmp derived dir so the test never dirties the committed (seed=42) canonical artifacts
+    monkeypatch.setattr(pipeline, "DERIVED", tmp_path / "derived")
+    monkeypatch.setattr(pipeline, "MANIFESTS", tmp_path / "derived" / "manifests")
     m = pipeline.precompute("CTRL_single_regime", seed=1)
     trace = json.loads((pipeline.DERIVED / m["artifact"]["path"]).read_text(encoding="utf-8"))
     assert trace["schema"].startswith("flowdna.trace/")
