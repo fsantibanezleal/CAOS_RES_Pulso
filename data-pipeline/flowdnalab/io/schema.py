@@ -71,6 +71,34 @@ class DFNSpec:
 
 
 @dataclass(frozen=True)
+class RealDataSpec:
+    """One validated REAL-data operating point (a FlowDNA *case* of kind 'real').
+
+    Points at the paper's 4TU corpus (dimensionless first-derivative curves + real DFN descriptors)
+    in the vault. The data IS already the Bourdet first derivative, so preprocessing uses
+    derivative_order=0 (no re-differentiation). A seeded subsample keeps the committed artifact and
+    the O(n^2) DTW matrix tractable; the full-corpus run is the offline Benchmark.
+    """
+
+    case_id: str
+    dataset: str = "A"                   # 'A' | 'B' | 'C' (matrix-fracture permeability config)
+    n_subsample: int = 400               # seeded curve subsample for the committed case
+    # preprocessing (data is already p_D'): resample onto a common grid + normalize
+    n_points: int = 96
+    derivative_order: int = 0            # 0 = cluster the provided derivative as-is
+    L: float = 0.2                       # unused at order 0; kept for schema uniformity
+    norm: str = "zscore"
+    # clustering
+    dtw_window: int = 10
+    k_min: int = 2
+    k_max: int = 6
+    # conformal split
+    frac_cal: float = 0.25
+    frac_test: float = 0.25
+    alpha: float = 0.15
+
+
+@dataclass(frozen=True)
 class CurveSet:
     """The preprocessed-ready ensemble handed from preprocess -> feature_extraction."""
 

@@ -3,6 +3,29 @@
 All notable changes to FlowDNA. Format: `X.XX.XXX` (display) — see `flowdnalab.__version__`. Keep `0.x`
 while the DARTS transient-on-DFN lane and the real-data (4TU) studies are pending. Tag every release.
 
+## [0.03.000] — 2026-07-03
+
+### Added
+- **Real-data integration** (issue #4): the source paper's ACTUAL 4TU corpus runs through the
+  GeoType pipeline, not synthetic data.
+  - `io/real_data.py` loads the dimensionless first-derivative curves (t_D, p_D') from the
+    per-dataset parquet + matches each to its real DFN descriptors (log_I, alpha, kappa,
+    connectivity, frac_aperture, log_k_eq, graph size/components/largest-cluster/backbone) by
+    SimulationNumber; robust to the A/B vs C column differences (derives log_k_eq from k_eq_1).
+  - New `real` case kind + `RealDataSpec`; `REAL_A_lowperm / REAL_B_midperm / REAL_C_highperm`
+    (the three matrix-fracture permeability configs), seeded 400-curve subsamples, run through the
+    SAME train/infer/evaluate/export stages (pipeline refactored to a shared `_run_study_stages`).
+    `derivative_order=0` (the corpus is already the first derivative). CONTRACT 1 runs on real
+    curves too; a provenance flag records the subsample.
+  - Cases skip gracefully when the vault corpus is absent (CI / core-only).
+- **Honest real-data findings** (docs/cases): real transients cluster far more cleanly than the
+  analytic ensembles (silhouette 0.58–0.86 vs 0.13–0.25); the controlling descriptor is
+  config-dependent (aperture A / length-exponent B / **intensity + permeability C**); REAL_C's top
+  control `log_I` partially reproduces the paper's fracture-intensity headline on the high-perm
+  config; conformal coverage meets target and the RF gate passes on all three.
+- Real compact curve files extracted to the vault (`E:\_Datos\flowdna\real-curves`, GPL-3,
+  never committed); `tests/test_real_data.py` (skipped without the corpus).
+
 ## [0.02.000] — 2026-07-03
 
 ### Added
