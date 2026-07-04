@@ -1,8 +1,10 @@
 # Cases — the category taxonomy + coverage matrix
 
-A FlowDNA case is either a **study** (an ensemble of pressure-transient responses turned into a
-GeoType catalogue with conformal assignment + attribution) or a **dfn** ensemble (GeoDFN network
-generation + fracture descriptors; transient simulation on them is the open-DARTS phase).
+A FlowDNA case is a **study** (an ensemble of pressure-transient responses turned into a GeoType
+catalogue with conformal assignment + attribution), a **dfn** ensemble (GeoDFN network generation +
+fracture descriptors), a **darts** anchor (one open-DARTS drawdown validated vs the analytical
+solution), or a **dfm** study (a GeoType study on open-DARTS DFM transients simulated over a GeoDFN
+ensemble — the graduation of the `dfn` cases from geometry to simulated physics).
 `registry.list_categories()` groups them; the **App shows ONE selected case**;
 **Experiments/Benchmark show cross-case summaries by category** (never mixed into the App).
 
@@ -18,6 +20,8 @@ generation + fracture descriptors; transient simulation on them is the open-DART
 | control: degenerate single behaviour | study | ONE true behaviour: silhouette must collapse, the RF gate must withhold importances, the run must not crash |
 | geodfn: sparse network ensemble | dfn | sub-percolation networks: low connectivity/backbone/spanning |
 | geodfn: dense network ensemble | dfn | connected networks: high largest-cluster fraction, backbone, spanning |
+| open-darts: homogeneous drawdown | darts | the SOTA simulator reproduces infinite-acting radial flow (derivative plateau 0.5) |
+| open-darts DFM: GeoTypes on simulated transients | dfm | GeoType study on simulated DFM physics; aperture sweep; MRST fidelity gate; attribution over real descriptors + `log_frac_aper` |
 
 ## Coverage matrix (what each case proves)
 
@@ -34,7 +38,10 @@ generation + fracture descriptors; transient simulation on them is the open-DART
 | REAL_C_highperm | ✔ | ✔ | ✔ real DFN descriptors | — | ✔ 4TU |
 | DFN06_sparse | — | — | descriptor table | ✔ | — |
 | DFN07_dense | — | — | descriptor table | ✔ | — |
-| *(next phase)* DARTS-simulated DFN studies + welltestpy field campaigns | ✔ | ✔ | ✔ | ✔ | ✔ |
+| DARTS_homog_anchor | — | — | — | — | simulated (validated vs analytic) |
+| DFM01_geotypes | ✔ | ✔ | ✔ over descriptors + `log_frac_aper` | ✔ | simulated (MRST-gated) |
+| DFM02_dense | ✔ | ✔ | ✔ | ✔ | simulated (MRST-gated) |
+| *(next phase)* welltestpy field campaigns | ✔ | ✔ | ✔ | — | ✔ field |
 
 ## REAL DATA — the paper's own 4TU corpus (2026-07-03)
 

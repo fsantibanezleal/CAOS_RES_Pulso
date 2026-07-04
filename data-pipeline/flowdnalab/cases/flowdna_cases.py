@@ -14,15 +14,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from ..io.schema import DartsWellTestSpec, DFNSpec, EnsembleSpec, RealDataSpec
+from ..io.schema import DartsWellTestSpec, DfmStudySpec, DFNSpec, EnsembleSpec, RealDataSpec
 
 
 @dataclass(frozen=True)
 class Case:
     id: str
     category: str
-    kind: str                       # 'study' | 'real' | 'darts' | 'dfn'
-    spec: Union[EnsembleSpec, RealDataSpec, DartsWellTestSpec, DFNSpec]
+    kind: str                       # 'study' | 'real' | 'darts' | 'dfn' | 'dfm'
+    spec: Union[EnsembleSpec, RealDataSpec, DartsWellTestSpec, DFNSpec, DfmStudySpec]
     expected_band: str
     real_or_synthetic: str
 
@@ -128,5 +128,28 @@ CASES: list[Case] = [
         "~3x sparse P21 (~0.13) and more intersections, but connectivity stays LOW (GeoDFN "
         "reports ~4e-3): stress-shadow placement suppresses crossings; spanning clusters rare",
         "synthetic-geodfn",
+    ),
+    # open-DARTS Step B (the payoff): the geometry-only dfn cases GRADUATE to GeoType studies on
+    # SIMULATED physics. An ensemble of GeoDFN networks is meshed + drawn down with open-DARTS, the
+    # fracture aperture is swept (log-uniform) to span conductivity regimes, and the resulting
+    # dimensionless Bourdet derivatives are clustered into GeoTypes + attributed + fidelity-gated
+    # against the paper's MRST ensemble. Vault + open-darts only; skipped otherwise.
+    Case(
+        "DFM01_geotypes", "open-darts DFM: GeoTypes on simulated transients (aperture sweep)", "dfm",
+        DfmStudySpec(case_id="DFM01_geotypes", n_networks=34, intensity_set1=0.05, intensity_set2=0.04,
+                     frac_aper_min=3.0e-4, frac_aper_max=3.0e-3, fidelity_dataset="A", k_max=5),
+        "REAL simulated physics: open-DARTS DFM drawdowns over a GeoDFN ensemble cluster into "
+        "GeoTypes; attribution should surface log_frac_aper (the conductivity control) alongside "
+        "intensity/backbone; the ensemble-median derivative passes the MRST fidelity gate (Dataset A).",
+        "simulated-dfm",
+    ),
+    Case(
+        "DFM02_dense", "open-darts DFM: dense-network GeoTypes on simulated transients", "dfm",
+        DfmStudySpec(case_id="DFM02_dense", n_networks=34, intensity_set1=0.06, intensity_set2=0.05,
+                     frac_aper_min=3.0e-4, frac_aper_max=3.0e-3, fidelity_dataset="C", k_max=5),
+        "denser networks (higher P21) simulated + clustered: more fracture-dominated early flow; "
+        "GeoType families still driven by aperture + connectivity; MRST fidelity vs Dataset C. "
+        "(Intensity capped at 0.06: very dense nets can make gmsh meshing pathological.)",
+        "simulated-dfm",
     ),
 ]

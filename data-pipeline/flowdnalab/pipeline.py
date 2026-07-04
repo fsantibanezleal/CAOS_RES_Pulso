@@ -35,9 +35,10 @@ MODELS = REPO_ROOT / "models"
 STAGES = ("preprocess", "feature_extraction", "train", "infer", "evaluate", "export")
 
 
-def _run_study_stages(case, arrays, spec, flags: list[dict], seed: int, t0: float) -> dict:
-    """Shared study runner: train -> infer -> evaluate -> export. Used by the synthetic AND real
-    paths (they differ only in how `arrays` + `flags` are built)."""
+def _train_infer_evaluate(arrays, spec, seed: int) -> dict:
+    """The shared study core: train (DTW/PAM/catalogue/conformal/attribution) -> infer (assign the
+    held-out test slice) -> evaluate (silhouette, empirical coverage, OOD, attribution gate). Returns
+    {trained, assignments, metrics}. Used by the study, real AND dfm paths."""
     rng = make_rng(seed)
     trained = train.run(arrays, spec, rng, seed)
     X = np.asarray(arrays.X, dtype=float)
@@ -47,10 +48,17 @@ def _run_study_stages(case, arrays, spec, flags: list[dict], seed: int, t0: floa
         trained["catalogue"], assignments, X_test, spec,
         trained["k_diagnostics"], trained["attribution"], trained["dtw_backend"],
     )
+    return {"trained": trained, "assignments": assignments, "metrics": metrics}
+
+
+def _run_study_stages(case, arrays, spec, flags: list[dict], seed: int, t0: float) -> dict:
+    """Shared study runner: train -> infer -> evaluate -> export. Used by the synthetic AND real
+    paths (they differ only in how `arrays` + `flags` are built)."""
+    r = _train_infer_evaluate(arrays, spec, seed)
     run_ms = (time.perf_counter() - t0) * 1000.0
     return export.run_study(
-        case=case, arrays=arrays, trained=trained, assignments=assignments, metrics=metrics,
-        seed=seed, run_ms=run_ms, flags=flags,
+        case=case, arrays=arrays, trained=r["trained"], assignments=r["assignments"],
+        metrics=r["metrics"], seed=seed, run_ms=run_ms, flags=flags,
         derived_dir=str(DERIVED), manifests_dir=str(MANIFESTS),
     )
 
@@ -104,6 +112,40 @@ def _precompute_darts(case, seed: int) -> dict:
     )
 
 
+def _precompute_dfm(case, seed: int) -> dict:
+    """Step B graduation: mesh + DFM-simulate an ensemble of GeoDFN networks, then run the GeoType
+    study on the SIMULATED pressure-transient derivatives (+ the MRST fidelity gate). The `dfn`
+    cases graduate from geometry-only to real simulated-physics GeoTypes."""
+    from .dfn import dfm_study
+    from .stages.feature_extraction import arrays_from_curves
+
+    spec = case.spec
+    t0 = time.perf_counter()
+    ens = dfm_study.run_dfm_ensemble(spec, seed=seed)
+    if ens["n_ok"] < spec.k_max * 3:
+        raise ValueError(f"dfm study {case.id}: too few valid DFM transients "
+                         f"({ens['n_ok']} < {spec.k_max * 3}); increase n_networks")
+    arrays = arrays_from_curves(
+        case.id, ens["t"], ens["p"], ens["features"], ens["feature_names"],
+        n_points=spec.n_points, derivative_order=spec.derivative_order, L=spec.L, norm=spec.norm,
+    )
+    r = _train_infer_evaluate(arrays, spec, seed)
+    run_ms = (time.perf_counter() - t0) * 1000.0
+    flags = [{"provenance": f"open-DARTS DFM ensemble: {ens['n_ok']} valid transients "
+              f"({ens['n_fail']} networks skipped: meshing/Newton/invalid-drawdown)"}]
+    return export.run_dfm(
+        case=case, arrays=arrays, trained=r["trained"], assignments=r["assignments"],
+        metrics=r["metrics"],
+        dfm={"sample_transient": ens["sample_transient"], "fidelity": ens["fidelity"],
+             "mesh_stats": ens["mesh_stats"], "physical": ens["physical"],
+             "ensemble": {"n_networks": spec.n_networks, "n_ok": ens["n_ok"],
+                          "n_fail": ens["n_fail"], "fidelity_dataset": spec.fidelity_dataset}},
+        seed=seed, run_ms=run_ms, flags=flags,
+        derived_dir=str(DERIVED), manifests_dir=str(MANIFESTS),
+        geodfn_version=ens["geodfn_version"], darts_version="1.5.0",
+    )
+
+
 def _precompute_dfn(case, seed: int) -> dict:
     from .dfn import geodfn_adapter  # offline-only import (GeoDFN wheel)
 
@@ -131,6 +173,8 @@ def precompute(case_id: str, seed: int = 42) -> dict:
         return _precompute_real(case, seed)
     if case.kind == "darts":
         return _precompute_darts(case, seed)
+    if case.kind == "dfm":
+        return _precompute_dfm(case, seed)
     if case.kind == "dfn":
         return _precompute_dfn(case, seed)
     raise ValueError(f"unknown case kind {case.kind!r}")
@@ -144,7 +188,8 @@ def _darts_available() -> bool:
         return False
 
 
-def run_all(seed: int = 42, kinds: tuple[str, ...] = ("study", "dfn", "real", "darts")) -> list[dict]:
+def run_all(seed: int = 42,
+            kinds: tuple[str, ...] = ("study", "dfn", "real", "darts", "dfm")) -> list[dict]:
     from .io import real_data
 
     real_ok = real_data.available()
@@ -156,7 +201,7 @@ def run_all(seed: int = 42, kinds: tuple[str, ...] = ("study", "dfn", "real", "d
         if c.kind == "real" and not real_ok:
             print(f"  SKIP {c.id}: 4TU vault corpus not available (FLOWDNA_VAULT/real-curves)")
             continue
-        if c.kind == "darts" and not darts_ok:
+        if c.kind in ("darts", "dfm") and not darts_ok:
             print(f"  SKIP {c.id}: open-darts not installed (offline-only heavy engine)")
             continue
         precompute(c.id, seed=seed)
@@ -169,8 +214,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(prog="flowdnalab.pipeline")
     ap.add_argument("case", nargs="?", default="all", help="a case id, or 'all'")
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--kinds", default="study,dfn,real,darts",
-                    help="comma list of case kinds to run (for 'all'): study,dfn,real,darts")
+    ap.add_argument("--kinds", default="study,dfn,real,darts,dfm",
+                    help="comma list of case kinds to run (for 'all'): study,dfn,real,darts,dfm")
     args = ap.parse_args()
     if args.case == "all":
         entries = run_all(args.seed, kinds=tuple(args.kinds.split(",")))

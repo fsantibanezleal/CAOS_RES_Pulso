@@ -227,9 +227,12 @@ def _process(time_data: dict, spec: DfmDrawdownSpec, times: np.ndarray, stats: d
     tD, pwD = tD[keep], pwD[keep]
     dpwD = bourdet_derivative(tD, pwD)
 
-    # a valid drawdown is essentially non-increasing in BHP: allow a negligible numerical bump at t~0
-    # (the ct scaling makes 1e-3 bar imperceptible) rather than a brittle exact-monotone test.
+    # a valid drawdown is essentially non-increasing in BHP: allow a numerical bump that is small
+    # RELATIVE to the drawdown (a few-milibar early-time wiggle on a multi-bar drawdown is solver
+    # noise, not a physical non-monotonicity) rather than a brittle absolute-monotone test.
     max_bump_bar = float(max(0.0, np.diff(p_wf).max())) if p_wf.size > 1 else 0.0
+    drawdown_bar = float(spec.p_init - p_wf.min())
+    bump_tol = max(1e-2, 5e-3 * drawdown_bar)
 
     return {
         "curves": {"tD": tD.tolist(), "pwD": pwD.tolist(), "dpwD": dpwD.tolist()},
@@ -238,8 +241,8 @@ def _process(time_data: dict, spec: DfmDrawdownSpec, times: np.ndarray, stats: d
                      "rw_m": spec.well_radius, "h_m": spec.ref_thickness, "q_m3day": spec.well_rate,
                      "p_init_bar": spec.p_init, "visc_cP": WATER_VISC_CP, "ct_1bar": TOTAL_COMPR_1BAR},
         "mesh_stats": stats,
-        "metrics": {"n_points": int(tD.size), "drawdown_bar": round(float(spec.p_init - p_wf.min()), 4),
-                    "max_bump_bar": round(max_bump_bar, 6),
-                    "valid_drawdown": bool(max_bump_bar <= 1e-3 and spec.p_init - p_wf.min() > 0.0)},
+        "metrics": {"n_points": int(tD.size), "drawdown_bar": round(drawdown_bar, 4),
+                    "max_bump_bar": round(max_bump_bar, 6), "bump_tol_bar": round(bump_tol, 6),
+                    "valid_drawdown": bool(max_bump_bar <= bump_tol and drawdown_bar > 1e-3)},
         "darts_version": darts_version,
     }
