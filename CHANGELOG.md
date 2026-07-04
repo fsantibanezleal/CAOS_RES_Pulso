@@ -3,6 +3,31 @@
 All notable changes to FlowDNA. Format: `X.XX.XXX` (display) — see `flowdnalab.__version__`. Keep `0.x`
 while the DARTS transient-on-DFN lane and the real-data (4TU) studies are pending. Tag every release.
 
+## [0.07.000] — 2026-07-04
+
+### Added — bringing FlowDNA to the product bar (deeper SOTA + live web)
+- **The learned tier (deep-learning SOTA, the missing piece)**: three real deep models trained
+  offline with PyTorch on the GeoType curves and exported to self-contained ONNX (opset 18,
+  parity-checked < 1e-4) — a 1D-CNN GeoType classifier (test acc ~0.85), a convolutional autoencoder
+  (latent + reconstruction-error OOD, MSE ~0.48), and a contrastive triplet encoder (retrieval@1
+  ~0.91). `flowdnalab/deep/` + `scripts/train-deep.*`; models committed under `models/deep/` +
+  `reference.json` (medoids + calibration + embedding/latent clouds). Offline hard-processing lane;
+  torch is never shipped to the browser.
+- **The live method-ladder web** (the bar's live + play-with-controls): the App's **Live lab** lands
+  the user in a workbench — drag ω/λ/skin/noise and every tool recomputes on the tuned curve.
+  - `frontend/src/engine/` TS live lane, parity-tested vs Python (< 2e-3): Warren-Root / homogeneous
+    via Gaver-Stehfest + Bessel K0, Bourdet derivative, Sakoe-Chiba banded DTW, split-conformal.
+    Classical diagnostics, SOTA DTW-to-medoid, and the novel conformal assignment run instantly.
+  - **onnxruntime-web** runs the learned models **live in-browser** on the committed ONNX (WASM,
+    no server, no COOP/COEP): CNN class probabilities, AE latent point + anomaly, contrastive
+    embedding + nearest-neighbour retrieval.
+  - `pages/LiveLab.tsx` with tiered method tabs (classical / SOTA / novel / learned), each a reactive
+    live viz (log-log diagnostic, DTW/p-value bars, class probabilities, latent-space scatter).
+  - Screenshot-verified: CNN predicts a GeoType at 99% live, AE anomaly + latent scatter, 0 console
+    errors, EN/ES + light/dark.
+- Methodology page gains the learned-tier section; `docs/frameworks/torch` + `docs/frameworks/onnxruntime-web`.
+- Deploy target confirmed **GitHub Pages** (ADR-0055/0057); LICENSE (Apache-2.0) added.
+
 ## [0.06.000] — 2026-07-04
 
 ### Added

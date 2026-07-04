@@ -37,3 +37,12 @@ if (existsSync(pkg)) {
   writeFileSync(join(PUB, 'pyodide', 'sources.json'), JSON.stringify(sources));
   console.log(`[copy-data] inlined ${Object.keys(sources).length} flowdnalab sources -> public/pyodide/sources.json`);
 }
+
+// 3) models/deep -> public/models (the ONNX learned tier + reference.json for onnxruntime-web live inference)
+const deep = join(ROOT, 'models', 'deep');
+if (existsSync(deep)) {
+  mkdirSync(join(PUB, 'models'), { recursive: true });
+  cpSync(deep, join(PUB, 'models'), { recursive: true });
+  console.log('[copy-data] models/deep -> public/models');
+}
+

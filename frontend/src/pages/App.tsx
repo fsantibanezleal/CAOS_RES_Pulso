@@ -11,19 +11,21 @@ import { CatalogueView } from '../render/CatalogueView';
 import { ClassifyView } from '../render/ClassifyView';
 import { AttributionView } from '../render/AttributionView';
 import { DartsChart, DfnChart } from '../render/CurveChart';
+import { LiveLab } from './LiveLab';
 
 type Source = 'synthetic' | 'real' | 'darts';
 
 function sourceOf(m: { real_or_synthetic: string }): Source {
   if (m.real_or_synthetic === 'real-4tu') return 'real';
-  if (m.real_or_synthetic === 'simulated-darts') return 'darts';
-  return 'synthetic';
+  // the simulation source displays the open-DARTS anchor + the GeoDFN networks
+  if (m.real_or_synthetic === 'simulated-darts' || m.real_or_synthetic === 'synthetic-geodfn') return 'darts';
+  return 'synthetic'; // analytic studies -> covered by the live lab
 }
 
 export function AppPage() {
   const t = useT();
   const [manifests, setManifests] = useState<Record<string, CaseManifest>>({});
-  const [source, setSource] = useState<Source>('real');
+  const [source, setSource] = useState<Source>('synthetic');
   const [sel, setSel] = useState('');
   const [trace, setTrace] = useState<Trace | null>(null);
   const [tab, setTab] = useState('');
@@ -91,6 +93,9 @@ export function AppPage() {
         </p>
       </div>
 
+      {source === 'synthetic' ? (
+        <LiveLab />
+      ) : (
       <div className="panel">
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <label className="tag">
@@ -130,6 +135,7 @@ export function AppPage() {
           )}
         </ErrorBoundary>
       </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,18 @@
+{
+  "models": [
+    "geotype_cnn",
+    "curve_ae",
+    "curve_embed"
+  ],
+  "opset": 18,
+  "metrics": {
+    "n_train": 675,
+    "n_test": 225,
+    "k": 3,
+    "n_points": 96,
+    "silhouette_train": 0.19031998554506388,
+    "cnn_test_accuracy": 0.8533,
+    "ae_test_recon_mse": 0.47518,
+    "embed_retrieval_at1": 0.9111
+  }
+}
