@@ -53,7 +53,24 @@ full `GeothermalIAPWSFluidProps` evaluators + custom rock evaluators; BHP is rea
 `output.store_well_time_data()['well_<name>_BHP']`; a large domain + short test keep the response
 infinite-acting.
 
-*Step B (pending) — the DFN model, step-by-step:*
+*Step B — FOUNDATION DONE (2026-07-04): DFN conformal meshing works.* `dfn/dfn_mesh.py` turns a
+GeoDFN network (`[[x1,y1,x2,y2], ...]` segments) into a conformal DFM `.msh` mesh via open-DARTS'
+`frac_preprocessing` (MIT, de Hoop & Voskov) + gmsh: it cleans the network (intersections, merging),
+writes a `.geo`, and meshes it. The GeoDFN output format matches `frac_preprocessing`'s input, so the
+two engines compose directly. Verified end-to-end in `tests/test_dfn_mesh.py` (a GeoDFN network →
+127 KB conformal `.msh`). Package-inconsistency workaround documented in the module:
+`create_geo_file` reads `input_data['rsv_layers']` (+ over/under-burden layers) but
+`frac_preprocessing` never passes `input_data`; we inject a single-reservoir-layer default (the 2-D
+DFN → 1-layer 2.5-D reservoir a single-phase areal well test needs).
+
+*Step B — remaining sub-step: the UnstructReservoir DFM drawdown.* Load the `.msh` into
+`UnstructReservoir(timer, mesh_file, permx, poro, frac_aper)` (use the DartsModel's own
+`self.timer`, not a bare `timer_node`), assign the DFM physics regions (matrix + fracture), place the
+well by unstructured cell index, run the same geothermal single-phase drawdown as Step A, extract the
+transient, and fidelity-gate against the paper's MRST reference curves (4TU vault). Then feed the
+simulated ensembles through the GeoType pipeline (dropping `transient_simulation: pending`).
+
+*Original Step-B plan, step-by-step:*
 
 1. Mesh the GeoDFN 2-D networks into a DARTS reservoir model (DFM/EDFM-style discrete fracture
    representation; gmsh is available via the DARTS toolchain).
