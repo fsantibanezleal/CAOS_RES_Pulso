@@ -4,21 +4,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { loadIndex, loadManifest, loadTrace } from '../api/artifacts';
 import type { CaseManifest, Trace } from '../lib/contract.types';
-import { isDartsTrace, isStudyTrace } from '../lib/contract.types';
+import { isDartsTrace, isDfmTrace, isDfnTrace, isStudyTrace } from '../lib/contract.types';
 import { useT } from '../i18n/useT';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { CatalogueView } from '../render/CatalogueView';
 import { ClassifyView } from '../render/ClassifyView';
 import { AttributionView } from '../render/AttributionView';
 import { DartsChart, DfnChart } from '../render/CurveChart';
+import { DfmView } from '../render/DfmView';
 import { LiveLab } from './LiveLab';
 
 type Source = 'synthetic' | 'real' | 'darts';
 
 function sourceOf(m: { real_or_synthetic: string }): Source {
   if (m.real_or_synthetic === 'real-4tu') return 'real';
-  // the simulation source displays the open-DARTS anchor + the GeoDFN networks
-  if (m.real_or_synthetic === 'simulated-darts' || m.real_or_synthetic === 'synthetic-geodfn') return 'darts';
+  // the simulation source displays the open-DARTS anchor, the GeoDFN networks + the DFM GeoTypes
+  if (
+    m.real_or_synthetic === 'simulated-darts' ||
+    m.real_or_synthetic === 'synthetic-geodfn' ||
+    m.real_or_synthetic === 'simulated-dfm'
+  )
+    return 'darts';
   return 'synthetic'; // analytic studies -> covered by the live lab
 }
 
@@ -56,6 +62,8 @@ export function AppPage() {
 
   const tabs = useMemo(() => {
     if (!trace) return [];
+    // a dfm trace is-a study trace, so check it FIRST to add the simulated-physics tab
+    if (isDfmTrace(trace)) return ['catalogue', 'classify', 'attribution', 'simulation', 'context'];
     if (isStudyTrace(trace)) return ['catalogue', 'classify', 'attribution', 'context'];
     if (isDartsTrace(trace)) return ['anchor', 'context'];
     return ['network', 'context'];
@@ -129,7 +137,8 @@ export function AppPage() {
               {tab === 'classify' && isStudyTrace(trace) && <ClassifyView trace={trace} />}
               {tab === 'attribution' && isStudyTrace(trace) && <AttributionView trace={trace} />}
               {tab === 'anchor' && isDartsTrace(trace) && <DartsChart trace={trace} />}
-              {tab === 'network' && !isStudyTrace(trace) && !isDartsTrace(trace) && <DfnChart trace={trace} />}
+              {tab === 'simulation' && isDfmTrace(trace) && <DfmView trace={trace} />}
+              {tab === 'network' && isDfnTrace(trace) && <DfnChart trace={trace} />}
               {tab === 'context' && <ContextView manifest={manifest} />}
             </>
           )}

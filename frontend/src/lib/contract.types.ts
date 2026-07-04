@@ -99,10 +99,45 @@ export interface DartsTrace {
   physical: Record<string, number>;
 }
 
-export type Trace = StudyTrace | DfnTrace | DartsTrace;
+export interface DfmFidelity {
+  reference: string; // 'mrst_ensemble' | 'none' | 'insufficient_overlap'
+  dataset?: string;
+  passed: boolean;
+  band_coverage?: number;
+  shape_rel_l2?: number;
+  scale_factor?: number;
+  shape_corr?: number | null;
+  n_ref_curves?: number;
+  n_grid_overlap?: number;
+  min_band_coverage?: number;
+  note?: string;
+  band?: { tD: number[]; p5: number[]; p50: number[]; p95: number[]; sim: number[] };
+}
 
+export interface DfmBlock {
+  sample_transient: { tD: number[]; pwD: number[]; dpwD: number[] };
+  fidelity: DfmFidelity;
+  mesh_stats: Record<string, number | number[]>;
+  physical: Record<string, number | number[]>;
+  ensemble: { n_networks: number; n_ok: number; n_fail: number; fidelity_dataset: string };
+  transient_simulation: string;
+}
+
+// a DFM case IS a GeoType study (catalogue / conformal / attribution) computed on SIMULATED
+// open-DARTS transients, PLUS the `dfm` block (representative transient + MRST fidelity gate).
+export interface DfmTrace extends StudyTrace {
+  dfm: DfmBlock;
+}
+
+export type Trace = StudyTrace | DfnTrace | DartsTrace | DfmTrace;
+
+// a DfmTrace is structurally + semantically a study, so the study renderers apply to it too
 export function isStudyTrace(t: Trace): t is StudyTrace {
-  return t.schema.startsWith('flowdna.trace/');
+  return t.schema.startsWith('flowdna.trace/') || t.schema.startsWith('flowdna.dfm/');
+}
+
+export function isDfmTrace(t: Trace): t is DfmTrace {
+  return t.schema.startsWith('flowdna.dfm/');
 }
 
 export function isDfnTrace(t: Trace): t is DfnTrace {

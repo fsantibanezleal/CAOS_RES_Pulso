@@ -77,17 +77,34 @@ def run(arrays: StudyArrays, spec: EnsembleSpec, rng: np.random.Generator, seed:
 
 
 def _attribute(arrays: StudyArrays, train_idx: np.ndarray, labels: np.ndarray, seed: int) -> dict:
-    """RF+SHAP attribution on the training slice; honest skip when [attr] deps are missing."""
+    """RF+SHAP attribution on the training slice; honest skip when [attr] deps are missing.
+
+    The RF gate uses a stratified train/test split, which needs >= 2 members per GeoType. A SINGLETON
+    GeoType (a lone outlier flow response, which the aperture-swept DFM ensembles can produce) cannot
+    be learned or validated, so its sample is dropped from attribution (recorded honestly) and the
+    remaining well-populated GeoTypes are attributed; if fewer than two survive, we skip rather than
+    crash."""
     feats = np.asarray(arrays.features, dtype=float)[train_idx]
     # drop constant columns (e.g. skin fixed at 0, is_homogeneous in pure-WR cases): zero variance
     keep = [j for j in range(feats.shape[1]) if np.std(feats[:, j]) > 1e-12]
     if len(keep) == 0 or np.unique(labels).size < 2:
         return {"status": "skipped", "reason": "no varying descriptors or a single GeoType"}
+    # keep only GeoTypes with >= 2 members (a stratified split needs that); drop singleton outliers
+    vals, counts = np.unique(labels, return_counts=True)
+    populated = vals[counts >= 2]
+    n_singleton = int((counts < 2).sum())
+    if populated.size < 2:
+        return {"status": "skipped",
+                "reason": f"fewer than 2 well-populated GeoTypes ({n_singleton} singleton(s))"}
+    mask = np.isin(labels, populated)
+    feats_a, labels_a = feats[mask], labels[mask]
     names = [arrays.feature_names[j] for j in keep]
     try:
         from pygeotypes.attribute import attribute_geotypes
-        report = attribute_geotypes(feats[:, keep], labels, names, accuracy_gate=0.7, seed=seed)
+        report = attribute_geotypes(feats_a[:, keep], labels_a, names, accuracy_gate=0.7, seed=seed)
         report["status"] = "ok"
+        if n_singleton:
+            report["singletons_excluded"] = n_singleton
         return report
     except ImportError:
         return {"status": "skipped", "reason": "pygeotypes[attr] extra not installed in this venv"}
