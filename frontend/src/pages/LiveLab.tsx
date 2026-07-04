@@ -1,0 +1,281 @@
+// The LIVE LAB — the real workbench: drag ω/λ/skin/noise, and every tool in the ladder recomputes
+// LIVE on the tuned curve. Classical (Bourdet diagnostics) · SOTA (DTW-to-medoid) · novel (conformal)
+// run in the TS engine; the LEARNED tools (1D-CNN, autoencoder, contrastive) run live via
+// onnxruntime-web on the committed ONNX. No server, no replay — genuine in-browser compute.
+import { useEffect, useMemo, useState } from 'react';
+import { useT } from '../i18n/useT';
+import { generateResponse, preprocessForModels } from '../engine/pta';
+import { conformalAssign, distancesToMedoids } from '../engine/dtw';
+import { autoencode, classifyCNN, embedAndRetrieve, getReference, loadDeep, type DeepReference } from '../engine/onnx';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+
+const COLORS = ['#4f9cf9', '#f97b4f', '#41c98d', '#c94fd0', '#d8c14a'];
+const METHODS = ['diagnostics', 'dtw', 'conformal', 'cnn', 'autoencoder', 'contrastive'] as const;
+type Method = (typeof METHODS)[number];
+
+export function LiveLab() {
+  const t = useT();
+  const [omega, setOmega] = useState(0.05);
+  const [logLam, setLogLam] = useState(-6);
+  const [skin, setSkin] = useState(0);
+  const [noise, setNoise] = useState(0.01);
+  const [homog, setHomog] = useState(false);
+  const [method, setMethod] = useState<Method>('diagnostics');
+  const [ref, setRef] = useState<DeepReference | null>(null);
+  const [deepReady, setDeepReady] = useState(false);
+
+  useEffect(() => {
+    loadDeep().then(() => {
+      setRef(getReference());
+      setDeepReady(true);
+    }).catch(() => setDeepReady(false));
+  }, []);
+
+  const lam = Math.pow(10, logLam);
+  const resp = useMemo(
+    () => generateResponse(homog ? 1.0 : omega, lam, skin, noise, 1),
+    [omega, lam, skin, noise, homog],
+  );
+  const model = useMemo(
+    () => (ref ? preprocessForModels(resp.tD, resp.p, ref.n_points) : null),
+    [resp, ref],
+  );
+
+  const methodLabels: Record<Method, string> = {
+    diagnostics: t.live.m.diagnostics,
+    dtw: t.live.m.dtw,
+    conformal: t.live.m.conformal,
+    cnn: t.live.m.cnn,
+    autoencoder: t.live.m.autoencoder,
+    contrastive: t.live.m.contrastive,
+  };
+  const tier: Record<Method, string> = {
+    diagnostics: t.live.tierClassical, dtw: t.live.tierSota, conformal: t.live.tierNovel,
+    cnn: t.live.tierLearned, autoencoder: t.live.tierLearned, contrastive: t.live.tierLearned,
+  };
+
+  return (
+    <div className="grid" style={{ gap: '1rem' }}>
+      <p className="muted" style={{ margin: 0 }}>{t.live.intro}</p>
+
+      {/* live controls */}
+      <div className="panel">
+        <div className="tag" style={{ marginBottom: '.6rem' }}>{t.live.controls}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>
+          <Slider label={`ω = ${homog ? '1 (homog.)' : omega.toFixed(3)}`} min={0.005} max={0.5} step={0.005}
+            value={omega} onChange={setOmega} disabled={homog} />
+          <Slider label={`λ = ${lam.toExponential(1)}`} min={-9} max={-4} step={0.1} value={logLam} onChange={setLogLam} disabled={homog} />
+          <Slider label={`skin = ${skin.toFixed(1)}`} min={0} max={5} step={0.5} value={skin} onChange={setSkin} />
+          <Slider label={`noise = ${(noise * 100).toFixed(0)}%`} min={0} max={0.08} step={0.005} value={noise} onChange={setNoise} />
+        </div>
+        <label style={{ display: 'inline-flex', gap: '.4rem', marginTop: '.7rem', fontSize: '.9rem' }}>
+          <input type="checkbox" checked={homog} onChange={(e) => setHomog(e.target.checked)} />
+          {t.live.homogeneous}
+        </label>
+      </div>
+
+      {/* method ladder tabs */}
+      <div className="tabs">
+        {METHODS.map((m) => (
+          <span key={m} className={`tab ${method === m ? 'on' : ''}`} onClick={() => setMethod(m)}>
+            {methodLabels[m]} <span className="tag" style={{ fontSize: '.7rem' }}>· {tier[m]}</span>
+          </span>
+        ))}
+      </div>
+
+      <div className="panel">
+        <ErrorBoundary label={method} key={method}>
+          {method === 'diagnostics' && <Diagnostics resp={resp} />}
+          {method !== 'diagnostics' && !deepReady && <p className="muted">{t.live.loadingModels}</p>}
+          {method === 'dtw' && ref && model && <DtwView x={model.x} ref={ref} />}
+          {method === 'conformal' && ref && model && <ConformalView x={model.x} ref={ref} />}
+          {method === 'cnn' && ref && model && <CnnView x={model.x} ref={ref} />}
+          {method === 'autoencoder' && ref && model && <AeView x={model.x} ref={ref} />}
+          {method === 'contrastive' && ref && model && <ContrastiveView x={model.x} ref={ref} />}
+        </ErrorBoundary>
+      </div>
+    </div>
+  );
+}
+
+function Slider({ label, min, max, step, value, onChange, disabled }: {
+  label: string; min: number; max: number; step: number; value: number; onChange: (v: number) => void; disabled?: boolean;
+}) {
+  return (
+    <label className="tag" style={{ opacity: disabled ? 0.4 : 1 }}>
+      {label}
+      <input type="range" min={min} max={max} step={step} value={value} disabled={disabled}
+        onChange={(e) => onChange(Number(e.target.value))} style={{ display: 'block', width: '100%', marginTop: '.3rem' }} />
+    </label>
+  );
+}
+
+// ---------- classical: log-log Δp + Bourdet derivative, 0.5 radial plateau marked ----------
+function Diagnostics({ resp }: { resp: { tD: number[]; p: number[]; dp: number[] } }) {
+  const t = useT();
+  const W = 860, H = 380, PAD = 46;
+  const lx = resp.tD.map((v) => Math.log10(v));
+  const all = [...resp.p, ...resp.dp].filter((v) => v > 0).map((v) => Math.log10(v));
+  const yMin = Math.min(...all), yMax = Math.max(...all);
+  const sx = (x: number) => PAD + ((x - lx[0]) / (lx[lx.length - 1] - lx[0])) * (W - 2 * PAD);
+  const sy = (y: number) => H - PAD - ((Math.log10(Math.max(y, 1e-6)) - yMin) / (yMax - yMin || 1)) * (H - 2 * PAD);
+  const path = (ys: number[]) => ys.map((y, i) => `${i === 0 ? 'M' : 'L'}${sx(lx[i]).toFixed(1)},${sy(y).toFixed(1)}`).join(' ');
+  return (
+    <div>
+      <p className="muted">{t.live.diagDesc}</p>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ background: 'var(--bg-3)', borderRadius: 8 }} role="img" aria-label="diagnostic plot">
+        <line x1={PAD} y1={sy(0.5)} x2={W - PAD} y2={sy(0.5)} stroke="var(--fg-2)" strokeDasharray="4 4" />
+        <text x={W - PAD - 130} y={sy(0.5) - 6} fill="var(--fg-2)" fontSize={11}>radial derivative plateau = 0.5</text>
+        <path d={path(resp.p)} fill="none" stroke="#4f9cf9" strokeWidth={2.5} />
+        <path d={path(resp.dp)} fill="none" stroke="#f97b4f" strokeWidth={2.5} />
+        <text x={PAD} y={H - 14} fill="var(--fg-2)" fontSize={12}>log10 tD →</text>
+      </svg>
+      <div style={{ display: 'flex', gap: '.5rem', marginTop: '.5rem', flexWrap: 'wrap' }}>
+        <span className="readout" style={{ color: '#4f9cf9' }}>Δp (dimensionless p_wD)</span>
+        <span className="readout" style={{ color: '#f97b4f' }}>Bourdet derivative p′</span>
+      </div>
+    </div>
+  );
+}
+
+// ---------- SOTA: DTW distance to each baked medoid ----------
+function DtwView({ x, ref }: { x: number[]; ref: DeepReference }) {
+  const t = useT();
+  const d = distancesToMedoids(x, ref.medoids, ref.dtw_window ?? 10);
+  const nearest = d.indexOf(Math.min(...d));
+  const max = Math.max(...d);
+  return (
+    <div>
+      <p className="muted">{t.live.dtwDesc}</p>
+      <span className="readout">{t.live.nearest}: <b style={{ color: COLORS[nearest % COLORS.length] }}>GT{nearest}</b></span>
+      <table style={{ marginTop: '.6rem' }}>
+        <thead><tr><th>GeoType</th><th>DTW distance</th></tr></thead>
+        <tbody>
+          {d.map((v, g) => (
+            <tr key={g}>
+              <td style={{ color: COLORS[g % COLORS.length] }}>GT{g}</td>
+              <td><Bar frac={1 - v / max} color={COLORS[g % COLORS.length]} label={v.toFixed(3)} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ---------- novel: conformal p-values + prediction set + OOD (live) ----------
+function ConformalView({ x, ref }: { x: number[]; ref: DeepReference }) {
+  const t = useT();
+  const [alpha, setAlpha] = useState(0.15);
+  const d = distancesToMedoids(x, ref.medoids, ref.dtw_window ?? 10);
+  const r = conformalAssign(d, ref.calibration_scores ?? {}, alpha);
+  return (
+    <div>
+      <p className="muted">{t.live.conformalDesc}</p>
+      <Slider label={`α = ${alpha.toFixed(2)} (coverage ${(1 - alpha).toFixed(2)})`} min={0.05} max={0.4} step={0.05} value={alpha} onChange={setAlpha} />
+      <div style={{ display: 'flex', gap: '.5rem', margin: '.6rem 0', flexWrap: 'wrap' }}>
+        <span className="readout">{t.live.set}: {r.set.length ? r.set.map((g) => `GT${g}`).join(', ') : '∅'}</span>
+        {r.ood && <span className="badge bad">{t.live.ood}</span>}
+      </div>
+      <table>
+        <thead><tr><th>GeoType</th><th>p-value</th><th>in set</th></tr></thead>
+        <tbody>
+          {r.pValues.map((p, g) => (
+            <tr key={g}>
+              <td style={{ color: COLORS[g % COLORS.length] }}>GT{g}</td>
+              <td><Bar frac={p} color={COLORS[g % COLORS.length]} label={p.toFixed(3)} /></td>
+              <td>{r.set.includes(g) ? '✓' : ''}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ---------- learned: 1D-CNN class probabilities (ONNX live) ----------
+function CnnView({ x, ref }: { x: number[]; ref: DeepReference }) {
+  const t = useT();
+  const [p, setP] = useState<number[] | null>(null);
+  useEffect(() => { classifyCNN(x).then(setP).catch(() => setP(null)); }, [x]);
+  if (!p) return <p className="muted">{t.common.loading}</p>;
+  const top = p.indexOf(Math.max(...p));
+  return (
+    <div>
+      <p className="muted">{t.live.cnnDesc}</p>
+      <span className="readout">{t.live.predicted}: <b style={{ color: COLORS[top % COLORS.length] }}>GT{top}</b> ({(p[top] * 100).toFixed(0)}%) · {t.live.acc} {(ref.metrics.cnn_test_accuracy * 100).toFixed(0)}%</span>
+      <table style={{ marginTop: '.6rem' }}>
+        <thead><tr><th>GeoType</th><th>{t.live.probability}</th></tr></thead>
+        <tbody>{p.map((v, g) => (<tr key={g}><td style={{ color: COLORS[g % COLORS.length] }}>GT{g}</td><td><Bar frac={v} color={COLORS[g % COLORS.length]} label={(v * 100).toFixed(1) + '%'} /></td></tr>))}</tbody>
+      </table>
+    </div>
+  );
+}
+
+// ---------- learned: autoencoder latent point + reconstruction anomaly (ONNX live) ----------
+function AeView({ x, ref }: { x: number[]; ref: DeepReference }) {
+  const t = useT();
+  const [out, setOut] = useState<{ latent: number[]; reconError: number } | null>(null);
+  useEffect(() => { autoencode(x).then(setOut).catch(() => setOut(null)); }, [x]);
+  if (!out) return <p className="muted">{t.common.loading}</p>;
+  const errs = ref.latent.map((_, i) => i); // baseline cloud size
+  const anomaly = out.reconError;
+  return (
+    <div>
+      <p className="muted">{t.live.aeDesc}</p>
+      <div style={{ display: 'flex', gap: '.5rem', margin: '.5rem 0', flexWrap: 'wrap' }}>
+        <span className="readout">{t.live.anomaly}: {anomaly.toFixed(3)}</span>
+        <span className="readout">{t.live.latentDim}: {out.latent.length}</span>
+      </div>
+      <LatentScatter cloud={ref.latent} labels={ref.labels} point={out.latent} />
+      <p className="muted" style={{ fontSize: '.8rem' }}>{t.live.latentNote} ({errs.length} {t.live.trainingCurves})</p>
+    </div>
+  );
+}
+
+// ---------- learned: contrastive embedding + nearest-neighbour retrieval (ONNX live) ----------
+function ContrastiveView({ x, ref }: { x: number[]; ref: DeepReference }) {
+  const t = useT();
+  const [out, setOut] = useState<{ embedding: number[]; nnLabel: number; nnIndex: number } | null>(null);
+  useEffect(() => { embedAndRetrieve(x).then(setOut).catch(() => setOut(null)); }, [x]);
+  if (!out) return <p className="muted">{t.common.loading}</p>;
+  return (
+    <div>
+      <p className="muted">{t.live.contrastiveDesc}</p>
+      <span className="readout">{t.live.retrieved}: <b style={{ color: COLORS[out.nnLabel % COLORS.length] }}>GT{out.nnLabel}</b> · retrieval@1 {(ref.metrics.embed_retrieval_at1 * 100).toFixed(0)}%</span>
+      <LatentScatter cloud={ref.embedding} labels={ref.labels} point={out.embedding} highlight={out.nnIndex} />
+    </div>
+  );
+}
+
+// PCA-free 2D projection (first two dims) of a high-D cloud + the live point.
+function LatentScatter({ cloud, labels, point, highlight }: { cloud: number[][]; labels: number[]; point: number[]; highlight?: number }) {
+  const W = 520, H = 360, PAD = 20;
+  const xs = cloud.map((r) => r[0]).concat(point[0]);
+  const ys = cloud.map((r) => r[1]).concat(point[1]);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs), yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const sx = (v: number) => PAD + ((v - xMin) / (xMax - xMin || 1)) * (W - 2 * PAD);
+  const sy = (v: number) => H - PAD - ((v - yMin) / (yMax - yMin || 1)) * (H - 2 * PAD);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: 520, background: 'var(--bg-3)', borderRadius: 8 }} role="img" aria-label="latent space">
+      {cloud.map((r, i) => (
+        <circle key={i} cx={sx(r[0])} cy={sy(r[1])} r={i === highlight ? 5 : 2.2}
+          fill={COLORS[labels[i] % COLORS.length]} fillOpacity={i === highlight ? 1 : 0.35}
+          stroke={i === highlight ? '#fff' : 'none'} strokeWidth={1} />
+      ))}
+      <circle cx={sx(point[0])} cy={sy(point[1])} r={7} fill="#fff" stroke="#111" strokeWidth={2} />
+      <text x={sx(point[0]) + 10} y={sy(point[1])} fill="var(--fg)" fontSize={12}>your curve</text>
+    </svg>
+  );
+}
+
+function Bar({ frac, color, label }: { frac: number; color: string; label: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+      <div style={{ width: 140, height: 8, background: 'var(--bg-2)', borderRadius: 4 }}>
+        <div style={{ width: `${Math.max(0, Math.min(100, frac * 100))}%`, height: 8, background: color, borderRadius: 4 }} />
+      </div>
+      <span className="tag">{label}</span>
+    </div>
+  );
+}

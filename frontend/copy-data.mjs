@@ -45,3 +45,4 @@ if (existsSync(deep)) {
   cpSync(deep, join(PUB, 'models'), { recursive: true });
   console.log('[copy-data] models/deep -> public/models');
 }
+

@@ -109,11 +109,25 @@ def train_all(out_dir: str | Path, seed: int = 0, epochs: int = 60) -> dict:
         emb = enc(Xt).numpy()
         lat, _ = ae(Xt)
         latents = ae.encode(Xt).numpy()
+    # class-conditional split-conformal calibration: DTW distance of each training curve to its
+    # class medoid (the browser's live conformal assignment reads these).
+    from pygeotypes.distance import distances_to_references
+
+    dtw_window = 10
+    medoids = data["medoids"]
+    cal: dict[str, list[float]] = {}
+    for g in range(K):
+        rows = X[y == g]
+        d = np.array([distances_to_references(r, medoids[g], window=dtw_window)[0] for r in rows])
+        cal[str(g)] = np.round(np.sort(d), 5).tolist()
+
     ref = {
         "k": K, "n_points": N, "labels": y.tolist(),
+        "dtw_window": dtw_window,
         "embedding": np.round(emb, 4).tolist(),
         "latent": np.round(latents, 4).tolist(),
-        "medoids": np.round(data["medoids"], 5).tolist(),
+        "medoids": np.round(medoids, 5).tolist(),
+        "calibration_scores": cal,
         "preprocessing": {"derivative_order": 1, "norm": "zscore", "n_points": N},
         "metrics": metrics,
     }
@@ -156,11 +170,18 @@ def _retrieval_at1(enc, Xt, y, tr, te) -> float:
 
 def _export(model, sample, path: Path, inputs: list[str], outputs: list[str]) -> None:
     import numpy as np
+    import onnx
     import onnxruntime as ort
     import torch
 
     torch.onnx.export(model, sample, str(path), input_names=inputs, output_names=outputs,
                       opset_version=18, dynamic_axes={inputs[0]: {0: "batch"}})
+    # Re-save as a SINGLE self-contained file (embed weights). onnxruntime-web cannot resolve the
+    # `.onnx.data` external-data sidecar from a URL, so the browser needs the weights inside the .onnx.
+    m = onnx.load(str(path))
+    for f in path.parent.glob(path.name + ".data"):
+        f.unlink()
+    onnx.save(m, str(path), save_as_external_data=False)
     # parity: torch vs onnxruntime on the sample
     with torch.no_grad():
         ref = model(sample)
