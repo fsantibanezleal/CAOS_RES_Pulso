@@ -25,6 +25,38 @@ from ..io.schema import CurveSet, EnsembleSpec, StudyArrays
 FEATURE_NAMES = ["log10_omega", "log10_lam", "skin", "is_homogeneous"]
 
 
+def arrays_from_curves(
+    case_id: str,
+    t_list: list,
+    p_list: list,
+    features: list[list[float]],
+    feature_names: list[str],
+    *,
+    n_points: int,
+    derivative_order: int,
+    L: float,
+    norm: str,
+) -> StudyArrays:
+    """Shared builder: preprocess arbitrary (t, p) curves into shape space + attach a descriptor
+    table. Used by BOTH the synthetic path (param descriptors) and the real-data path (real DFN
+    descriptors, derivative_order=0 because the corpus is already the first derivative)."""
+    t_grid, X = prepare_curves(
+        [np.asarray(t) for t in t_list],
+        [np.asarray(p) for p in p_list],
+        n_points=n_points,
+        derivative_order=derivative_order,
+        L=L,
+        norm=norm,
+    )
+    return StudyArrays(
+        case_id=case_id,
+        t_grid=t_grid.tolist(),
+        X=X.tolist(),
+        feature_names=list(feature_names),
+        features=features,
+    )
+
+
 def run(curveset: CurveSet, spec: EnsembleSpec) -> StudyArrays:
     t_grid, X = prepare_curves(
         [np.asarray(t) for t in curveset.t],

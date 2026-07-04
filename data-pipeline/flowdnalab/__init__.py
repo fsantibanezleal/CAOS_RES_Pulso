@@ -8,4 +8,4 @@ network generation + fracture descriptors, the two data contracts, the staged pi
 gate, the manifest/trace, and the cases-by-category registry.
 """
 
-__version__ = "0.02.000"  # display X.XX.XXX; PEP 440 form in pyproject.toml (0.2.0)
+__version__ = "0.03.000"  # display X.XX.XXX; PEP 440 form in pyproject.toml (0.3.0)
