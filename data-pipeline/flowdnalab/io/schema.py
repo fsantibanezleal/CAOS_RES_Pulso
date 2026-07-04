@@ -105,6 +105,94 @@ class DartsWellTestSpec:
 
 
 @dataclass(frozen=True)
+class DfmDrawdownSpec:
+    """One validated open-DARTS DFM (discrete-fracture-matrix) drawdown on a meshed GeoDFN network
+    (a FlowDNA *case* of kind 'dfm'). Step B: the transient-on-DFN payoff.
+
+    A conformal DFM `.msh` (from `dfn.dfn_mesh.mesh_network`) is loaded into an `UnstructReservoir`;
+    a tight matrix + conductive fractures (fracture permeability = cubic-law from `frac_aper`)
+    produce a single-phase drawdown at a rate-controlled centre well. The simulated BHP transient is
+    made dimensionless (matrix-referenced) and its Bourdet derivative is fidelity-gated against the
+    paper's MRST reference ensemble. Physics reuses the Step A geothermal single-phase water setup.
+    """
+
+    case_id: str
+    mesh_file: str                        # conformal DFM `.msh` (vault path; never committed)
+    # rock + fracture (matrix perm sets the matrix; frac_aper sets fracture perm via a^2/12 cubic law)
+    matrix_perm: float = 1.0             # [mD] tight matrix
+    matrix_poro: float = 0.15
+    frac_aper: float = 1.0e-3            # [m] fracture aperture -> perm_frac = (aper^2/12)*1e15 mD
+    frac_poro: float = 0.5
+    p_init: float = 200.0                # initial pressure [bar]
+    temperature: float = 350.0          # [K] geothermal single-phase water
+    # well (placed at the mesh bbox centre; perforates the nearest cell)
+    well_rate: float = 5.0              # [m3/day] mild drawdown (tight matrix -> keep Newton stable)
+    well_radius: float = 0.1            # [m]
+    well_skin: float = 0.0
+    # transient sampling
+    total_time: float = 2.0             # [day]
+    n_report_steps: int = 40            # log-spaced report times
+    # dimensionless reference (matrix-referenced; the Bourdet SHAPE is what the gate compares)
+    ref_thickness: float = 10.0         # [m] extruded layer thickness (well-test h)
+    tol_rel_l2: float = 0.25            # DFM vs MRST derivative-shape tolerance (looser than Step A)
+
+
+@dataclass(frozen=True)
+class DfmStudySpec:
+    """One validated DFM GeoType STUDY on SIMULATED physics (a FlowDNA *case* of kind 'dfm').
+
+    The payoff of Step B and the graduation of the geometry-only `dfn` cases: an ensemble of GeoDFN
+    networks is meshed + drawn down with open-DARTS (see `DfmDrawdownSpec`), and the resulting
+    dimensionless Bourdet derivatives are clustered into GeoTypes (DTW k-medoids + conformal split +
+    RF/SHAP attribution against the real GeoDFN descriptors) exactly like the analytic/real studies.
+    A representative simulated transient + the MRST-ensemble fidelity gate are carried in the artifact.
+    """
+
+    case_id: str
+    n_networks: int = 26                 # meshed + simulated (>= k_max*3 valid needed for the study)
+    domain_x: float = 100.0
+    domain_y: float = 100.0
+    # GeoDFN generation (mirrors DFNSpec vocabulary; two conjugate sets)
+    intensity_set1: float = 0.05
+    intensity_set2: float = 0.04
+    length_mu: float = 2.0
+    length_sigma: float = 0.6
+    length_min: float = 2.0
+    length_max: float = 40.0
+    orient_loc_set1: float = 0.8
+    orient_loc_set2: float = 2.35
+    orient_kappa: float = 10.0
+    spatial_alpha: float = 0.6
+    buffer_constant: float = 1.0
+    # meshing + DFM physics (per network)
+    char_len: float = 8.0
+    matrix_perm: float = 1.0             # [mD]
+    matrix_poro: float = 0.15
+    # fracture aperture SWEEP across the ensemble (log-uniform): aperture sets fracture conductivity
+    # via the cubic law, so a range spans tight->open-fracture flow regimes -> genuine GeoType
+    # families. log10(aperture) is added to the attribution descriptors (it is a real control).
+    frac_aper_min: float = 3.0e-4        # [m]
+    frac_aper_max: float = 3.0e-3        # [m]
+    well_rate: float = 5.0              # [m3/day]
+    total_time: float = 2.0             # [day]
+    n_report_steps: int = 30
+    ref_thickness: float = 10.0
+    # preprocessing (curves ARE derivatives -> order 0) + clustering + conformal (study contract)
+    n_points: int = 96
+    derivative_order: int = 0
+    L: float = 0.2
+    norm: str = "zscore"
+    dtw_window: int = 10
+    k_min: int = 2
+    k_max: int = 6
+    frac_cal: float = 0.25
+    frac_test: float = 0.25
+    alpha: float = 0.15
+    # fidelity
+    fidelity_dataset: str = "A"          # MRST reference dataset for the ensemble gate
+
+
+@dataclass(frozen=True)
 class RealDataSpec:
     """One validated REAL-data operating point (a FlowDNA *case* of kind 'real').
 

@@ -38,7 +38,7 @@ export const es: Dict = {
     sourceDarts: 'Simulaciones',
     sourceSyntheticHelp: 'Ajusta los parametros de flujo de fractura y corre cada herramienta de la escalera en vivo sobre la curva (clasico + SOTA + aprendido ONNX + novel).',
     sourceRealHelp: 'El corpus real de transitorios de presion del paper (Datasets A/B/C). Eliges el dato; las herramientas corren sobre el.',
-    sourceDartsHelp: 'Las simulaciones pesadas precomputadas: el drawdown open-DARTS validado y las redes discretas de fractura GeoDFN.',
+    sourceDartsHelp: 'Las simulaciones pesadas precomputadas: el drawdown open-DARTS validado, las redes discretas de fractura GeoDFN, y los estudios de GeoTypes DFM (transientes de presion open-DARTS simulados sobre un ensamble de redes de fracturas, validados contra MRST).',
     case: 'Caso',
     tabs: {
       catalogue: 'Catalogo de GeoTypes',
@@ -46,6 +46,7 @@ export const es: Dict = {
       attribution: 'Atribucion',
       network: 'Red de fracturas',
       anchor: 'Validacion DARTS',
+      simulation: 'Simulacion DFM',
       context: 'Contexto',
     },
     catalogue: {

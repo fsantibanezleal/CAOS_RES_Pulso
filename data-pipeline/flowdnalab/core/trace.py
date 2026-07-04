@@ -15,6 +15,7 @@ import numpy as np
 TRACE_SCHEMA = "flowdna.trace/v1"
 DFN_TRACE_SCHEMA = "flowdna.dfn/v1"
 DARTS_TRACE_SCHEMA = "flowdna.darts/v1"
+DFM_TRACE_SCHEMA = "flowdna.dfm/v1"
 MAX_SAMPLES_PER_GEOTYPE = 3   # example member curves committed per GeoType (besides the medoid)
 MAX_ASSIGNMENT_EXAMPLES = 12
 MAX_NETWORKS_IN_TRACE = 12    # decimated network geometries committed for the viewer
@@ -104,6 +105,36 @@ def build_darts_trace(
         "validation": validation,
         "physical": physical,
     }
+
+
+def build_dfm_trace(
+    *,
+    case_id: str,
+    study_trace: dict,
+    sample_transient: dict,   # {tD, pwD, dpwD} of a representative simulated drawdown
+    fidelity: dict,           # the MRST-ensemble gate on the ensemble median
+    mesh_stats: dict,         # n_frac_cells / n_mat_cells / well_xyz / domain of the sample network
+    physical: dict,           # matrix perm, fracture perm, aperture, rate, domain
+    ensemble: dict,           # n_ok / n_fail / n_networks / geodfn_version
+) -> dict:
+    """A GeoType STUDY on SIMULATED DFM physics: the full study trace (catalogue / conformal /
+    attribution) computed on open-DARTS pressure-transient derivatives, PLUS a `dfm` block with a
+    representative simulated transient, the MRST fidelity gate, and the mesh/physics context. The
+    `dfn` cases graduate here: `transient_simulation` is a real, gated result, not `pending`."""
+    trace = dict(study_trace)
+    trace["schema"] = DFM_TRACE_SCHEMA
+    trace["dfm"] = {
+        "sample_transient": {
+            "tD": _r(sample_transient["tD"]), "pwD": _r(sample_transient["pwD"]),
+            "dpwD": _r(sample_transient["dpwD"]),
+        },
+        "fidelity": fidelity,
+        "mesh_stats": mesh_stats,
+        "physical": physical,
+        "ensemble": ensemble,
+        "transient_simulation": "open-DARTS DFM single-phase drawdown (validated vs the MRST ensemble)",
+    }
+    return trace
 
 
 def build_dfn_trace(*, case_id: str, networks: list[dict], descriptor_names: list[str],

@@ -36,7 +36,7 @@ export const en = {
     sourceDarts: 'Simulations',
     sourceSyntheticHelp: 'Tune the fracture-flow parameters and run every tool in the ladder live on the curve (classical + SOTA + learned ONNX + novel).',
     sourceRealHelp: "The source paper's actual pressure-transient corpus (Datasets A/B/C). You pick which datum; the tools run on it.",
-    sourceDartsHelp: 'The precomputed hard simulations: the validated open-DARTS drawdown and the GeoDFN discrete fracture networks.',
+    sourceDartsHelp: 'The precomputed hard simulations: the validated open-DARTS drawdown, the GeoDFN discrete fracture networks, and the DFM GeoType studies (open-DARTS pressure transients simulated over a fracture-network ensemble, MRST-fidelity-gated).',
     case: 'Case',
     tabs: {
       catalogue: 'GeoType catalogue',
@@ -44,6 +44,7 @@ export const en = {
       attribution: 'Attribution',
       network: 'Fracture network',
       anchor: 'DARTS validation',
+      simulation: 'DFM simulation',
       context: 'Context',
     },
     catalogue: {

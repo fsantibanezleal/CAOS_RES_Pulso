@@ -9,9 +9,11 @@ from ..core.gate import classify_lane
 from ..core.manifest import build_case_manifest
 from ..core.trace import (
     DARTS_TRACE_SCHEMA,
+    DFM_TRACE_SCHEMA,
     DFN_TRACE_SCHEMA,
     TRACE_SCHEMA,
     build_darts_trace,
+    build_dfm_trace,
     build_dfn_trace,
     build_study_trace,
 )
@@ -78,6 +80,59 @@ def run_study(
         case=case, seed=seed, artifact_rel=artifact_rel, artifact_schema=TRACE_SCHEMA,
         trace_bytes=trace_bytes, gate=gate, flags=_cap_flags(flags), metrics=metrics,
         extra_engines={"dtw_backend": trained["dtw_backend"]},
+    )
+    write_json(Path(manifests_dir) / f"{case.id}.json", manifest)
+    return manifest
+
+
+def run_dfm(
+    *,
+    case: Any,
+    arrays,
+    trained: dict,
+    assignments: list[dict],
+    metrics: dict,
+    dfm: dict,             # sample_transient, fidelity, mesh_stats, physical, ensemble
+    seed: int,
+    run_ms: float,
+    flags: list[dict],
+    derived_dir: str,
+    manifests_dir: str,
+    geodfn_version: str,
+    darts_version: str,
+) -> dict:
+    """A GeoType STUDY on SIMULATED DFM physics. Reuses the study trace (catalogue / conformal /
+    attribution on the open-DARTS transient derivatives) + a `dfm` block (representative transient,
+    MRST fidelity gate, mesh/physics). The live posture equals a study case: the browser re-generates
+    + conformally classifies one curve against the baked catalogue; the DFM simulation is offline."""
+    import numpy as np
+
+    study_trace = build_study_trace(
+        case_id=case.id, t_grid=arrays.t_grid, X=np.asarray(arrays.X, dtype=float),
+        catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
+        assignments=assignments, k_diagnostics=trained["k_diagnostics"],
+        attribution=trained["attribution"], metrics=metrics, params_sample=[],
+    )
+    trace = build_dfm_trace(
+        case_id=case.id, study_trace=study_trace, sample_transient=dfm["sample_transient"],
+        fidelity=dfm["fidelity"], mesh_stats=dfm["mesh_stats"], physical=dfm["physical"],
+        ensemble=dfm["ensemble"],
+    )
+    artifact_rel = f"{case.id}/trace.json"
+    trace_bytes = write_json(Path(derived_dir) / artifact_rel, trace)
+    live_ms = _measure_live_primitive(trace)
+    gate = classify_lane(pure_python=True, wheels={"numpy", "scipy", "pygeotypes"},
+                         run_ms=live_ms, trace_bytes=trace_bytes)
+    del run_ms
+    # surface the fidelity + ensemble outcome in the manifest metrics (the Experiments page reads it)
+    metrics_out = dict(metrics)
+    metrics_out["dfm_fidelity"] = dfm["fidelity"]
+    metrics_out["dfm_ensemble"] = dfm["ensemble"]
+    manifest = build_case_manifest(
+        case=case, seed=seed, artifact_rel=artifact_rel, artifact_schema=DFM_TRACE_SCHEMA,
+        trace_bytes=trace_bytes, gate=gate, flags=_cap_flags(flags), metrics=metrics_out,
+        extra_engines={"open_darts": darts_version, "GeoDFN": geodfn_version,
+                       "dtw_backend": trained["dtw_backend"]},
     )
     write_json(Path(manifests_dir) / f"{case.id}.json", manifest)
     return manifest
