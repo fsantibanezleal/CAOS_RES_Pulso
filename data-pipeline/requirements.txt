@@ -1,6 +1,15 @@
 # PRECOMPUTE lane — the heavy, research-chosen SOTA engines, in the .venv-pipeline (local-only, never deployed).
 # THIS is where the deep research becomes binding: every engine pinned here is documented in docs/frameworks/<tool>/
-# and actually used by data-pipeline/flowdnalab/stages/. The EXAMPLE engine (SIR) is numpy-only on purpose so the
-# template installs instantly with no native build; a real product adds e.g. yade / pychrono / ortools / mintpy /
-# torch here, each PINNED to the version it installs+verifies.
+# and actually used by data-pipeline/flowdnalab/. Verified install: Python 3.12, 2026-07-03.
 numpy==2.4.6
+scipy==1.17.1
+networkx==3.6.1
+pandas==3.0.3
+pyarrow==24.0.0
+GeoDFN==2.0.0                 # geologically consistent 2-D DFN generation (paper authors' engine, MIT)
+dtaidistance==2.4.0           # C-fast pairwise DTW matrices (offline backend of pygeotypes.distance)
+scikit-learn==1.9.0           # Random Forest (attribution layer)
+shap==0.52.0                  # TreeSHAP (attribution layer)
+# pygeotypes (CAOS_GeoTypes, private until PyPI release): installed by scripts/setup from the
+# sibling checkout — `pip install -e ../CAOS_GeoTypes[fast,attr]` — or in CI from
+# git+https with the GH_PAT secret. After the PyPI release this becomes `pygeotypes[fast,attr]==0.x`.

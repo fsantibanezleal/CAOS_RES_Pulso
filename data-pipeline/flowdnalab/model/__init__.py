@@ -1,3 +1,4 @@
-"""The pure-Python analytic core — Pyodide-safe, shared by the offline stages AND the live lane (same code path).
-EXAMPLE: an SIR epidemic model. Replace with your product's research-chosen engine (kept here only if pure-Python
-and light enough for the live lane; heavy SOTA engines live in the offline stages, never imported by live)."""
+"""The pure-Python analytic core — Pyodide-safe, shared by the offline stages AND the live lane (same code
+path). FlowDNA: the Warren-Root / homogeneous-radial pressure-transient generators (via pygeotypes'
+Gaver-Stehfest inversion). Heavy SOTA engines (GeoDFN, open-DARTS) live in the offline stages / dfn adapter,
+never imported by the live lane."""

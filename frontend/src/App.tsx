@@ -1,9 +1,12 @@
 // The replay SPA: list cases grouped by CATEGORY, select one, replay its committed trace (CONTRACT 2). The
-// always-available static path (ADR-0054); the optional Pyodide live lane (src/pyodide) is the recompute upgrade.
+// always-available static path (ADR-0054); the Pyodide live lane (src/pyodide) is the recompute upgrade.
+// NOTE: this is the contract-exercising skeleton; the full ADR-0016 six-page shell (App workbench /
+// Introduction / Methodology / Implementation / Experiments / Benchmark + the ADR-0058 modal) is next phase.
 import { useEffect, useMemo, useState } from 'react';
 import { loadIndex, loadManifest, loadTrace } from './api/artifacts';
 import type { CaseIndex, CaseManifest, Trace } from './lib/contract.types';
-import { SIRChart } from './render/SIRChart';
+import { isStudyTrace } from './lib/contract.types';
+import { DfnChart, StudyChart } from './render/CurveChart';
 
 export default function App() {
   const [index, setIndex] = useState<CaseIndex | null>(null);
@@ -39,9 +42,12 @@ export default function App() {
   }, [index]);
 
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
-      <h1>Product — deterministic replay</h1>
-      <p>Replaying committed artifacts (CONTRACT 2). {index?.n_cases ?? 0} cases across {Object.keys(byCategory).length} categories.</p>
+    <main style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 960, margin: '2rem auto', padding: '0 1rem' }}>
+      <h1>FlowDNA — GeoType catalogue replay</h1>
+      <p>
+        Replaying committed artifacts (CONTRACT 2). {index?.n_cases ?? 0} cases across{' '}
+        {Object.keys(byCategory).length} categories.
+      </p>
       {err && <p style={{ color: '#f85149' }}>error: {err}</p>}
       <label>
         Case:{' '}
@@ -59,15 +65,11 @@ export default function App() {
       </label>
       {manifest && (
         <p>
-          lane: <b>{manifest.lane}</b> — <i>{manifest.expected_band}</i>
+          lane: <b>{manifest.lane}</b> · engine {manifest.engine.package} {manifest.engine.version} (pygeotypes{' '}
+          {manifest.engine.pygeotypes}) — <i>{manifest.expected_band}</i>
         </p>
       )}
-      {trace && <SIRChart trace={trace} />}
-      {trace && (
-        <p>
-          peak I: {trace.summary.peak_I} at t={trace.summary.t_peak} · attack rate {trace.summary.attack_rate}
-        </p>
-      )}
+      {trace && (isStudyTrace(trace) ? <StudyChart trace={trace} /> : <DfnChart trace={trace} />)}
     </main>
   );
 }

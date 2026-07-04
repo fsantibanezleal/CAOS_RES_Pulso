@@ -16,6 +16,10 @@ VP="$(venvpy .venv-pipeline)"
 "$VP" -m pip install --upgrade pip -q
 "$VP" -m pip install -q -r data-pipeline/requirements.txt -r requirements-dev.txt
 "$VP" -m pip install -q -e .
+# pygeotypes (private CAOS_GeoTypes until the PyPI release): sibling checkout, editable
+GEO="$(cd .. && pwd)/CAOS_GeoTypes"
+if [ -d "$GEO" ]; then "$VP" -m pip install -q -e "$GEO[fast,attr]"
+else echo "[setup] WARNING: CAOS_GeoTypes not found next to this repo - clone it and re-run (pygeotypes is required)"; fi
 echo "[setup] .venv-pipeline ready."
 
 echo "[setup] .venv (runtime/live-thin lane)…"
@@ -23,6 +27,8 @@ mkvenv .venv
 VR="$(venvpy .venv)"
 "$VR" -m pip install --upgrade pip -q
 "$VR" -m pip install -q -r requirements.txt
+GEO="$(cd .. && pwd)/CAOS_GeoTypes"
+[ -d "$GEO" ] && "$VR" -m pip install -q -e "$GEO"
 echo "[setup] .venv ready."
 
 echo "[setup] done. Next:  ./scripts/precompute.sh   then   ./scripts/dev.sh"

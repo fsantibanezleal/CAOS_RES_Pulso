@@ -4,7 +4,8 @@ PRECOMPUTE and the SPA replays the committed artifact. The verdict + the measure
 and CI fails on mislabeling. This is a MEASUREMENT, never a hand-wave."""
 from __future__ import annotations
 
-LIVE_WHEELS: set[str] = {"numpy"}   # the Pyodide-safe wheel set the live lane is allowed to import
+LIVE_WHEELS: set[str] = {"numpy", "scipy", "pygeotypes"}   # Pyodide-safe wheels the live lane may import
+# (numpy + scipy ship in the Pyodide distribution; pygeotypes is a pure-Python wheel loaded via micropip)
 RUN_MS_GATE = 1500.0                 # a live run must complete well within an interaction budget
 TRACE_BYTES_GATE = 256 * 1024        # a live/replay artifact must stay small
 

@@ -17,12 +17,14 @@ jobs:
           cache: pip
       - name: Install (offline lane + dev + editable pkg)
         run: pip install -r data-pipeline/requirements.txt -r requirements-dev.txt -e .
+      - name: Install pygeotypes (private CAOS_GeoTypes until the PyPI release)
+        run: pip install "pygeotypes[fast,attr] @ git+https://x-access-token:${{ secrets.GH_PAT }}@github.com/fsantibanezleal/CAOS_GeoTypes.git@main"
       - name: Lint
         run: ruff check data-pipeline tests
       - name: Tests
         run: pytest
       - name: Pipeline smoke (regenerate one case)
-        run: python -m flowdnalab.pipeline EX02_epidemic
+        run: python -m flowdnalab.pipeline CTRL_single_regime
       - name: CONTRACT 2 — manifests <-> artifacts consistent (no drift)
         run: python scripts/check_artifacts.py
 

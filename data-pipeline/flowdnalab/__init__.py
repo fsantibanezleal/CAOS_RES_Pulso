@@ -1,8 +1,11 @@
-"""flowdnalab — the offline+live engine for the CAOS product-repo template (ADR-0057).
+"""flowdnalab — the FlowDNA offline+live engine (ADR-0057 product core).
 
-Rename this package to `<slug>lab` per product and replace the EXAMPLE engine (model/ + the stage bodies) with the
-deep-research-chosen SOTA engine. Everything else (the two data contracts, the staged pipeline, the lane gate, the
-manifest/trace, the cases-by-category registry) is the FROZEN base — instantiate it, do not redesign it.
+FlowDNA builds catalogues of GeoTypes (recurring fluid-flow behaviours of fractured reservoirs)
+from pressure-transient response shapes, with conformal assignment and RF/SHAP attribution of the
+controlling fracture-network properties. The shape machinery is the `pygeotypes` library
+(CAOS_GeoTypes); this package keeps only the DOMAIN: analytic PTA ensemble generation, GeoDFN
+network generation + fracture descriptors, the two data contracts, the staged pipeline, the lane
+gate, the manifest/trace, and the cases-by-category registry.
 """
 
-__version__ = "0.01.000"  # display X.XX.XXX; PEP 440 form in pyproject.toml (0.1.0)
+__version__ = "0.02.000"  # display X.XX.XXX; PEP 440 form in pyproject.toml (0.2.0)

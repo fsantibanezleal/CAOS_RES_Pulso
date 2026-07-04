@@ -1,12 +1,17 @@
 """CONTRACT 1 — ingestion (raw -> pipeline). The *bring-your-own-data* gate.
 
-Declares the required schema (columns, units, ranges) of an input parameter table and an EXPLICIT outlier policy.
-A dataset is ACCEPTED iff it passes; bad rows are REJECTED with a reason (never silently coerced); plausible-but-
-suspicious rows are FLAGGED (accepted, but the manifest records the flag). This is what lets the product be applied
-to NEW data instead of only replaying baked cases. Documented in data/README.md.
+Two entry doors, each with an EXPLICIT outlier policy (reject / flag — never silent coercion):
 
-EXAMPLE schema = an SIR parameterization. Replace the columns/ranges/policy with your product's real data contract
-(e.g. a vibration record: fs, channel, load, window length, dropouts; or a PSD CSV: sieve apertures, %-passing).
+1. **Curve sets** (`validate_curves`) — the real-data door. A pressure-transient record is a pair
+   of arrays (t, Δp). Requirements per curve: strictly increasing t > 0, finite values, at least
+   MIN_POINTS samples, at least MIN_DECADES of log-time span (the Bourdet derivative and DTW are
+   meaningless on a shorter window). Suspicious-but-usable curves are FLAGGED (short span, heavy
+   derivative sign-flipping = noise) and accepted; broken curves are REJECTED with a reason.
+2. **Ensemble specs** (`validate_spec`) — the synthetic/analytic door. Parameter ranges must be
+   physical (ω ∈ (0,1], λ > 0, noise bounded, fractions coherent) so a case cannot silently ask
+   the engine for nonsense.
+
+Documented for users in data/README.md.
 """
 from __future__ import annotations
 
@@ -14,24 +19,17 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
-from .schema import SIRParams
+from .schema import EnsembleSpec
 
-REQUIRED_COLUMNS: tuple[str, ...] = ("case_id", "beta", "gamma", "N", "I0")
-
-# name -> (min, max, unit). Physically/operationally plausible ranges; outside => REJECT.
-RANGES: dict[str, tuple[float, float, str]] = {
-    "beta": (1e-6, 5.0, "1/day (effective contact rate)"),
-    "gamma": (1e-6, 2.0, "1/day (recovery rate)"),
-    "N": (1.0, 1e9, "individuals (population)"),
-    "I0": (0.0, 1e9, "individuals (initial infected)"),
-}
-R0_FLAG_MAX = 20.0  # R0 above this is implausible for the example domain => FLAG (not reject)
-DEFAULT_DAYS = 160
+MIN_POINTS = 24
+MIN_DECADES = 1.5
+FLAG_DECADES = 2.0          # span in [MIN_DECADES, FLAG_DECADES) is accepted but flagged
+FLAG_SIGN_FLIP_FRAC = 0.35  # fraction of first-difference sign flips above which a curve is flagged noisy
 
 
 @dataclass
 class ContractReport:
-    accepted: list[SIRParams]
+    accepted: list[Any]
     rejected: list[dict[str, Any]]
     flagged: list[dict[str, Any]]
 
@@ -43,42 +41,94 @@ class ContractReport:
         return f"{len(self.accepted)} accepted, {len(self.rejected)} rejected, {len(self.flagged)} flagged"
 
 
-def validate_rows(raw_rows: list[dict[str, Any]]) -> ContractReport:
-    """Apply CONTRACT 1 to raw rows (e.g. from a CSV). Pure; deterministic; no I/O."""
-    accepted: list[SIRParams] = []
+def _finite(xs: list[float]) -> bool:
+    return all(math.isfinite(float(x)) for x in xs)
+
+
+def validate_curves(curves: list[dict[str, Any]]) -> ContractReport:
+    """Apply CONTRACT 1 to raw curves: [{'curve_id', 't': [...], 'p': [...]}]. Pure; no I/O."""
+    accepted: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
     flagged: list[dict[str, Any]] = []
 
-    for i, row in enumerate(raw_rows):
-        cid = str(row.get("case_id", f"row{i}"))
-        missing = [c for c in REQUIRED_COLUMNS if c not in row or row[c] in (None, "")]
-        if missing:
-            rejected.append({"row": i, "case_id": cid, "reason": f"missing/empty columns: {missing}"})
+    for i, row in enumerate(curves):
+        cid = str(row.get("curve_id", f"curve{i}"))
+        t = row.get("t")
+        p = row.get("p")
+        if not isinstance(t, (list, tuple)) or not isinstance(p, (list, tuple)) or len(t) != len(p):
+            rejected.append({"row": i, "curve_id": cid, "reason": "t/p missing or of unequal length"})
             continue
-        try:
-            vals = {k: float(row[k]) for k in ("beta", "gamma", "N", "I0")}
-        except (TypeError, ValueError):
-            rejected.append({"row": i, "case_id": cid, "reason": "non-numeric value in beta/gamma/N/I0"})
+        if len(t) < MIN_POINTS:
+            rejected.append({"row": i, "curve_id": cid, "reason": f"only {len(t)} samples < {MIN_POINTS}"})
             continue
-        if any(math.isnan(v) or math.isinf(v) for v in vals.values()):
-            rejected.append({"row": i, "case_id": cid, "reason": "NaN/Inf value"})
+        if not (_finite(t) and _finite(p)):
+            rejected.append({"row": i, "curve_id": cid, "reason": "NaN/Inf value"})
             continue
-        bad: list[str] = []
-        for name, (lo, hi, _unit) in RANGES.items():
-            if not (lo <= vals[name] <= hi):
-                bad.append(f"{name}={vals[name]:g} out of [{lo:g},{hi:g}]")
-        if vals["I0"] > vals["N"]:
-            bad.append(f"I0={vals['I0']:g} > N={vals['N']:g}")
-        if bad:
-            rejected.append({"row": i, "case_id": cid, "reason": "; ".join(bad)})
+        tf = [float(x) for x in t]
+        if tf[0] <= 0 or any(b <= a for a, b in zip(tf, tf[1:])):
+            rejected.append({"row": i, "curve_id": cid, "reason": "t must be strictly increasing and > 0"})
             continue
-        r0 = vals["beta"] / vals["gamma"] if vals["gamma"] > 0 else math.inf
-        if r0 > R0_FLAG_MAX:
-            flagged.append({"case_id": cid, "flag": f"R0={r0:.1f} > {R0_FLAG_MAX:g} (implausibly high)"})
-        try:
-            days = int(float(row.get("days") or DEFAULT_DAYS))
-        except (TypeError, ValueError):
-            days = DEFAULT_DAYS
-        accepted.append(SIRParams(case_id=cid, beta=vals["beta"], gamma=vals["gamma"],
-                                  N=vals["N"], I0=vals["I0"], days=max(1, days)))
+        decades = math.log10(tf[-1] / tf[0])
+        if decades < MIN_DECADES:
+            rejected.append(
+                {"row": i, "curve_id": cid, "reason": f"time span {decades:.2f} decades < {MIN_DECADES}"}
+            )
+            continue
+        if decades < FLAG_DECADES:
+            flagged.append({"curve_id": cid, "flag": f"short span: {decades:.2f} decades < {FLAG_DECADES}"})
+        pf = [float(x) for x in p]
+        # noise heuristic: sign flips of first differences, counting only MATERIAL differences
+        # (>0.1% of the curve's range) — tiny early-time wiggles are not noise evidence
+        rng_p = max(pf) - min(pf)
+        thr = 1e-3 * rng_p if rng_p > 0 else 0.0
+        diffs = [b - a for a, b in zip(pf, pf[1:])]
+        material = [(a, b) for a, b in zip(diffs, diffs[1:]) if abs(a) > thr and abs(b) > thr]
+        flips = sum(1 for a, b in material if a * b < 0)
+        flip_frac = flips / max(1, len(material))
+        if flip_frac > FLAG_SIGN_FLIP_FRAC:
+            flagged.append({"curve_id": cid, "flag": f"noisy: {flip_frac:.0%} material sign flips"})
+        accepted.append({"curve_id": cid, "t": tf, "p": pf})
     return ContractReport(accepted=accepted, rejected=rejected, flagged=flagged)
+
+
+def validate_spec(spec: EnsembleSpec) -> ContractReport:
+    """Apply CONTRACT 1 to an ensemble spec (the synthetic door). Rejects unphysical requests."""
+    bad: list[str] = []
+    flags: list[dict[str, Any]] = []
+    if spec.n_curves < 12:
+        bad.append(f"n_curves={spec.n_curves} < 12 (catalogue + conformal split needs more)")
+    for name, (lo, hi) in (("omega_range", spec.omega_range), ("lam_range", spec.lam_range)):
+        if not (0 < lo <= hi):
+            bad.append(f"{name}=({lo:g},{hi:g}) must satisfy 0 < lo <= hi")
+    if spec.omega_range[1] > 1.0:
+        bad.append(f"omega_range max {spec.omega_range[1]:g} > 1 (storativity ratio is in (0,1])")
+    if not (0.0 <= spec.noise_sd <= 0.5):
+        bad.append(f"noise_sd={spec.noise_sd:g} out of [0, 0.5]")
+    if not (0.0 <= spec.homogeneous_fraction <= 1.0):
+        bad.append(f"homogeneous_fraction={spec.homogeneous_fraction:g} out of [0,1]")
+    if spec.kind not in ("warren_root", "mixture"):
+        bad.append(f"unknown kind {spec.kind!r}")
+    if spec.derivative_order not in (0, 1, 2):
+        bad.append("derivative_order must be 0, 1 or 2")
+    if not (2 <= spec.k_min <= spec.k_max <= 12):
+        bad.append(f"k range [{spec.k_min},{spec.k_max}] must satisfy 2 <= k_min <= k_max <= 12")
+    if not (0.0 < spec.frac_cal < 0.5 and 0.0 < spec.frac_test < 0.5):
+        bad.append("frac_cal and frac_test must be in (0, 0.5)")
+    if not (0.0 < spec.alpha < 1.0):
+        bad.append(f"alpha={spec.alpha:g} out of (0,1)")
+    # conformal reachability: the calibration slice must allow empty sets at this alpha
+    n_cal_per_class = spec.n_curves * spec.frac_cal / max(2, spec.k_min)
+    if n_cal_per_class < (1.0 / spec.alpha - 1.0):
+        flags.append(
+            {
+                "case_id": spec.case_id,
+                "flag": (
+                    f"~{n_cal_per_class:.0f} calibration curves/class < 1/alpha-1 = "
+                    f"{1.0 / spec.alpha - 1.0:.0f}: out-of-catalogue verdicts unreachable at alpha={spec.alpha}"
+                ),
+            }
+        )
+    if bad:
+        return ContractReport(accepted=[], rejected=[{"case_id": spec.case_id, "reason": "; ".join(bad)}],
+                              flagged=flags)
+    return ContractReport(accepted=[spec], rejected=[], flagged=flags)
