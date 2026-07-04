@@ -134,7 +134,9 @@ def _triplets(labels: np.ndarray, rng, m: int):
         ai, pi = rng.choice(idx_by[c], 2, replace=False)
         oc = rng.choice([x for x in classes if x != c])
         ni = rng.choice(idx_by[oc])
-        a.append(ai); p.append(pi); n.append(ni)
+        a.append(ai)
+        p.append(pi)
+        n.append(ni)
     return np.array(a), np.array(p), np.array(n)
 
 
