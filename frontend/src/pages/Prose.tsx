@@ -106,10 +106,24 @@ function useManifests() {
   return rows;
 }
 
+// short lane label per case source (the studies table now spans analytic / real / field / DFM)
+const LANE: Record<string, string> = {
+  'synthetic-analytic': 'analytic',
+  'real-4tu': '4TU',
+  'field-pumping': 'field',
+  'simulated-dfm': 'DFM',
+};
+
 export function Experiments() {
   const t = useT();
   const rows = useManifests();
-  const studies = rows.filter((m) => m.artifact.trace_schema.startsWith('flowdna.trace/'));
+  // every GeoType STUDY: the analytic/real/field studies (flowdna.trace/) AND the simulated-physics
+  // DFM studies (flowdna.dfm/) carry the same k/silhouette/conformal metrics
+  const studies = rows.filter(
+    (m) =>
+      m.artifact.trace_schema.startsWith('flowdna.trace/') ||
+      m.artifact.trace_schema.startsWith('flowdna.dfm/'),
+  );
   const num = (m: CaseManifest, k: string) => {
     const v = (m.metrics as Record<string, unknown>)[k];
     return typeof v === 'number' ? v.toFixed(3) : '—';
@@ -124,6 +138,7 @@ export function Experiments() {
           <thead>
             <tr>
               <th>case</th>
+              <th>{t.common.source}</th>
               <th>K</th>
               <th>{t.common.silhouette}</th>
               <th>{t.common.coverage}</th>
@@ -136,6 +151,7 @@ export function Experiments() {
               return (
                 <tr key={m.case_id}>
                   <td>{m.case_id}</td>
+                  <td className="tag">{LANE[m.real_or_synthetic] ?? m.real_or_synthetic}</td>
                   <td>{num(m, 'k')}</td>
                   <td>{num(m, 'silhouette_train')}</td>
                   <td>{conf.empirical_coverage_test?.toFixed(2) ?? '—'}</td>
@@ -151,6 +167,8 @@ export function Experiments() {
         <li>{t.exp.f1}</li>
         <li>{t.exp.f2}</li>
         <li>{t.exp.f3}</li>
+        <li>{t.exp.f4}</li>
+        <li>{t.exp.f5}</li>
       </ul>
     </article>
   );
