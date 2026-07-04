@@ -180,6 +180,19 @@ def precompute(case_id: str, seed: int = 42) -> dict:
     raise ValueError(f"unknown case kind {case.kind!r}")
 
 
+def rebuild_index() -> list[dict]:
+    """Rebuild `manifests/index.json` from the manifests ALREADY on disk (no re-bake). Every
+    registered case whose manifest exists is listed. Use after baking cases individually (which does
+    not touch the index) so the web sees them."""
+    entries = []
+    for c in registry.list_cases():
+        if (MANIFESTS / f"{c.id}.json").exists():
+            entries.append({"case_id": c.id, "category": c.category,
+                            "manifest_path": f"manifests/{c.id}.json"})
+    write_json(MANIFESTS / "index.json", build_index(entries))
+    return entries
+
+
 def _darts_available() -> bool:
     try:
         import darts  # noqa: F401
@@ -212,12 +225,16 @@ def run_all(seed: int = 42,
 
 def main() -> None:
     ap = argparse.ArgumentParser(prog="flowdnalab.pipeline")
-    ap.add_argument("case", nargs="?", default="all", help="a case id, or 'all'")
+    ap.add_argument("case", nargs="?", default="all",
+                    help="a case id, 'all', or 'index' (rebuild index.json from existing manifests)")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--kinds", default="study,dfn,real,darts,dfm",
                     help="comma list of case kinds to run (for 'all'): study,dfn,real,darts,dfm")
     args = ap.parse_args()
-    if args.case == "all":
+    if args.case == "index":
+        entries = rebuild_index()
+        print(f"rebuilt index over {len(entries)} cases -> {MANIFESTS / 'index.json'}")
+    elif args.case == "all":
         entries = run_all(args.seed, kinds=tuple(args.kinds.split(",")))
         print(f"precomputed {len(entries)} cases -> {DERIVED}")
         for e in entries:

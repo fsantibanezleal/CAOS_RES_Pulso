@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { CaseIndex, CaseManifest, Trace } from '../lib/contract.types';
-import { isDartsTrace, isStudyTrace } from '../lib/contract.types';
+import { isDartsTrace, isDfmTrace, isStudyTrace } from '../lib/contract.types';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = <T>(...p: string[]): T => JSON.parse(readFileSync(join(ROOT, 'data', 'derived', ...p), 'utf-8')) as T;
@@ -29,6 +29,14 @@ describe('CONTRACT 2 mirror matches the committed artifacts', () => {
         expect(tr.medoids[0].length).toBe(tr.t_grid.length);
         expect(Object.keys(tr.calibration_scores).length).toBe(tr.k);
         expect(tr.summary.target).toBeGreaterThan(0);
+        // a dfm case is a study on SIMULATED physics + a dfm block (transient + MRST fidelity)
+        if (isDfmTrace(tr)) {
+          expect(tr.dfm.sample_transient.tD.length).toBe(tr.dfm.sample_transient.pwD.length);
+          expect(tr.dfm.sample_transient.dpwD.length).toBe(tr.dfm.sample_transient.tD.length);
+          expect(typeof tr.dfm.fidelity.passed).toBe('boolean');
+          expect(tr.dfm.ensemble.n_ok).toBeGreaterThan(0);
+          expect(tr.dfm.transient_simulation).not.toContain('pending');
+        }
       } else if (isDartsTrace(tr)) {
         expect(tr.tD.length).toBe(tr.pwD_sim.length);
         expect(tr.tD.length).toBe(tr.pwD_analytic.length);

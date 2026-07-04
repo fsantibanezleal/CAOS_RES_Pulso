@@ -27,18 +27,35 @@ from .dfm_fidelity import fidelity_gate
 _WORKER_TIMEOUT_S = 90
 
 
-def _run_network_isolated(req: dict) -> dict:
+def _run_network_isolated(req: dict, use_cache: bool = True) -> dict:
     """Mesh + draw one network in a fresh process so a native hang/segfault is survivable. The worker
     writes its result to `req['result_file']` (stdout is polluted by open-DARTS/gmsh native chatter);
-    a timeout or crash leaves no file -> reported as ok=False. Never raises."""
+    a timeout or crash leaves no file -> reported as ok=False. Never raises.
+
+    A valid cached result (from a prior run, keyed on the deterministic network output dir) is reused
+    when `use_cache` -> re-baking to iterate on the clustering/attribution does NOT re-run the heavy
+    DFM simulations. Clear the case's vault dir if the PHYSICS params change (perm/aperture/rate)."""
     result_file = Path(req["out_dir"]) / "result.json"
     result_file.parent.mkdir(parents=True, exist_ok=True)
+    if use_cache and result_file.exists():
+        # any valid cached outcome (success OR a caught/marked failure) is deterministic -> reuse it
+        try:
+            return json.loads(result_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            pass
     if result_file.exists():
         result_file.unlink()
     req = {**req, "result_file": str(result_file)}
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(sys.path)
     env.setdefault("PYTHONUTF8", "1")
+
+    def _mark(reason: str) -> dict:
+        # persist native hangs/crashes (which leave no worker file) so a re-bake does not re-attempt
+        out = {"ok": False, "error": reason}
+        result_file.write_text(json.dumps(out), encoding="utf-8")
+        return out
+
     try:
         subprocess.run(
             [sys.executable, "-m", "flowdnalab.dfn._dfm_worker"],
@@ -46,13 +63,13 @@ def _run_network_isolated(req: dict) -> dict:
             timeout=_WORKER_TIMEOUT_S, env=env,
         )
     except subprocess.TimeoutExpired:
-        return {"ok": False, "error": f"timeout > {_WORKER_TIMEOUT_S}s (native hang)"}
+        return _mark(f"timeout > {_WORKER_TIMEOUT_S}s (native hang)")
     if not result_file.exists():
-        return {"ok": False, "error": "worker left no result (native crash/segfault)"}
+        return _mark("worker left no result (native crash/segfault)")
     try:
         return json.loads(result_file.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
-        return {"ok": False, "error": "worker wrote invalid result JSON"}
+        return _mark("worker wrote invalid result JSON")
 
 
 def _resample(tD: np.ndarray, y: np.ndarray, grid: np.ndarray) -> np.ndarray:
