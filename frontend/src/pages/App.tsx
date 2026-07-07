@@ -13,11 +13,16 @@ import { AttributionView } from '../render/AttributionView';
 import { DartsChart, DfnChart } from '../render/CurveChart';
 import { DfmView } from '../render/DfmView';
 import { MethodAgreementView } from '../render/MethodAgreementView';
+import { RepresentationsView } from '../render/RepresentationsView';
 import { LiveLab } from './LiveLab';
 
 // a study-v2 trace with the P2a comparison baked in (comparison-enabled cases only)
 function methodComparison(trace: Trace) {
   return isStudyTraceV2(trace) ? trace.method_comparison : undefined;
+}
+// a study-v2 trace with the P2b representations baked in (rich-method cases only)
+function representations(trace: Trace) {
+  return isStudyTraceV2(trace) ? trace.representations : undefined;
 }
 
 type Source = 'synthetic' | 'real' | 'darts';
@@ -75,11 +80,12 @@ export function AppPage() {
 
   const tabs = useMemo(() => {
     if (!trace) return [];
-    // the P2a method-agreement tab appears only when the comparison was baked for this case
+    // the P2a/P2b tabs appear only when their blocks were baked for this case (rich-method cases)
     const methods = methodComparison(trace) ? ['methods'] : [];
+    const reps = representations(trace) ? ['representations'] : [];
     // a dfm trace is-a study trace, so check it FIRST to add the simulated-physics tab
-    if (isDfmTrace(trace)) return ['catalogue', 'classify', 'attribution', ...methods, 'simulation', 'context'];
-    if (isStudyTrace(trace)) return ['catalogue', 'classify', 'attribution', ...methods, 'context'];
+    if (isDfmTrace(trace)) return ['catalogue', 'classify', 'attribution', ...methods, ...reps, 'simulation', 'context'];
+    if (isStudyTrace(trace)) return ['catalogue', 'classify', 'attribution', ...methods, ...reps, 'context'];
     if (isDartsTrace(trace)) return ['anchor', 'context'];
     return ['network', 'context'];
   }, [trace]);
@@ -153,6 +159,9 @@ export function AppPage() {
               {tab === 'attribution' && isStudyTrace(trace) && <AttributionView trace={trace} />}
               {tab === 'methods' && methodComparison(trace) && (
                 <MethodAgreementView mc={methodComparison(trace)!} />
+              )}
+              {tab === 'representations' && isStudyTraceV2(trace) && trace.representations && (
+                <RepresentationsView trace={trace} />
               )}
               {tab === 'anchor' && isDartsTrace(trace) && <DartsChart trace={trace} />}
               {tab === 'simulation' && isDfmTrace(trace) && <DfmView trace={trace} />}

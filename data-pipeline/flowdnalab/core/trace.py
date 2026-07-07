@@ -82,10 +82,16 @@ def build_study_trace_v2(
     k_diagnostics: dict,
     attribution: dict,
     metrics: dict,
+    with_representations: bool = False,
+    seed: int = 42,
 ) -> dict:
     """CONTRACT-3: commit the WHOLE ensemble so the web viz is rich without recomputation:
     every member curve (min/max-decimated), per-cluster p10/p50/p90 envelopes, the cluster-ordered
-    DTW matrix (uint8), the MDS embedding, plus the v1 catalogue/conformal/attribution fields."""
+    DTW matrix (uint8), the MDS embedding, plus the v1 catalogue/conformal/attribution fields.
+
+    When with_representations, also compute the P2b representations block (UMAP / t-SNE / functional PCA
+    / catch22) on the SAME committed members, so the scatter viz can switch layout and describe clusters
+    in interpretable feature terms without recomputation."""
     X_train = np.asarray(X_train, dtype=float)
     labels = np.asarray(labels, dtype=int)
     n = X_train.shape[0]
@@ -173,6 +179,15 @@ def build_study_trace_v2(
         "display_cols": DISPLAY_COLS, "dtw_n": len(order), "dtw_note": dtw_note,
         "decimation": "min/max-per-pixel (extrema-preserving)",
     }
+    # P2b: the representations block, computed on the SAME committed members (aligns row-for-row with
+    # `members` + `embedding.mds2d`), so the scatter viz can switch layout (MDS / UMAP / t-SNE / fPCA)
+    # and the feature table describes clusters via catch22. Gated: the ~seconds-per-method cost runs
+    # only for the rich-method cases (spec.compare_methods), not on every bake.
+    if with_representations:
+        from ..methods.representations import compute_representations
+        base["representations"] = compute_representations(
+            X_train[member_idx], labels[member_idx], k, seed=seed,
+        )
     return base
 
 

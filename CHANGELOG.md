@@ -3,6 +3,26 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.15.000] · 2026-07-07
+
+### Added: rebuild phase P2b, representations method group
+- **`methods/representations.compute_representations`**: computes four complementary representations of
+  each case's ensemble OFFLINE on the SAME committed members as CONTRACT-3 (so every 2D layout aligns
+  row-for-row with the member curves): **UMAP** (umap-learn; McInnes 2018), **t-SNE** (scikit-learn; van
+  der Maaten 2008), **functional PCA** eigen-shapes + per-member scores (in-house numpy SVD;
+  Ramsay-Silverman 2005), and the **catch22** canonical feature signature aggregated per cluster
+  (pycatch22; Lubba 2019).
+- Gated by `spec.compare_methods` (the same rich-method set as P2a: WR01, REAL_A, BENCH_A/B/C). Lands in
+  the trace `representations` block (`pulso.study/v2`). Optional engines degrade to `null` / `skipped`,
+  never a crash; TS mirror (`Representations`) + Python test added.
+- **App "Representations" tab** (`render/RepresentationsView`): a switchable 2D scatter (MDS / UMAP /
+  t-SNE / fPCA scores) coloured by GeoType with the medoids ringed, the dominant functional-PCA mode
+  shapes with explained-variance, and the catch22 feature table ranked by between-cluster spread.
+  Reacts to the case selector, no live compute, bilingual EN/ES, light + dark.
+- Frameworks: `docs/frameworks/umap-learn`, `docs/frameworks/pycatch22` cards; `docs/methods.md` +
+  `02_representations.md`. `requirements.txt` pins `umap-learn>=0.5.0`; pycatch22 is built best-effort by
+  `scripts/setup` (C extension, no Windows wheel; MSVC recipe in its card).
+
 ## [0.14.000] · 2026-07-07
 
 ### Added: rebuild phase P2a, distances-and-clustering method comparison

@@ -82,6 +82,7 @@ def run_study(
             catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
             assignments=assignments, k_diagnostics=trained["k_diagnostics"],
             attribution=trained["attribution"], metrics=metrics,
+            with_representations=getattr(case.spec, "compare_methods", False), seed=seed,
         )
         schema = STUDY_V2_SCHEMA
     else:
@@ -146,6 +147,7 @@ def run_dfm(
             catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
             assignments=assignments, k_diagnostics=trained["k_diagnostics"],
             attribution=trained["attribution"], metrics=metrics,
+            with_representations=getattr(case.spec, "compare_methods", False), seed=seed,
         )
     else:
         study_trace = build_study_trace(
