@@ -12,6 +12,8 @@ engine the research prescribed.
 - [dtaidistance](frameworks/dtaidistance/) — C-fast pairwise DTW matrices (offline distance backend)
 - [tslearn](frameworks/tslearn/tslearn.md) — soft-DTW k-means + k-Shape (P2a clustering comparison)
 - [hdbscan](frameworks/hdbscan/hdbscan.md) — density clustering with noise + no fixed k (P2a comparison control)
+- [umap-learn](frameworks/umap-learn/umap-learn.md) — UMAP manifold layout (P2b representations)
+- [pycatch22](frameworks/pycatch22/pycatch22.md) — catch22 canonical TS features (P2b representations)
 - [open-darts](frameworks/open-darts/) — DFM reservoir simulation (offline physics lane)
 - [geodfn](frameworks/geodfn/) — discrete fracture network generation
 - [torch](frameworks/torch/) — GPU training of the learned tier (exported to ONNX)
