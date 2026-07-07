@@ -8,5 +8,6 @@
 - [06 — model evaluation](architecture/06_model-evaluation.md)
 - [07 — deploy](architecture/07_deploy.md)
 - [08 — the two data contracts](architecture/08_data-contracts.md)
+- [09 — the frontend shell (@fasl-work/caos-app-shell)](architecture/09_frontend-shell.md)
 
 Binding decision: [ADR-0057](../../conventions/architecture/0-archetype/ADR-0057-product-repo-archetype.md).

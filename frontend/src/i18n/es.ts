@@ -2,7 +2,7 @@
 import type { Dict } from './en';
 
 export const es: Dict = {
-  brand: 'FlowDNA',
+  brand: 'Pulso',
   tagline: 'El ADN geologico de los reservorios fracturados',
   nav: {
     app: 'App',
