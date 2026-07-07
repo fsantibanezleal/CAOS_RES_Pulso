@@ -13,6 +13,7 @@ from __future__ import annotations
 import numpy as np
 
 TRACE_SCHEMA = "flowdna.trace/v1"
+STUDY_V2_SCHEMA = "pulso.study/v2"   # CONTRACT-3: the FULL-ensemble study artifact (P0.2)
 DFN_TRACE_SCHEMA = "flowdna.dfn/v1"
 DARTS_TRACE_SCHEMA = "flowdna.darts/v1"
 DFM_TRACE_SCHEMA = "flowdna.dfm/v1"
@@ -20,10 +21,133 @@ MAX_SAMPLES_PER_GEOTYPE = 3   # example member curves committed per GeoType (bes
 MAX_ASSIGNMENT_EXAMPLES = 12
 MAX_NETWORKS_IN_TRACE = 12    # decimated network geometries committed for the viewer
 ROUND = 5
+DISPLAY_COLS = 64             # min/max-per-pixel display width for committed member curves
+MAX_DTW_N = 512              # cap the committed DTW matrix; larger ensembles ship a capped subsample
 
 
 def _r(x, nd=ROUND):
     return [round(float(v), nd) for v in x]
+
+
+def _decimate_minmax(row: np.ndarray, cols: int = DISPLAY_COLS) -> list[float]:
+    """Min/max-per-pixel decimation: keep the extrema in each display column so spiky features (the
+    dual-porosity valley, boundary rise) survive downsampling, unlike plain subsampling/LTTB. Returns
+    2*ceil(cols/2) points (alternating min,max per bucket). Short rows pass through rounded."""
+    row = np.asarray(row, dtype=float)
+    n = row.size
+    if n <= cols:
+        return _r(row)
+    buckets = cols // 2
+    edges = np.linspace(0, n, buckets + 1).astype(int)
+    out: list[float] = []
+    for b in range(buckets):
+        seg = row[edges[b]:max(edges[b + 1], edges[b] + 1)]
+        if seg.size == 0:
+            continue
+        out.append(round(float(seg.min()), ROUND))
+        out.append(round(float(seg.max()), ROUND))
+    return out
+
+
+def _quantize_matrix_uint8(M: np.ndarray) -> dict:
+    """Quantize a nonnegative distance matrix to uint8 over [0, dmax] for compact transport."""
+    M = np.asarray(M, dtype=float)
+    dmax = float(M.max()) if M.size else 1.0
+    if dmax <= 0:
+        dmax = 1.0
+    q = np.clip(np.round(M / dmax * 255.0), 0, 255).astype(int)
+    return {"dmax": round(dmax, ROUND), "rows": [row.tolist() for row in q]}
+
+
+def _cluster_order(labels: np.ndarray) -> np.ndarray:
+    """A permutation that groups rows by cluster label (so the DTW matrix shows block structure)."""
+    labels = np.asarray(labels)
+    return np.concatenate([np.where(labels == g)[0] for g in np.unique(labels)]).astype(int)
+
+
+def build_study_trace_v2(
+    *,
+    case_id: str,
+    t_grid: list[float],
+    X_train: np.ndarray,      # (n, n_points) the FULL training-slice curves
+    labels: np.ndarray,       # (n,) cluster label per training curve
+    D: np.ndarray,            # (n, n) DTW distance matrix over the training slice
+    embedding: dict,          # {'mds2d': (n,2), 'mds3d': (n,3) | None, 'stress': float}
+    medoid_idx: list[int],    # training-slice indices of the k medoids (mark them in the scatter)
+    catalogue,
+    assigner,
+    split: dict,
+    assignments: list[dict],
+    k_diagnostics: dict,
+    attribution: dict,
+    metrics: dict,
+) -> dict:
+    """CONTRACT-3: commit the WHOLE ensemble so the web viz is rich without recomputation:
+    every member curve (min/max-decimated), per-cluster p10/p50/p90 envelopes, the cluster-ordered
+    DTW matrix (uint8), the MDS embedding, plus the v1 catalogue/conformal/attribution fields."""
+    X_train = np.asarray(X_train, dtype=float)
+    labels = np.asarray(labels, dtype=int)
+    n = X_train.shape[0]
+    k = int(catalogue.k)
+
+    # every member curve, decimated (extrema-preserving), with its cluster label
+    members = {
+        "geotype": labels.tolist(),
+        "curves": [_decimate_minmax(X_train[i]) for i in range(n)],
+    }
+
+    # per-cluster quantile envelopes on the full t_grid (the band the explorer draws for large N)
+    envelopes = []
+    for g in range(k):
+        rows = X_train[labels == g]
+        if rows.shape[0] == 0:
+            envelopes.append({"geotype": g, "p10": [], "p50": [], "p90": []})
+            continue
+        envelopes.append({
+            "geotype": g,
+            "p10": _r(np.percentile(rows, 10, axis=0)),
+            "p50": _r(np.percentile(rows, 50, axis=0)),
+            "p90": _r(np.percentile(rows, 90, axis=0)),
+        })
+
+    # cluster-ordered DTW matrix (capped + quantized). Larger ensembles ship a capped random subsample.
+    order = _cluster_order(labels)
+    if n > MAX_DTW_N:
+        rng = np.random.default_rng(0)
+        keep = np.sort(rng.choice(n, size=MAX_DTW_N, replace=False))
+        order = order[np.isin(order, keep)]
+        dtw_note = f"capped random subsample {MAX_DTW_N}/{n}"
+    else:
+        dtw_note = "full"
+    Dm = np.asarray(D, dtype=float)[np.ix_(order, order)]
+    dtw = {**_quantize_matrix_uint8(Dm), "order": order.tolist(),
+           "order_labels": labels[order].tolist(), "note": dtw_note}
+
+    # the v1 base builder reads its example curves via X[split['train'][m]]; we already hold X_train,
+    # so give it an identity train index into X_train (avoids double-indexing the sliced array).
+    id_split = dict(split)
+    id_split["train"] = np.arange(n)
+    base = build_study_trace(
+        case_id=case_id, t_grid=t_grid, X=X_train, catalogue=catalogue, assigner=assigner,
+        split=id_split, assignments=assignments, k_diagnostics=k_diagnostics,
+        attribution=attribution, metrics=metrics, params_sample=[],
+    )
+    base["schema"] = STUDY_V2_SCHEMA
+    base["members"] = members
+    base["envelopes"] = envelopes
+    base["dtw"] = dtw
+    base["embedding"] = {
+        "mds2d": [[round(float(a), 4), round(float(b), 4)] for a, b in embedding["mds2d"]],
+        "mds3d": ([[round(float(a), 4), round(float(b), 4), round(float(c), 4)]
+                   for a, b, c in embedding["mds3d"]] if embedding.get("mds3d") is not None else None),
+        "stress": round(float(embedding.get("stress", 0.0)), 5),
+        "medoid_idx": [int(i) for i in medoid_idx],
+    }
+    base["stats"] = {
+        "n_members": n, "display_cols": DISPLAY_COLS, "dtw_n": len(order), "dtw_note": dtw_note,
+        "decimation": "min/max-per-pixel (extrema-preserving)",
+    }
+    return base
 
 
 def build_study_trace(

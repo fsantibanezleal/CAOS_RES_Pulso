@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { CaseIndex, CaseManifest, Trace } from '../lib/contract.types';
-import { isDartsTrace, isDfmTrace, isStudyTrace } from '../lib/contract.types';
+import { isDartsTrace, isDfmTrace, isStudyTrace, isStudyTraceV2 } from '../lib/contract.types';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = <T>(...p: string[]): T => JSON.parse(readFileSync(join(ROOT, 'data', 'derived', ...p), 'utf-8')) as T;
@@ -29,6 +29,21 @@ describe('CONTRACT 2 mirror matches the committed artifacts', () => {
         expect(tr.medoids[0].length).toBe(tr.t_grid.length);
         expect(Object.keys(tr.calibration_scores).length).toBe(tr.k);
         expect(tr.summary.target).toBeGreaterThan(0);
+        // CONTRACT-3 (pulso.study/v2): the FULL ensemble is committed, not 3 samples/cluster
+        if (isStudyTraceV2(tr)) {
+          const n = tr.stats.n_members;
+          expect(tr.members.curves.length).toBe(n);
+          expect(tr.members.geotype.length).toBe(n);
+          expect(n).toBeGreaterThan(3 * tr.k); // the whole ensemble, not a few samples
+          expect(tr.envelopes.length).toBe(tr.k);
+          expect(tr.envelopes[0].p50.length).toBe(tr.t_grid.length);
+          const nn = tr.dtw.order.length;
+          expect(tr.dtw.rows.length).toBe(nn);
+          expect(tr.dtw.rows[0].length).toBe(nn);
+          expect(tr.dtw.dmax).toBeGreaterThan(0);
+          expect(tr.embedding.mds2d.length).toBe(n);
+          expect(tr.embedding.medoid_idx.length).toBe(tr.k);
+        }
         // a dfm case is a study on SIMULATED physics + a dfm block (transient + MRST fidelity)
         if (isDfmTrace(tr)) {
           expect(tr.dfm.sample_transient.tD.length).toBe(tr.dfm.sample_transient.pwD.length);

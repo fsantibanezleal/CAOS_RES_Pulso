@@ -12,6 +12,7 @@ the catalogue never sees calibration or test curves.
 """
 from __future__ import annotations
 
+import warnings
 import numpy as np
 from pygeotypes.assign import ConformalAssigner, nearest_medoid
 from pygeotypes.catalogue import Catalogue, build_catalogue
@@ -66,6 +67,8 @@ def run(arrays: StudyArrays, spec: EnsembleSpec, rng: np.random.Generator, seed:
     except ImportError:
         dtw_backend = "numpy"
 
+    embedding = _mds_embedding(D, seed)
+
     return {
         "catalogue": catalogue,
         "assigner": assigner,
@@ -73,7 +76,38 @@ def run(arrays: StudyArrays, spec: EnsembleSpec, rng: np.random.Generator, seed:
         "k_diagnostics": diag,
         "attribution": attribution,
         "dtw_backend": dtw_backend,
+        # CONTRACT-3 (P0.2): keep the full-ensemble arrays so the study export can commit them
+        "D": D,
+        "labels": res.labels,
+        "X_train": X_train,
+        "embedding": embedding,
+        "medoid_idx": [int(i) for i in res.medoid_indices],
     }
+
+
+def _mds_embedding(D: np.ndarray, seed: int) -> dict:
+    """Classical (metric) MDS 2D + 3D from a precomputed DTW distance matrix, for the shape-space
+    scatter. Deterministic (fixed seed). Falls back to zeros if sklearn is unavailable (core-only)."""
+    D = np.asarray(D, dtype=float)
+    n = D.shape[0]
+    try:
+        from sklearn.manifold import MDS
+    except ImportError:
+        return {"mds2d": np.zeros((n, 2)), "mds3d": None, "stress": 0.0}
+    Dsym = 0.5 * (D + D.T)
+    np.fill_diagonal(Dsym, 0.0)
+    # metric MDS from the precomputed dissimilarity; explicit init + raw stress (quiet across versions)
+    common = dict(dissimilarity="precomputed", random_state=seed, normalized_stress=False,
+                  max_iter=300)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        m2 = MDS(n_components=2, n_init=4, **common)
+        xy = m2.fit_transform(Dsym)
+        mds3d = None
+        if n > 3:
+            m3 = MDS(n_components=3, n_init=2, **common)
+            mds3d = m3.fit_transform(Dsym)
+    return {"mds2d": xy, "mds3d": mds3d, "stress": float(m2.stress_)}
 
 
 def _attribute(arrays: StudyArrays, train_idx: np.ndarray, labels: np.ndarray, seed: int) -> dict:

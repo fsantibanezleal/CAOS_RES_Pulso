@@ -30,7 +30,7 @@ def test_manifest_matches_artifact_and_gate():
     assert artifact.exists(), "manifest points to a non-existent artifact"
     assert artifact.stat().st_size == m["artifact"]["bytes"], "manifest byte size drifted from the artifact"
     assert m["schema"].startswith("flowdna.manifest/")
-    assert m["artifact"]["trace_schema"].startswith("flowdna.trace/")
+    assert m["artifact"]["trace_schema"] in ("flowdna.trace/v1", "pulso.study/v2")
     assert m["lane"] in ("live", "precompute")
     assert m["gate"]["lane"] == m["lane"], "manifest lane disagrees with the gate verdict"
     # a study case's live primitive (generate one curve + classify) is numpy/scipy pure and its
@@ -57,6 +57,6 @@ def test_metrics_are_honest_shape():
     assert 0.0 <= conf["empirical_coverage_test"] <= 1.0
     assert conf["n_test"] > 0
     trace = json.loads((pipeline.DERIVED / m["artifact"]["path"]).read_text(encoding="utf-8"))
-    assert trace["schema"].startswith("flowdna.trace/")
+    assert trace["schema"] in ("flowdna.trace/v1", "pulso.study/v2")
     assert len(trace["medoids"]) == mt["k"]
     assert set(trace["calibration_scores"].keys()) == {str(g) for g in range(mt["k"])}

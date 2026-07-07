@@ -42,7 +42,7 @@ export interface AttributionReport {
 }
 
 export interface StudyTrace {
-  schema: string; // "flowdna.trace/v1"
+  schema: string; // "flowdna.trace/v1" or "pulso.study/v2"
   case_id: string;
   t_grid: number[];
   preprocessing: { derivative_order: number; L: number; norm: string; n_points: number };
@@ -58,6 +58,46 @@ export interface StudyTrace {
   attribution: AttributionReport;
   params_sample: Array<Record<string, number | string>>;
   summary: StudySummary;
+}
+
+// CONTRACT-3 (pulso.study/v2): the FULL-ensemble study artifact. A superset of StudyTrace that also
+// commits every member curve (decimated), per-cluster envelopes, the DTW distance matrix and the MDS
+// embedding, so the P3 visualizations render the whole ensemble without recomputation in the browser.
+export interface EnsembleMembers {
+  geotype: number[]; // per-curve cluster label (length n)
+  curves: number[][]; // per-curve decimated (min/max-per-pixel) values
+}
+export interface ClusterEnvelope {
+  geotype: number;
+  p10: number[]; // on t_grid
+  p50: number[];
+  p90: number[];
+}
+export interface DtwMatrix {
+  dmax: number;
+  rows: number[][]; // NxN uint8 (0..255), value = distance/dmax*255
+  order: number[]; // cluster-ordered permutation into the member arrays
+  order_labels: number[]; // the cluster label per ordered row
+  note: string; // "full" or "capped random subsample K/N"
+}
+export interface MdsEmbedding {
+  mds2d: Array<[number, number]>;
+  mds3d: Array<[number, number, number]> | null;
+  stress: number;
+  medoid_idx: number[]; // member indices of the k medoids
+}
+export interface StudyTraceV2 extends StudyTrace {
+  members: EnsembleMembers;
+  envelopes: ClusterEnvelope[];
+  dtw: DtwMatrix;
+  embedding: MdsEmbedding;
+  stats: {
+    n_members: number;
+    display_cols: number;
+    dtw_n: number;
+    dtw_note: string;
+    decimation: string;
+  };
 }
 
 export interface DfnNetwork {
@@ -129,11 +169,21 @@ export interface DfmTrace extends StudyTrace {
   dfm: DfmBlock;
 }
 
-export type Trace = StudyTrace | DfnTrace | DartsTrace | DfmTrace;
+export type Trace = StudyTrace | StudyTraceV2 | DfnTrace | DartsTrace | DfmTrace;
 
-// a DfmTrace is structurally + semantically a study, so the study renderers apply to it too
+// a DfmTrace is structurally + semantically a study, so the study renderers apply to it too. The
+// CONTRACT-3 v2 study artifact is also a study (superset).
 export function isStudyTrace(t: Trace): t is StudyTrace {
-  return t.schema.startsWith('flowdna.trace/') || t.schema.startsWith('flowdna.dfm/');
+  return (
+    t.schema.startsWith('flowdna.trace/') ||
+    t.schema.startsWith('pulso.study/') ||
+    t.schema.startsWith('flowdna.dfm/')
+  );
+}
+
+// the full-ensemble CONTRACT-3 study (members + envelopes + dtw + embedding present).
+export function isStudyTraceV2(t: Trace): t is StudyTraceV2 {
+  return t.schema.startsWith('pulso.study/');
 }
 
 export function isDfmTrace(t: Trace): t is DfmTrace {
