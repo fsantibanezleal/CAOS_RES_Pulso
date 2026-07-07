@@ -40,7 +40,7 @@ def test_real_case_bakes_a_real_catalogue():
     )
     m = pipeline._precompute_real(tiny, seed=3)
     assert m["real_or_synthetic"] == "real-4tu"
-    assert m["artifact"]["trace_schema"].startswith("flowdna.trace/")
+    assert m["artifact"]["trace_schema"] in ("flowdna.trace/v1", "pulso.study/v2")
     trace = json.loads((pipeline.DERIVED / m["artifact"]["path"]).read_text(encoding="utf-8"))
     assert trace["preprocessing"]["derivative_order"] == 0  # the corpus is already the derivative
     assert len(trace["medoids"]) == m["metrics"]["k"]

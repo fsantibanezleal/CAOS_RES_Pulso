@@ -46,7 +46,7 @@ class TestWithVault:
         )
         m = pipeline._precompute_field(case, seed=3)
         assert m["real_or_synthetic"] == "field-pumping"
-        assert m["artifact"]["trace_schema"].startswith("flowdna.trace/")
+        assert m["artifact"]["trace_schema"] in ("flowdna.trace/v1", "pulso.study/v2")
         trace = json.loads((pipeline.DERIVED / m["artifact"]["path"]).read_text(encoding="utf-8"))
         assert trace["preprocessing"]["derivative_order"] == 1  # raw drawdown -> Bourdet derivative
         assert len(trace["medoids"]) == m["metrics"]["k"]

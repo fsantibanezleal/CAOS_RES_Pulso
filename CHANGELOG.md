@@ -3,6 +3,27 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.11.000] — 2026-07-04
+
+### Added: rebuild phase P0.2, CONTRACT-3 full-ensemble study artifact (kills the 2-medoid toy)
+- **`pulso.study/v2`**: the study artifact now commits the WHOLE ensemble per case, not the medoids +
+  3 samples per GeoType (the "2 curves is all" toy Felipe flagged). New fields: `members` (every
+  training curve, min/max-per-pixel decimated + cluster label), `envelopes` (per-cluster p10/p50/p90),
+  `dtw` (the cluster-ordered DTW distance matrix, uint8-quantized, capped at 512), `embedding`
+  (classical MDS 2D/3D from the DTW matrix + medoid indices), `stats`. A superset of v1 (renderers keep
+  working); ~64 KB for a 60-curve study, ~250 KB for a 200-curve real case (well under the 2 MB budget).
+- `stages/train.py` returns the DTW matrix + labels + `X_train` + the MDS embedding; `core/trace.py`
+  `build_study_trace_v2` builds the artifact; `stages/export.py` emits it for all study/real/field
+  cases. TS mirror `StudyTraceV2` + `isStudyTraceV2`; the frontend contract test asserts the v2 shape
+  against the real baked artifacts.
+- All 12 study/real/field cases re-baked to v2. Tests: `tests/test_contract3.py` (full-ensemble shape,
+  byte budget, extrema-preserving decimation, determinism) + updated schema assertions across the
+  suite. Full python suite (37) + tsc + vitest (6) green.
+- Docs: `docs/architecture/08_data-contracts.md` (CONTRACT-3 section).
+
+> Note: the RICH visualizations that CONSUME these fields (ensemble explorer, DTW heatmap, shape-space
+> scatter, box-whisker, Sankey) are phase P3. P0.2 produces + validates the data.
+
 ## [0.10.000] — 2026-07-04
 
 ### Changed: rebuild phase P0.1, adopt the shared shell (was hand-rolled, no footer)
