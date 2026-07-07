@@ -4,7 +4,10 @@
 // onnxruntime-web on the committed ONNX. No server, no replay — genuine in-browser compute.
 import { useEffect, useMemo, useState } from 'react';
 import { useT } from '../i18n/useT';
-import { generateResponse, preprocessForModels } from '../engine/pta';
+import { generateResponse, preprocessForModels, warrenRootPd, homogeneousPd, bourdet } from '../engine/pta';
+import {
+  detectRegimes, fitTheis, fitWarrenRoot, secondLogDerivative, REGIME_COLORS, type RegimeKind,
+} from '../engine/diagnostics';
 import { conformalAssign, distancesToMedoids } from '../engine/dtw';
 import { autoencode, classifyCNN, embedAndRetrieve, getReference, loadDeep, type DeepReference } from '../engine/onnx';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -85,7 +88,7 @@ export function LiveLab() {
 
       <div className="panel">
         <ErrorBoundary label={method} key={method}>
-          {method === 'diagnostics' && <Diagnostics resp={resp} />}
+          {method === 'diagnostics' && <Diagnostics resp={resp} truth={{ omega: homog ? 1 : omega, lam, skin, homog }} />}
           {method !== 'diagnostics' && !deepReady && <p className="muted">{t.live.loadingModels}</p>}
           {method === 'dtw' && ref && model && <DtwView x={model.x} ref={ref} />}
           {method === 'conformal' && ref && model && <ConformalView x={model.x} ref={ref} />}
@@ -110,31 +113,136 @@ function Slider({ label, min, max, step, value, onChange, disabled }: {
   );
 }
 
-// ---------- classical: log-log Δp + Bourdet derivative, 0.5 radial plateau marked ----------
-function Diagnostics({ resp }: { resp: { tD: number[]; p: number[]; dp: number[] } }) {
+// ---------- classical (P2c): log-log Δp + p′ + p″, auto-detected flow regimes, live Warren-Root /
+//            Theis fits that RECOVER the parameters from the curve ----------
+const REGIME_LABEL: Record<RegimeKind, string> = {
+  'wellbore-storage': 'wellbore storage', radial: 'radial (0.5)', linear: 'linear (½)',
+  bilinear: 'bilinear (¼)', 'dual-porosity-transition': 'dual-porosity transition', boundary: 'boundary',
+};
+
+function Diagnostics({ resp, truth }: {
+  resp: { tD: number[]; p: number[]; dp: number[] };
+  truth: { omega: number; lam: number; skin: number; homog: boolean };
+}) {
   const t = useT();
-  const W = 860, H = 380, PAD = 46;
+  const W = 860, H = 360, PAD = 46;
+  // A denoised derivative for the interpretive layer (regimes + p″): the DISPLAYED p′ keeps the real
+  // measurement noise, but regime detection and the curvature are read off a smoother derivative so
+  // 1% pressure noise does not shatter them (standard practice: interpret the smoothed derivative).
+  const dpSmooth = useMemo(() => bourdet(resp.tD, resp.p, 0.5), [resp]);
+  const p2 = useMemo(() => secondLogDerivative(resp.tD, dpSmooth, 0.5), [resp, dpSmooth]);
+  const regimes = useMemo(() => detectRegimes(resp.tD, dpSmooth), [resp, dpSmooth]);
+  const wr = useMemo(() => fitWarrenRoot(resp.tD, resp.p), [resp]);
+  const theis = useMemo(() => fitTheis(resp.tD, resp.p), [resp]);
+  const wrFitCurve = useMemo(() => warrenRootPd(resp.tD, wr.omega, wr.lam), [resp, wr]);
+  const theisFitCurve = useMemo(() => homogeneousPd(resp.tD, theis.skin), [resp, theis]);
+  // Warren-Root fits the dual-porosity valley; Theis is the homogeneous baseline. The lower RMSE wins.
+  const wrWins = wr.rmse <= theis.rmse;
+
   const lx = resp.tD.map((v) => Math.log10(v));
-  const all = [...resp.p, ...resp.dp].filter((v) => v > 0).map((v) => Math.log10(v));
-  const yMin = Math.min(...all), yMax = Math.max(...all);
+  // display the standard SMOOTHED Bourdet derivative (the interpretation curve; regimes + p″ are read
+  // off it too). The raw noisy derivative plunges through the valley on a log axis; smoothing is the
+  // standard practice, and the noise slider still shows as residual wiggle. Clamp the axis floor so a
+  // stray low point cannot stretch the whole plot.
+  const all = [...resp.p, ...dpSmooth].filter((v) => v > 0).map((v) => Math.log10(v));
+  const yMin = Math.max(Math.min(...all), -2), yMax = Math.max(...all);
   const sx = (x: number) => PAD + ((x - lx[0]) / (lx[lx.length - 1] - lx[0])) * (W - 2 * PAD);
-  const sy = (y: number) => H - PAD - ((Math.log10(Math.max(y, 1e-6)) - yMin) / (yMax - yMin || 1)) * (H - 2 * PAD);
+  // clamp the plotted value to the axis window so a near-zero derivative point stops at the floor
+  // instead of shooting a spike past the frame (the valley genuinely dips; we bound it, not hide it).
+  const sy = (y: number) => {
+    const ly = Math.min(yMax, Math.max(yMin, Math.log10(Math.max(y, 1e-6))));
+    return H - PAD - ((ly - yMin) / (yMax - yMin || 1)) * (H - 2 * PAD);
+  };
   const path = (ys: number[]) => ys.map((y, i) => `${i === 0 ? 'M' : 'L'}${sx(lx[i]).toFixed(1)},${sy(y).toFixed(1)}`).join(' ');
+
   return (
     <div>
       <p className="muted">{t.live.diagDesc}</p>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ background: 'var(--bg-3)', borderRadius: 8 }} role="img" aria-label="diagnostic plot">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ background: 'var(--bg-3)', borderRadius: 8 }} role="img" aria-label="diagnostic plot with detected flow regimes">
+        {/* auto-detected flow-regime bands (behind the curves) */}
+        {regimes.map((r, i) => (
+          <rect key={i} x={sx(lx[r.iStart])} y={PAD} width={Math.max(0, sx(lx[r.iEnd]) - sx(lx[r.iStart]))}
+            height={H - 2 * PAD} fill={REGIME_COLORS[r.kind]} fillOpacity={0.14} />
+        ))}
         <line x1={PAD} y1={sy(0.5)} x2={W - PAD} y2={sy(0.5)} stroke="var(--fg-2)" strokeDasharray="4 4" />
         <text x={W - PAD - 130} y={sy(0.5) - 6} fill="var(--fg-2)" fontSize={11}>radial derivative plateau = 0.5</text>
+        {/* the winning analytic fit, overlaid (dashed) to show the recovered response */}
+        <path d={path(wrWins ? wrFitCurve : theisFitCurve)} fill="none" stroke="var(--fg-2)" strokeWidth={1.5} strokeDasharray="5 4" />
         <path d={path(resp.p)} fill="none" stroke="#4f9cf9" strokeWidth={2.5} />
-        <path d={path(resp.dp)} fill="none" stroke="#f97b4f" strokeWidth={2.5} />
-        <text x={PAD} y={H - 14} fill="var(--fg-2)" fontSize={12}>log10 tD →</text>
+        <path d={path(dpSmooth)} fill="none" stroke="#f97b4f" strokeWidth={2.2} />
+        <text x={PAD} y={H - 14} fill="var(--fg-2)" fontSize={12}>log10 tD</text>
       </svg>
+
       <div style={{ display: 'flex', gap: '.5rem', marginTop: '.5rem', flexWrap: 'wrap' }}>
-        <span className="readout" style={{ color: '#4f9cf9' }}>Δp (dimensionless p_wD)</span>
-        <span className="readout" style={{ color: '#f97b4f' }}>Bourdet derivative p′</span>
+        <span className="readout" style={{ color: '#4f9cf9' }}>Δp (p_wD)</span>
+        <span className="readout" style={{ color: '#f97b4f' }}>p′ (Bourdet, smoothed)</span>
+        <span className="readout" style={{ color: 'var(--fg-2)' }}>{t.live.diag.bestFit}: {wrWins ? 'Warren-Root' : 'Theis'} (dashed)</span>
+      </div>
+
+      {/* p″ curvature in its own compact LINEAR panel (centred at 0), read off the smoothed derivative */}
+      <div style={{ marginTop: '.7rem' }}>
+        <span className="tag">p″ {t.live.diag.curvature}</span>
+        <CurvaturePanel lx={lx} p2={p2} sx={sx} regimes={regimes} />
+      </div>
+
+      {/* detected regimes */}
+      <div style={{ display: 'flex', gap: '.4rem', marginTop: '.6rem', flexWrap: 'wrap' }}>
+        <span className="tag">{t.live.diag.detected}:</span>
+        {regimes.length === 0 && <span className="muted">{t.live.diag.none}</span>}
+        {regimes.map((r, i) => (
+          <span key={i} className="badge" style={{ background: `color-mix(in srgb, ${REGIME_COLORS[r.kind]} 22%, transparent)`, color: REGIME_COLORS[r.kind] }}>
+            {REGIME_LABEL[r.kind]}
+          </span>
+        ))}
+      </div>
+
+      {/* live parameter recovery: fitted vs true */}
+      <h4 style={{ margin: '1rem 0 .3rem' }}>{t.live.diag.recovery}</h4>
+      <p className="muted" style={{ fontSize: '.85em', marginTop: 0 }}>{t.live.diag.recoveryDesc}</p>
+      <div className="scroll-x">
+        <table>
+          <thead>
+            <tr><th>{t.live.diag.model}</th><th>{t.live.diag.recovered}</th><th>{t.live.diag.truth}</th><th>RMSE</th></tr>
+          </thead>
+          <tbody>
+            <tr style={{ fontWeight: wrWins ? 700 : 400 }}>
+              <td>Warren-Root (ω, λ)</td>
+              <td className="tag">ω={wr.omega.toFixed(3)}, λ={wr.lam.toExponential(1)}</td>
+              <td className="tag">{truth.homog ? 'n/a (homog.)' : `ω=${truth.omega.toFixed(3)}, λ=${truth.lam.toExponential(1)}`}</td>
+              <td className="tag">{wr.rmse.toFixed(4)}</td>
+            </tr>
+            <tr style={{ fontWeight: !wrWins ? 700 : 400 }}>
+              <td>Theis (skin)</td>
+              <td className="tag">S={theis.skin.toFixed(2)}</td>
+              <td className="tag">S={truth.skin.toFixed(2)}</td>
+              <td className="tag">{theis.rmse.toFixed(4)}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
+  );
+}
+
+// p″ curvature panel: a compact LINEAR symmetric-axis strip (p″ is near-zero and signed, so a shared
+// log pressure axis would be meaningless). The zero line is drawn; the curve dips negative through a
+// dual-porosity transition and peaks at regime changes.
+function CurvaturePanel({ lx, p2, sx, regimes }: {
+  lx: number[]; p2: number[]; sx: (x: number) => number; regimes: { iStart: number; iEnd: number; kind: RegimeKind }[];
+}) {
+  const W = 860, H = 120, PAD = 46;
+  const amp = Math.max(1e-3, ...p2.map((v) => Math.abs(v)));
+  const sy = (y: number) => H / 2 - (y / amp) * (H / 2 - 10);
+  const path = p2.map((y, i) => `${i === 0 ? 'M' : 'L'}${sx(lx[i]).toFixed(1)},${sy(y).toFixed(1)}`).join(' ');
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ background: 'var(--bg-3)', borderRadius: 8, marginTop: '.3rem' }} role="img" aria-label="second derivative curvature">
+      {regimes.map((r, i) => (
+        <rect key={i} x={sx(lx[r.iStart])} y={0} width={Math.max(0, sx(lx[r.iEnd]) - sx(lx[r.iStart]))}
+          height={H} fill={REGIME_COLORS[r.kind]} fillOpacity={0.1} />
+      ))}
+      <line x1={PAD} y1={sy(0)} x2={W - PAD} y2={sy(0)} stroke="var(--fg-2)" strokeDasharray="3 3" strokeOpacity={0.5} />
+      <path d={path} fill="none" stroke="#c94fd0" strokeWidth={1.8} />
+    </svg>
   );
 }
 
