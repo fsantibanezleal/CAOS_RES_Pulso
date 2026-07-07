@@ -3,6 +3,21 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.12.000] — 2026-07-04
+
+### Changed: rebuild phase P1b, scale the DFM ensembles + DFM CONTRACT-3
+- **DFM ensembles scaled 34 -> 200 networks/case** across an intensity sweep: `DFM03_sparse`
+  (P21 ~0.03), `DFM01_geotypes` (~0.05), `DFM02_dense` (~0.07), each with a wide aperture sweep
+  (2e-4 to 4e-3 m). At 200 networks the attribution is genuinely powered (was underpowered at 34):
+  DFM01 k=2, silhouette 0.62, 185/200 valid transients, MRST fidelity PASS (corr 0.92), attribution OK.
+- **Fixed a P0.2 gap**: the DFM export composed on the v1 `build_study_trace`, so DFM cases never got
+  the CONTRACT-3 full-ensemble fields. `run_dfm` now builds on `build_study_trace_v2` (members +
+  envelopes + DTW matrix + MDS embedding), schema `pulso.dfm/v2`; frontend `isStudyTraceV2`/`isDfmTrace`
+  match it. So a DFM study is now as rich as an analytic/real one.
+- Suppressed a GeoDFN matplotlib figure leak (200 leaked polar figures at scale).
+- The crash-safe isolated worker + result caching make the overnight bakes tractable; honest n_ok/n_fail
+  recorded per case (dense networks that hit gmsh/Newton failures are skipped, not hidden).
+
 ## [0.11.001] — 2026-07-04
 
 ### Added: rebuild phase P1a, the GPU training lane (`.venv-train`)
