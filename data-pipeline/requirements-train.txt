@@ -1,0 +1,14 @@
+# GPU training lane (.venv-train) — the learned tier (P2). ISOLATED from .venv-pipeline (which stays
+# CPU-only for the deterministic offline bake + open-DARTS). Never installed globally.
+#
+# torch is installed from the CUDA index, NOT pinned here (the wheel URL differs per platform):
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+# Verified on: NVIDIA RTX 4070 Laptop (8 GB), driver 560.94, CUDA 12.4 wheels.
+#
+# The rest (exporter + data deps) install from PyPI normally.
+numpy>=1.26
+onnx>=1.16
+onnxscript>=0.1.0        # the torch>=2.1 dynamo ONNX exporter needs this
+scikit-learn>=1.4        # train/val splits, metrics, MDS parity with the pipeline
+pandas>=2.0             # corpus ingestion for the training-set builder
+pyarrow>=15.0           # parquet corpus reads
