@@ -9,6 +9,7 @@
 numpy>=1.26
 onnx>=1.16
 onnxscript>=0.1.0        # the torch>=2.1 dynamo ONNX exporter needs this
+onnxruntime>=1.17        # the parity gate: verify ONNX == torch (<1e-4) before committing a model
 scikit-learn>=1.4        # train/val splits, metrics, MDS parity with the pipeline
 pandas>=2.0             # corpus ingestion for the training-set builder
 pyarrow>=15.0           # parquet corpus reads
