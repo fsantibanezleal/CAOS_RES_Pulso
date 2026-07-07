@@ -77,7 +77,7 @@ function FidelityChart({ trace }: { trace: DfmTrace }) {
         <path d={toPath(lx, b.p50, sx, sy)} fill="none" stroke="#41c98d" strokeWidth={2} strokeDasharray="5 4" />
         <path d={toPath(lx, b.sim, sx, sy)} fill="none" stroke="#f97b4f" strokeWidth={2.5} />
         <text x={W - PAD - 220} y={PAD} fill="#41c98d" fontSize={12}>MRST ensemble p5-p95 + median</text>
-        <text x={W - PAD - 220} y={PAD + 16} fill="#f97b4f" fontSize={12}>FlowDNA DFM ensemble median</text>
+        <text x={W - PAD - 220} y={PAD + 16} fill="#f97b4f" fontSize={12}>Pulso DFM ensemble median</text>
         <text x={PAD} y={H - 12} fill="#7a8699" fontSize={12}>log10 tD →</text>
       </svg>
       <figcaption style={{ color: '#7a8699', fontSize: 13 }}>
