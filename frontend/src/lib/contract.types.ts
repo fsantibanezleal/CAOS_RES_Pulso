@@ -177,17 +177,19 @@ export function isStudyTrace(t: Trace): t is StudyTrace {
   return (
     t.schema.startsWith('flowdna.trace/') ||
     t.schema.startsWith('pulso.study/') ||
-    t.schema.startsWith('flowdna.dfm/')
+    t.schema.startsWith('flowdna.dfm/') ||
+    t.schema.startsWith('pulso.dfm/')
   );
 }
 
-// the full-ensemble CONTRACT-3 study (members + envelopes + dtw + embedding present).
+// the full-ensemble CONTRACT-3 study (members + envelopes + dtw + embedding present). Both the plain
+// study v2 and the DFM v2 (a study on simulated physics) carry these fields.
 export function isStudyTraceV2(t: Trace): t is StudyTraceV2 {
-  return t.schema.startsWith('pulso.study/');
+  return t.schema.startsWith('pulso.study/') || t.schema.startsWith('pulso.dfm/');
 }
 
 export function isDfmTrace(t: Trace): t is DfmTrace {
-  return t.schema.startsWith('flowdna.dfm/');
+  return t.schema.startsWith('flowdna.dfm/') || t.schema.startsWith('pulso.dfm/');
 }
 
 export function isDfnTrace(t: Trace): t is DfnTrace {
