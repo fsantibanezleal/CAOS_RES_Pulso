@@ -4,9 +4,11 @@ Also unit-tests the extrema-preserving decimation + the byte budget."""
 import json
 
 import numpy as np
+import pytest
 
 from flowdnalab import pipeline
-from flowdnalab.core.trace import DISPLAY_COLS, STUDY_V2_SCHEMA, _decimate_minmax
+from flowdnalab.core.trace import DISPLAY_COLS, MAX_MEMBERS, STUDY_V2_SCHEMA, _decimate_minmax
+from flowdnalab.io import real_data
 
 
 def test_decimation_preserves_extrema():
@@ -34,11 +36,13 @@ def test_study_v2_commits_the_full_ensemble(tmp_path, monkeypatch):
     t = json.loads((pipeline.DERIVED / m["artifact"]["path"]).read_text(encoding="utf-8"))
 
     n = t["stats"]["n_members"]
+    nc = t["stats"].get("n_committed", n)
     k = t["k"]
-    # every member curve is committed with a label (NOT 3 samples/cluster)
-    assert len(t["members"]["curves"]) == n
-    assert len(t["members"]["geotype"]) == n
-    assert n > 3 * k, "the v2 artifact must carry the whole ensemble, not a few samples"
+    # the committed members carry the ensemble (full for a small case; a stratified sample for a corpus)
+    assert nc == n, "WR01 is small, so every member is committed (n_committed == n_members)"
+    assert len(t["members"]["curves"]) == nc
+    assert len(t["members"]["geotype"]) == nc
+    assert nc > 3 * k, "the v2 artifact must carry the whole ensemble, not a few samples"
     assert all(len(c) <= DISPLAY_COLS for c in t["members"]["curves"])
     assert set(t["members"]["geotype"]) <= set(range(k))
 
@@ -58,15 +62,40 @@ def test_study_v2_commits_the_full_ensemble(tmp_path, monkeypatch):
     assert dtw["dmax"] > 0
     assert all(0 <= v <= 255 for r in dtw["rows"] for v in r)
 
-    # the MDS embedding (per-member 2D coords + valid medoid indices)
+    # the MDS embedding (per-committed-member 2D coords + valid medoid indices)
     emb = t["embedding"]
-    assert len(emb["mds2d"]) == n and all(len(p) == 2 for p in emb["mds2d"])
-    assert len(emb["medoid_idx"]) == k
-    assert all(0 <= i < n for i in emb["medoid_idx"])
+    assert len(emb["mds2d"]) == nc and all(len(p) == 2 for p in emb["mds2d"])
+    assert 0 < len(emb["medoid_idx"]) <= k
+    assert all(0 <= i < nc for i in emb["medoid_idx"])
 
     # byte budget (honest): the committed artifact stays well under ~2 MB
     size = (pipeline.DERIVED / m["artifact"]["path"]).stat().st_size
     assert size < 2_000_000, f"study artifact too large: {size} bytes"
+
+
+@pytest.mark.skipif(not real_data.full_corpus_available("A"),
+                    reason="full-corpus benchmark inputs not in the vault (Dataset_A_DTW.npy)")
+def test_benchmark_full_corpus_caps_members_but_reports_full_n(tmp_path, monkeypatch):
+    """A full-corpus benchmark clusters the ENTIRE ~4768-curve corpus (reusing the precomputed DTW),
+    but the committed artifact caps the members to a stratified subsample + stays under the byte
+    budget, while stats.n_members reports the FULL population."""
+    monkeypatch.setattr(pipeline, "DERIVED", tmp_path / "derived")
+    monkeypatch.setattr(pipeline, "MANIFESTS", tmp_path / "derived" / "manifests")
+    m = pipeline.precompute("BENCH_A", seed=42)
+    t = json.loads((pipeline.DERIVED / m["artifact"]["path"]).read_text(encoding="utf-8"))
+    st = t["stats"]
+    assert st["n_members"] > 1000, "the benchmark clusters the full corpus (thousands of curves)"
+    assert st["n_committed"] <= MAX_MEMBERS + t["k"], "committed members are capped (+ the medoids)"
+    assert st["n_committed"] < st["n_members"], "large corpus -> a stratified subsample is committed"
+    assert len(t["members"]["curves"]) == st["n_committed"]
+    assert len(t["embedding"]["mds2d"]) == st["n_committed"]
+    # every committed medoid is present + in range
+    assert 0 < len(t["embedding"]["medoid_idx"]) <= t["k"]
+    # the manifest carries the full-corpus provenance
+    bench = json.loads((pipeline.MANIFESTS / f"{m['case_id']}.json").read_text(encoding="utf-8"))
+    assert bench["metrics"]["benchmark"]["n_corpus"] >= st["n_members"]
+    # byte budget
+    assert (pipeline.DERIVED / m["artifact"]["path"]).stat().st_size < 2_000_000
 
 
 def test_study_v2_is_deterministic(tmp_path, monkeypatch):

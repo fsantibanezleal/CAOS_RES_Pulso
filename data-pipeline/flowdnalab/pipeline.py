@@ -35,12 +35,13 @@ MODELS = REPO_ROOT / "models"
 STAGES = ("preprocess", "feature_extraction", "train", "infer", "evaluate", "export")
 
 
-def _train_infer_evaluate(arrays, spec, seed: int) -> dict:
+def _train_infer_evaluate(arrays, spec, seed: int, precomputed_D=None) -> dict:
     """The shared study core: train (DTW/PAM/catalogue/conformal/attribution) -> infer (assign the
     held-out test slice) -> evaluate (silhouette, empirical coverage, OOD, attribution gate). Returns
-    {trained, assignments, metrics}. Used by the study, real AND dfm paths."""
+    {trained, assignments, metrics}. Used by the study, real, dfm AND benchmark paths. `precomputed_D`
+    (a full-corpus DTW matrix) is passed through so the benchmark reuses the vault's DTW matrix."""
     rng = make_rng(seed)
-    trained = train.run(arrays, spec, rng, seed)
+    trained = train.run(arrays, spec, rng, seed, precomputed_D=precomputed_D)
     X = np.asarray(arrays.X, dtype=float)
     X_test = X[trained["split"]["test"]]
     assignments = infer.run(trained["assigner"], X_test, spec)
@@ -69,6 +70,48 @@ def _precompute_study(case, seed: int) -> dict:
     curveset, report = preprocess.run(case.spec, rng)
     arrays = feature_extraction.run(curveset, case.spec)
     return _run_study_stages(case, arrays, case.spec, report.flagged, seed, t0)
+
+
+def _precompute_benchmark(case, seed: int) -> dict:
+    """FULL-corpus benchmark: cluster the ENTIRE ~4768-curve dataset reusing the vault's precomputed
+    DTW matrix (no 4768^2 recompute). The honest full-corpus numbers feed the Benchmark page. CONTRACT-1
+    filters bad curves; the precomputed DTW is sliced to the SAME kept curves before clustering, so the
+    matrix and the curves stay aligned (a mismatch would silently mis-cluster)."""
+    from .io import real_data
+    from .io.contract import validate_curves
+    from .stages.feature_extraction import arrays_from_curves
+
+    spec = case.spec
+    t0 = time.perf_counter()
+    loaded = real_data.load_full_corpus(spec.dataset)  # {'t','p','features','ids','D','n','n_corpus'}
+    raw = [{"curve_id": f"{spec.dataset}_{cid}", "t": t.tolist(), "p": p.tolist()}
+           for cid, t, p in zip(loaded["ids"], loaded["t"], loaded["p"])]
+    report = validate_curves(raw)
+    accepted = {r["curve_id"] for r in report.accepted}
+    keep = [i for i, cid in enumerate(loaded["ids"]) if f"{spec.dataset}_{cid}" in accepted]
+    if len(keep) < spec.k_max * 3:
+        raise ValueError(f"benchmark {spec.dataset}: too few curves passed CONTRACT 1 ({len(keep)})")
+    keep_arr = np.asarray(keep, dtype=int)
+    arrays = arrays_from_curves(
+        case.id, [loaded["t"][i] for i in keep], [loaded["p"][i] for i in keep],
+        [loaded["features"][i] for i in keep], loaded["feature_names"],
+        n_points=spec.n_points, derivative_order=spec.derivative_order, L=spec.L, norm=spec.norm,
+    )
+    # slice the precomputed full-corpus DTW to the CONTRACT-1-kept curves (same order as `arrays`)
+    D_kept = np.asarray(loaded["D"], dtype=float)[np.ix_(keep_arr, keep_arr)]
+    r = _train_infer_evaluate(arrays, spec, seed, precomputed_D=D_kept)
+    run_ms = (time.perf_counter() - t0) * 1000.0
+    flags = [{"provenance": f"4TU Dataset {spec.dataset} FULL corpus: {len(keep)} of {loaded['n_corpus']} "
+              f"curves used (precomputed DTW reused; ~20% late-start/early-end outliers dropped so the "
+              f"curves share a common log-time grid; the App real_ cases use a seeded 400-subsample)"}]
+    # tag the artifact metrics with the full-corpus scope for the Benchmark page
+    r["metrics"]["benchmark"] = {"dataset": spec.dataset, "n_corpus": loaded["n_corpus"],
+                                 "n_used": len(keep), "dtw_source": "precomputed (vault)"}
+    return export.run_study(
+        case=case, arrays=arrays, trained=r["trained"], assignments=r["assignments"],
+        metrics=r["metrics"], seed=seed, run_ms=run_ms, flags=flags,
+        derived_dir=str(DERIVED), manifests_dir=str(MANIFESTS),
+    )
 
 
 def _precompute_real(case, seed: int) -> dict:
@@ -201,6 +244,8 @@ def precompute(case_id: str, seed: int = 42) -> dict:
         return _precompute_study(case, seed)
     if case.kind == "real":
         return _precompute_real(case, seed)
+    if case.kind == "benchmark":
+        return _precompute_benchmark(case, seed)
     if case.kind == "field":
         return _precompute_field(case, seed)
     if case.kind == "darts":
@@ -234,7 +279,8 @@ def _darts_available() -> bool:
 
 
 def run_all(seed: int = 42,
-            kinds: tuple[str, ...] = ("study", "dfn", "real", "darts", "dfm", "field")) -> list[dict]:
+            kinds: tuple[str, ...] = ("study", "dfn", "real", "darts", "dfm", "field",
+                                      "benchmark")) -> list[dict]:
     from .io import field_data, real_data
 
     real_ok = real_data.available()
@@ -246,6 +292,9 @@ def run_all(seed: int = 42,
             continue
         if c.kind == "real" and not real_ok:
             print(f"  SKIP {c.id}: 4TU vault corpus not available (FLOWDNA_VAULT/real-curves)")
+            continue
+        if c.kind == "benchmark" and not real_data.full_corpus_available(c.spec.dataset):
+            print(f"  SKIP {c.id}: full-corpus benchmark inputs not available (Dataset_{c.spec.dataset}_DTW.npy)")
             continue
         if c.kind == "field" and not field_ok:
             print(f"  SKIP {c.id}: field campaigns not available (FLOWDNA_VAULT/field)")

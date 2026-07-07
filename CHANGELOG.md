@@ -3,6 +3,26 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.13.000] — 2026-07-07
+
+### Added: rebuild phase P1c, full-corpus benchmark cases (BENCH_A/B/C)
+- **`benchmark` case kind**: clusters the ENTIRE ~4768-curve 4TU corpus per dataset (A/B/C), reusing
+  the corpus's own precomputed DTW matrix (`Dataset_X_DTW.npy`, ~90 MB, vault-only) so it does not
+  recompute 4768^2 DTW. The honest FULL-corpus counterpart to the 400-subsample App `real` cases.
+- `io/real_data.load_full_corpus` (curves + descriptors + precomputed DTW, aligned, with a
+  late-start/early-end outlier filter so the corpus shares a common log-time grid; ~20% dropped for
+  B/C, reported); `stages/train.run` accepts a precomputed DTW + scales the PAM restart count down for
+  large matrices (PAM is ~8 s/run at 2800 curves); `_mds_embedding` subsamples the SMACOF MDS for
+  large n (embed a representative subset, place the rest at their nearest embedded neighbour).
+- CONTRACT-3 caps the committed members to a stratified subsample (`MAX_MEMBERS`, medoids always
+  included) so a full-corpus artifact stays under the 2 MB budget while `stats.n_members` reports the
+  FULL population (`n_committed` the committed count). TS mirror + tests updated.
+- Result: BENCH_A k=2 sil 0.57, top control `log_I` (fracture intensity) at gate 0.92 - partially
+  reproduces the paper's headline finding on the full corpus. Feeds the Benchmark page (P5) + the
+  cross-dataset retention Sankey (P3).
+- Docs: `docs/cases` full-corpus benchmark section. Tests: `test_contract3` benchmark case
+  (caps members, reports full n, byte budget).
+
 ## [0.12.000] — 2026-07-04
 
 ### Changed: rebuild phase P1b, scale the DFM ensembles + DFM CONTRACT-3

@@ -34,15 +34,26 @@ def split_indices(n: int, spec: EnsembleSpec, rng: np.random.Generator) -> dict[
     }
 
 
-def run(arrays: StudyArrays, spec: EnsembleSpec, rng: np.random.Generator, seed: int) -> dict:
+def run(arrays: StudyArrays, spec: EnsembleSpec, rng: np.random.Generator, seed: int,
+        precomputed_D: np.ndarray | None = None) -> dict:
     X = np.asarray(arrays.X, dtype=float)
     t_grid = np.asarray(arrays.t_grid, dtype=float)
     idx = split_indices(X.shape[0], spec, rng)
     X_train = X[idx["train"]]
 
-    D = dtw_matrix(X_train, window=spec.dtw_window, backend="auto")
-    diag = select_k(D, range(spec.k_min, spec.k_max + 1), n_init=10, seed=seed)
-    res = pam_kmedoids(D, k=diag["best_k"], n_init=10, seed=seed)
+    if precomputed_D is not None:
+        # a precomputed DTW matrix over ALL curves (e.g. the full-corpus benchmark reuses the vault's
+        # Dataset_X_DTW.npy); slice it to the train split so the catalogue/embedding align.
+        tr = idx["train"]
+        D = np.asarray(precomputed_D, dtype=float)[np.ix_(tr, tr)]
+    else:
+        D = dtw_matrix(X_train, window=spec.dtw_window, backend="auto")
+    # PAM is O(n^2) per iteration and each restart is ~seconds at benchmark scale (~2800 curves); scale
+    # the restart count down for large matrices so select_k stays tractable (the medoid solution is
+    # already stable there), while small App ensembles keep the full n_init=10 for robustness.
+    n_init = 10 if D.shape[0] <= 800 else (4 if D.shape[0] <= 1500 else 2)
+    diag = select_k(D, range(spec.k_min, spec.k_max + 1), n_init=n_init, seed=seed)
+    res = pam_kmedoids(D, k=diag["best_k"], n_init=n_init, seed=seed)
 
     catalogue = build_catalogue(
         X_train, t_grid, D, k=res.k, dtw_window=spec.dtw_window,
@@ -85,9 +96,16 @@ def run(arrays: StudyArrays, spec: EnsembleSpec, rng: np.random.Generator, seed:
     }
 
 
+# SMACOF MDS is O(n^2) per iteration; above this it is too slow to embed every curve, so we embed a
+# representative subsample and place the rest by their nearest embedded neighbour (out-of-sample).
+_MDS_MAX_FULL = 600
+
+
 def _mds_embedding(D: np.ndarray, seed: int) -> dict:
     """Classical (metric) MDS 2D + 3D from a precomputed DTW distance matrix, for the shape-space
-    scatter. Deterministic (fixed seed). Falls back to zeros if sklearn is unavailable (core-only)."""
+    scatter. Deterministic (fixed seed). For large n (e.g. the full-corpus benchmark), embed a
+    subsample with SMACOF and place the rest at their nearest embedded neighbour (keeps it tractable
+    and the scatter still shows the cluster structure). Falls back to zeros if sklearn is absent."""
     D = np.asarray(D, dtype=float)
     n = D.shape[0]
     try:
@@ -96,17 +114,41 @@ def _mds_embedding(D: np.ndarray, seed: int) -> dict:
         return {"mds2d": np.zeros((n, 2)), "mds3d": None, "stress": 0.0}
     Dsym = 0.5 * (D + D.T)
     np.fill_diagonal(Dsym, 0.0)
-    # metric MDS from the precomputed dissimilarity; explicit init + raw stress (quiet across versions)
     common = dict(dissimilarity="precomputed", random_state=seed, normalized_stress=False,
                   max_iter=300)
+
+    if n <= _MDS_MAX_FULL:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            m2 = MDS(n_components=2, n_init=4, **common)
+            xy = m2.fit_transform(Dsym)
+            mds3d = None
+            if n > 3:
+                m3 = MDS(n_components=3, n_init=2, **common)
+                mds3d = m3.fit_transform(Dsym)
+        return {"mds2d": xy, "mds3d": mds3d, "stress": float(m2.stress_)}
+
+    # large n: embed a seeded subsample, then place the rest at the nearest embedded neighbour
+    rng = np.random.default_rng(seed)
+    sub = np.sort(rng.choice(n, size=_MDS_MAX_FULL, replace=False))
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        m2 = MDS(n_components=2, n_init=4, **common)
-        xy = m2.fit_transform(Dsym)
-        mds3d = None
-        if n > 3:
-            m3 = MDS(n_components=3, n_init=2, **common)
-            mds3d = m3.fit_transform(Dsym)
+        m2 = MDS(n_components=2, n_init=2, **common)
+        xy_sub = m2.fit_transform(Dsym[np.ix_(sub, sub)])
+        m3 = MDS(n_components=3, n_init=1, **common)
+        xyz_sub = m3.fit_transform(Dsym[np.ix_(sub, sub)])
+    xy = np.zeros((n, 2))
+    mds3d = np.zeros((n, 3))
+    # nearest embedded subsample point (by DTW distance) for every curve
+    nearest = sub[np.argmin(Dsym[:, sub], axis=1)]
+    pos_in_sub = {int(s): i for i, s in enumerate(sub)}
+    for i in range(n):
+        j = pos_in_sub[int(nearest[i])]
+        xy[i] = xy_sub[j]
+        mds3d[i] = xyz_sub[j]
+    # keep the exact subsample coords for the subsample rows
+    xy[sub] = xy_sub
+    mds3d[sub] = xyz_sub
     return {"mds2d": xy, "mds3d": mds3d, "stress": float(m2.stress_)}
 
 
