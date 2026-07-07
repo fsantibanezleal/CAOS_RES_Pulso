@@ -64,8 +64,9 @@ export interface StudyTrace {
 // commits every member curve (decimated), per-cluster envelopes, the DTW distance matrix and the MDS
 // embedding, so the P3 visualizations render the whole ensemble without recomputation in the browser.
 export interface EnsembleMembers {
-  geotype: number[]; // per-curve cluster label (length n)
-  curves: number[][]; // per-curve decimated (min/max-per-pixel) values
+  geotype: number[]; // per-committed-curve cluster label
+  curves: number[][]; // per-committed-curve decimated (min/max-per-pixel) values
+  note?: string; // "full" or "stratified subsample K/N" (large corpora are capped)
 }
 export interface ClusterEnvelope {
   geotype: number;
@@ -92,7 +93,9 @@ export interface StudyTraceV2 extends StudyTrace {
   dtw: DtwMatrix;
   embedding: MdsEmbedding;
   stats: {
-    n_members: number;
+    n_members: number; // the full population size
+    n_committed?: number; // curves actually committed (== n_members unless capped)
+    members_note?: string;
     display_cols: number;
     dtw_n: number;
     dtw_note: string;

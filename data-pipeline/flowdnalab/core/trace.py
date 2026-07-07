@@ -23,6 +23,7 @@ MAX_NETWORKS_IN_TRACE = 12    # decimated network geometries committed for the v
 ROUND = 5
 DISPLAY_COLS = 64             # min/max-per-pixel display width for committed member curves
 MAX_DTW_N = 512              # cap the committed DTW matrix; larger ensembles ship a capped subsample
+MAX_MEMBERS = 800           # cap the committed member curves; large ensembles ship a stratified sample
 
 
 def _r(x, nd=ROUND):
@@ -90,10 +91,25 @@ def build_study_trace_v2(
     n = X_train.shape[0]
     k = int(catalogue.k)
 
-    # every member curve, decimated (extrema-preserving), with its cluster label
+    # every member curve, decimated (extrema-preserving), with its cluster label. For very large
+    # ensembles (the full-corpus benchmark), commit a STRATIFIED subsample (per-cluster proportional)
+    # so the artifact stays within budget; the envelopes below still summarize the FULL population.
+    if n > MAX_MEMBERS:
+        rng = np.random.default_rng(0)
+        sel = [np.asarray(medoid_idx, dtype=int)]  # always commit the medoids (they anchor the scatter)
+        for g in np.unique(labels):
+            idx_g = np.where(labels == g)[0]
+            take = max(1, int(round(MAX_MEMBERS * idx_g.size / n)))
+            sel.append(rng.choice(idx_g, size=min(take, idx_g.size), replace=False))
+        member_idx = np.unique(np.concatenate(sel))
+        members_note = f"stratified subsample {member_idx.size}/{n}"
+    else:
+        member_idx = np.arange(n)
+        members_note = "full"
     members = {
-        "geotype": labels.tolist(),
-        "curves": [_decimate_minmax(X_train[i]) for i in range(n)],
+        "geotype": labels[member_idx].tolist(),
+        "curves": [_decimate_minmax(X_train[i]) for i in member_idx],
+        "note": members_note,
     }
 
     # per-cluster quantile envelopes on the full t_grid (the band the explorer draws for large N)
@@ -132,19 +148,29 @@ def build_study_trace_v2(
         split=id_split, assignments=assignments, k_diagnostics=k_diagnostics,
         attribution=attribution, metrics=metrics, params_sample=[],
     )
+    # commit the embedding for the SAME committed members (so the scatter and the curves align); remap
+    # the medoid indices into the committed-member index space (drop medoids not in the subsample).
+    mds2d_full = np.asarray(embedding["mds2d"], dtype=float)
+    mds3d_full = np.asarray(embedding["mds3d"], dtype=float) if embedding.get("mds3d") is not None else None
+    remap = {int(orig): j for j, orig in enumerate(member_idx)}
+    committed_medoids = [remap[int(i)] for i in medoid_idx if int(i) in remap]
+
     base["schema"] = STUDY_V2_SCHEMA
     base["members"] = members
     base["envelopes"] = envelopes
     base["dtw"] = dtw
     base["embedding"] = {
-        "mds2d": [[round(float(a), 4), round(float(b), 4)] for a, b in embedding["mds2d"]],
-        "mds3d": ([[round(float(a), 4), round(float(b), 4), round(float(c), 4)]
-                   for a, b, c in embedding["mds3d"]] if embedding.get("mds3d") is not None else None),
+        "mds2d": [[round(float(mds2d_full[i, 0]), 4), round(float(mds2d_full[i, 1]), 4)]
+                  for i in member_idx],
+        "mds3d": ([[round(float(mds3d_full[i, 0]), 4), round(float(mds3d_full[i, 1]), 4),
+                    round(float(mds3d_full[i, 2]), 4)] for i in member_idx]
+                  if mds3d_full is not None else None),
         "stress": round(float(embedding.get("stress", 0.0)), 5),
-        "medoid_idx": [int(i) for i in medoid_idx],
+        "medoid_idx": committed_medoids,
     }
     base["stats"] = {
-        "n_members": n, "display_cols": DISPLAY_COLS, "dtw_n": len(order), "dtw_note": dtw_note,
+        "n_members": int(n), "n_committed": int(member_idx.size), "members_note": members_note,
+        "display_cols": DISPLAY_COLS, "dtw_n": len(order), "dtw_note": dtw_note,
         "decimation": "min/max-per-pixel (extrema-preserving)",
     }
     return base

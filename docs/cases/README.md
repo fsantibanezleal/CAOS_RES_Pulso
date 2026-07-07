@@ -46,6 +46,27 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 | FIELD_horkheim | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
 | FIELD_lauswiesen | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
 | FIELD_combined | ✔ | ✔ | withheld (honest null: no controlling factor) | — | ✔ field (welltestpy) |
+| BENCH_A | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3800 curves) |
+| BENCH_B | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3600 curves) |
+| BENCH_C | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3800 curves) |
+
+## FULL-CORPUS BENCHMARK — the whole 4TU corpus (2026-07-07)
+
+The `benchmark` cases (BENCH_A/B/C) cluster the ENTIRE ~4768-curve 4TU corpus per dataset, reusing the
+corpus's own **precomputed DTW matrix** (`Dataset_X_DTW.npy`, ~90 MB, vault-only) so it does not
+recompute 4768^2 DTW (which would take hours). This is the honest FULL-corpus counterpart to the
+400-subsample App `real` cases: the subsample + K choice inflate the App silhouette (0.58-0.86), while
+the full-corpus numbers are the paper's regime (K=4, silhouette ~0.37-0.46).
+
+- Reuse: the precomputed DTW is sliced to the CONTRACT-1-kept curves so the matrix and curves stay
+  aligned. The committed CONTRACT-3 artifact CAPS the members to a stratified subsample (`MAX_MEMBERS`)
+  + the DTW matrix to `MAX_DTW_N`, so a full-corpus case stays under the ~2 MB byte budget while
+  `stats.n_members` reports the FULL population.
+- Honesty: ~20% of curves per dataset are dropped as late-start/early-end outliers whose absolute
+  t_D range does not overlap the bulk (otherwise the common-grid resample has no shared window). The
+  dropped count is reported in the provenance flag. Datasets B and C need this filter; A barely.
+- These feed the Benchmark PAGE (P5): full-corpus silhouette/K/attribution + the cross-dataset
+  retention (the Sankey, P3) computed from the aligned A/B/C labels.
 
 ## REAL FIELD DATA — welltestpy aquifer pumping tests (2026-07-04)
 
