@@ -3,6 +3,30 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.14.000] · 2026-07-07
+
+### Added: rebuild phase P2a, distances-and-clustering method comparison
+- **`methods/clustering.compare_clusterings`**: runs the SOTA clustering alternatives OFFLINE on the
+  exact ensemble of a case and scores each against the reference DTW k-medoids catalogue by silhouette
+  (precomputed DTW metric) and Adjusted Rand Index (chance-corrected agreement with the reference
+  labels). Methods: soft-DTW k-means + k-Shape (tslearn), hierarchical average-linkage (scipy),
+  spectral on a DTW affinity (scikit-learn), HDBSCAN on the DTW matrix (free K + noise), and
+  Euclidean/correlation k-medoids ablation baselines. Each has a verified primary source (see
+  `docs/methods/01_clustering-ladder.md`). Optional libs degrade to a recorded `skipped`, never a crash.
+- Gated by `spec.compare_methods` (a representative subset: WR01, REAL_A, BENCH_A/B/C), on a seeded
+  600-curve subsample for large corpora (reference labels subsampled identically so the ARI stays
+  fair; recorded as e.g. `600/2288`). Result lands in the trace's `method_comparison` block
+  (contract `pulso.study/v2`); TS mirror + Python test added.
+- **App "Method agreement" tab** (`render/MethodAgreementView`): a genuine domain view that appears
+  only when the comparison was baked for the selected case, reacting to the case selector. Reads the
+  baked block (no live compute), shows silhouette + ARI bars with a strong/partial/disagrees legend,
+  bilingual (EN/ES), light + dark.
+- Honest result from the baked benchmark: REAL_A/BENCH_A/BENCH_C see 6 of 7 methods agree with the DTW
+  reference (BENCH_C has HDBSCAN independently recover the same K); BENCH_B (backbone-derivative) is
+  the hard case where only spectral agrees, reported rather than hidden.
+- Frameworks: `docs/frameworks/tslearn`, `docs/frameworks/hdbscan` cards; `requirements.txt` pins
+  `tslearn>=0.9.0`, `hdbscan>=0.8.0`. Methods landing `docs/methods.md` + ladder note.
+
 ## [0.13.000] — 2026-07-07
 
 ### Added: rebuild phase P1c, full-corpus benchmark cases (BENCH_A/B/C)
