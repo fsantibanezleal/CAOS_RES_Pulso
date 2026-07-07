@@ -1,7 +1,7 @@
 {
   "name": "pulso-frontend",
   "private": true,
-  "version": "0.13.000",
+  "version": "0.14.000",
   "type": "module",
   "scripts": {
     "predev": "node copy-data.mjs",

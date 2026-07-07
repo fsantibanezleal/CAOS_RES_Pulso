@@ -8,6 +8,8 @@ its validation + these docs are the primary product; the web app is a projection
   trace, the live/precompute gate, the staged pipeline, model evaluation, deploy.
 - **[frameworks/](frameworks/)** — one card per research-chosen engine/library (what/why · install · usage ·
   applying). The deep research, made binding (each is pinned in a `requirements-*.txt`).
+- **[methods/](methods.md)** — the method ladder: the reference DTW k-medoids catalogue and the SOTA
+  alternatives it is honestly measured against (silhouette + ARI), grouped by what each operates on.
 - **[guides/](guides/)** — runnable how-tos: **instantiate the template**, run the precompute pipeline,
   **bring your own data**, the GPU lane, run the API.
 - **[cases/](cases/)** — the CATEGORY taxonomy + the coverage matrix + one page per documented case.

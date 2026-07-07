@@ -6,5 +6,14 @@ engine the research prescribed.
 
 - [00 — card TEMPLATE](frameworks/00_TEMPLATE.md) — copy per engine to `frameworks/<NN>_<tool>/<tool>.md`
 
-*(The template's EXAMPLE engine is numpy-only SIR, so it ships no SOTA card. A real product adds e.g.
-`01_yade/`, `02_ortools/`, `03_mintpy/`, `04_torch/`.)*
+**Cards (one per research-chosen engine):**
+
+- [pygeotypes](frameworks/pygeotypes/README.md) — the shape-catalogue core (DTW, PAM k-medoids, conformal assignment, RF+SHAP)
+- [dtaidistance](frameworks/dtaidistance/) — C-fast pairwise DTW matrices (offline distance backend)
+- [tslearn](frameworks/tslearn/tslearn.md) — soft-DTW k-means + k-Shape (P2a clustering comparison)
+- [hdbscan](frameworks/hdbscan/hdbscan.md) — density clustering with noise + no fixed k (P2a comparison control)
+- [open-darts](frameworks/open-darts/) — DFM reservoir simulation (offline physics lane)
+- [geodfn](frameworks/geodfn/) — discrete fracture network generation
+- [torch](frameworks/torch/) — GPU training of the learned tier (exported to ONNX)
+- [onnxruntime-web](frameworks/onnxruntime-web/) — in-browser inference of the learned tier
+- [welltestpy](frameworks/welltestpy/) — analytic well-test references

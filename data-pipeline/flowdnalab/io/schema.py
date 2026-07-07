@@ -35,6 +35,9 @@ class EnsembleSpec:
     frac_cal: float = 0.25
     frac_test: float = 0.25
     alpha: float = 0.15
+    # P2a: run the distances-and-clustering method comparison (soft-DTW/k-Shape/hierarchical/spectral/
+    # HDBSCAN/baselines vs DTW-PAM). ~seconds/method, so opt-in on a representative subset of cases.
+    compare_methods: bool = False
 
 
 @dataclass(frozen=True)
@@ -218,6 +221,7 @@ class RealDataSpec:
     frac_cal: float = 0.25
     frac_test: float = 0.25
     alpha: float = 0.15
+    compare_methods: bool = False  # P2a clustering comparison (opt-in; ~seconds/method)
 
 
 @dataclass(frozen=True)
@@ -269,6 +273,7 @@ class BenchmarkSpec:
     frac_cal: float = 0.2
     frac_test: float = 0.2
     alpha: float = 0.15
+    compare_methods: bool = False  # P2a clustering comparison (opt-in; ~seconds/method)
 
 
 @dataclass(frozen=True)
