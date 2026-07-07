@@ -103,12 +103,34 @@ export interface MethodComparison {
   subsampled: string | null; // "600/N" when the comparison ran on a subsample (large corpora)
 }
 
+// P2b: the representations block (UMAP / t-SNE / functional PCA / catch22), computed on the SAME
+// committed members as `members`, so every 2D layout aligns row-for-row with the member curves.
+export interface Catch22Table {
+  names?: string[];
+  per_cluster?: Array<{ geotype: number; mean: number[]; std: number[] }>;
+  note?: string;
+  skipped?: boolean;
+}
+export interface FpcaBlock {
+  mean: number[]; // on t_grid
+  modes: number[][]; // (m, n_points) the eigen-shapes on t_grid
+  explained_variance: number[]; // ratio per mode
+  scores2d: Array<[number, number]> | null; // per committed member (first two modes)
+}
+export interface Representations {
+  umap2d: Array<[number, number]> | null; // per committed member; null if umap-learn absent
+  tsne2d: Array<[number, number]> | null; // per committed member; null if degenerate
+  fpca: FpcaBlock;
+  catch22: Catch22Table;
+}
+
 export interface StudyTraceV2 extends StudyTrace {
   members: EnsembleMembers;
   envelopes: ClusterEnvelope[];
   dtw: DtwMatrix;
   embedding: MdsEmbedding;
   method_comparison?: MethodComparison; // present only on comparison-enabled cases (P2a)
+  representations?: Representations; // present only on rich-method cases (P2b)
   stats: {
     n_members: number; // the full population size
     n_committed?: number; // curves actually committed (== n_members unless capped)

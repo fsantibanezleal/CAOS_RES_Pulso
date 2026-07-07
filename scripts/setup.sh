@@ -20,6 +20,9 @@ VP="$(venvpy .venv-pipeline)"
 GEO="$(cd .. && pwd)/CAOS_GeoTypes"
 if [ -d "$GEO" ]; then "$VP" -m pip install -q -e "$GEO[fast,attr]"
 else echo "[setup] WARNING: CAOS_GeoTypes not found next to this repo - clone it and re-run (pygeotypes is required)"; fi
+# pycatch22 (P2b catch22 features): builds a C extension (gcc on Linux/WSL). Optional: the
+# representations code degrades to "skipped" if absent, so a failure here is a warning, not fatal.
+"$VP" -m pip install -q "pycatch22>=0.4.0" || echo "[setup] WARNING: pycatch22 build failed - catch22 feature table omitted. See docs/frameworks/pycatch22."
 echo "[setup] .venv-pipeline ready."
 
 echo "[setup] .venv (runtime/live-thin lane)…"

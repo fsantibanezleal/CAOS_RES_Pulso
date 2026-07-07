@@ -11,7 +11,9 @@ Adjusted Rand Index), never asserted.
 
 - [01 · Distances & clustering (P2a)](methods/01_clustering-ladder.md): the reference DTW k-medoids vs
   soft-DTW k-means, k-Shape, hierarchical, spectral, HDBSCAN, and Euclidean/correlation baselines.
+- [02 · Representations (P2b)](methods/02_representations.md): MDS (have) plus UMAP, t-SNE, functional PCA
+  eigen-shapes, and the catch22 feature signature, all aligned to the committed members.
 
-*(Later groups: representations (MDS/UMAP/t-SNE/fPCA/catch22), diagnostics (regime detection, Warren-Root
-/ Theis fits), the learned tier (InceptionTime/conv-AE/TS2Vec/PatchTST, GPU to ONNX), and attribution &
-assignment (ROM sweep, Mondrian conformal). Authored per unit as each group ships.)*
+*(Later groups: diagnostics (regime detection, Warren-Root / Theis fits), the learned tier
+(InceptionTime/conv-AE/TS2Vec/PatchTST, GPU to ONNX), and attribution & assignment (ROM sweep, Mondrian
+conformal). Authored per unit as each group ships.)*

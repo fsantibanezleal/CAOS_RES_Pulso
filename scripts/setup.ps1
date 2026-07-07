@@ -22,6 +22,17 @@ $vp = Get-VenvPy ".venv-pipeline"
 $geo = Join-Path (Split-Path (Get-Location).Path -Parent) "CAOS_GeoTypes"
 if (Test-Path $geo) { & $vp -m pip install -q -e "$geo[fast,attr]" }
 else { Write-Warning "CAOS_GeoTypes not found next to this repo - clone it and re-run setup (pygeotypes is required)" }
+
+# pycatch22 (P2b catch22 features): a C extension with no Windows wheel, so build it best-effort inside
+# the MSVC environment. Optional: the representations code degrades to "skipped" if it is absent.
+$vcvars = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+if (Test-Path $vcvars) {
+  Write-Host "Building pycatch22 with the MSVC toolchain..."
+  cmd /c "call `"$vcvars`" >nul && set DISTUTILS_USE_SDK=1 && set MSSdk=1 && `"$vp`" -m pip install -q --no-build-isolation `"pycatch22>=0.4.0`""
+  if ($LASTEXITCODE -ne 0) { Write-Warning "pycatch22 build failed - the catch22 feature table will be omitted (representations degrade to skipped)." }
+} else {
+  Write-Warning "MSVC vcvars64.bat not found - skipping pycatch22 (catch22 feature table omitted). See docs/frameworks/pycatch22."
+}
 Write-Host "[setup] .venv-pipeline ready."
 
 Write-Host "[setup] .venv (runtime/live-thin lane)..."
