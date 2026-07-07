@@ -17,7 +17,7 @@ def test_degenerate_control_runs_and_reports_low_quality(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "MANIFESTS", tmp_path / "derived" / "manifests")
     m = pipeline.precompute("CTRL_single_regime", seed=1)
     trace = json.loads((pipeline.DERIVED / m["artifact"]["path"]).read_text(encoding="utf-8"))
-    assert trace["schema"].startswith("flowdna.trace/")
+    assert trace["schema"] in ("flowdna.trace/v1", "pulso.study/v2")
     # one true behaviour: the clustering must NOT report a confident structure. The SILHOUETTE COLLAPSE
     # is the reliable degeneracy signal; the RF accuracy gate can weakly pass here because the control's
     # (omega, lam) ranges are narrow-but-not-exactly-constant, so the two ~balanced clusters (counts

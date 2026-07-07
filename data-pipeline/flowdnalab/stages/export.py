@@ -11,11 +11,13 @@ from ..core.trace import (
     DARTS_TRACE_SCHEMA,
     DFM_TRACE_SCHEMA,
     DFN_TRACE_SCHEMA,
+    STUDY_V2_SCHEMA,
     TRACE_SCHEMA,
     build_darts_trace,
     build_dfm_trace,
     build_dfn_trace,
     build_study_trace,
+    build_study_trace_v2,
 )
 from ..io.formats import write_json
 
@@ -54,19 +56,28 @@ def run_study(
 ) -> dict:
     import numpy as np
 
-    trace = build_study_trace(
-        case_id=case.id,
-        t_grid=arrays.t_grid,
-        X=np.asarray(arrays.X, dtype=float),
-        catalogue=trained["catalogue"],
-        assigner=trained["assigner"],
-        split=trained["split"],
-        assignments=assignments,
-        k_diagnostics=trained["k_diagnostics"],
-        attribution=trained["attribution"],
-        metrics=metrics,
-        params_sample=[],
-    )
+    # CONTRACT-3 (P0.2): the FULL-ensemble study artifact (pulso.study/v2) when the train stage kept
+    # the ensemble arrays; falls back to the v1 builder otherwise (e.g. an old cached trained dict).
+    if all(kk in trained for kk in ("D", "labels", "X_train", "embedding")):
+        trace = build_study_trace_v2(
+            case_id=case.id, t_grid=arrays.t_grid,
+            X_train=np.asarray(trained["X_train"], dtype=float),
+            labels=np.asarray(trained["labels"], dtype=int),
+            D=np.asarray(trained["D"], dtype=float),
+            embedding=trained["embedding"], medoid_idx=trained.get("medoid_idx", []),
+            catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
+            assignments=assignments, k_diagnostics=trained["k_diagnostics"],
+            attribution=trained["attribution"], metrics=metrics,
+        )
+        schema = STUDY_V2_SCHEMA
+    else:
+        trace = build_study_trace(
+            case_id=case.id, t_grid=arrays.t_grid, X=np.asarray(arrays.X, dtype=float),
+            catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
+            assignments=assignments, k_diagnostics=trained["k_diagnostics"],
+            attribution=trained["attribution"], metrics=metrics, params_sample=[],
+        )
+        schema = TRACE_SCHEMA
     artifact_rel = f"{case.id}/trace.json"
     trace_bytes = write_json(Path(derived_dir) / artifact_rel, trace)
     # Live posture of a STUDY case: the browser re-generates ONE analytic curve + classifies it with
@@ -77,7 +88,7 @@ def run_study(
                          run_ms=live_ms, trace_bytes=trace_bytes)
     del run_ms  # offline bake wall-clock: used for logging only, never committed (determinism)
     manifest = build_case_manifest(
-        case=case, seed=seed, artifact_rel=artifact_rel, artifact_schema=TRACE_SCHEMA,
+        case=case, seed=seed, artifact_rel=artifact_rel, artifact_schema=schema,
         trace_bytes=trace_bytes, gate=gate, flags=_cap_flags(flags), metrics=metrics,
         extra_engines={"dtw_backend": trained["dtw_backend"]},
     )
