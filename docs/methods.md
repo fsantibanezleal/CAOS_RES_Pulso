@@ -13,7 +13,8 @@ Adjusted Rand Index), never asserted.
   soft-DTW k-means, k-Shape, hierarchical, spectral, HDBSCAN, and Euclidean/correlation baselines.
 - [02 · Representations (P2b)](methods/02_representations.md): MDS (have) plus UMAP, t-SNE, functional PCA
   eigen-shapes, and the catch22 feature signature, all aligned to the committed members.
+- [03 · Diagnostics (P2c)](methods/03_diagnostics.md): live flow-regime auto-detection + marking,
+  Warren-Root and Theis fits that recover the parameters from the curve, and the p'' curvature.
 
-*(Later groups: diagnostics (regime detection, Warren-Root / Theis fits), the learned tier
-(InceptionTime/conv-AE/TS2Vec/PatchTST, GPU to ONNX), and attribution & assignment (ROM sweep, Mondrian
-conformal). Authored per unit as each group ships.)*
+*(Later groups: the learned tier (InceptionTime/conv-AE/TS2Vec/PatchTST, GPU to ONNX), and attribution &
+assignment (ROM sweep, Mondrian conformal). Authored per unit as each group ships.)*
