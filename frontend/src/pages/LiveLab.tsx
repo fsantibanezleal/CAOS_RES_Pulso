@@ -9,11 +9,11 @@ import {
   detectRegimes, fitTheis, fitWarrenRoot, secondLogDerivative, REGIME_COLORS, type RegimeKind,
 } from '../engine/diagnostics';
 import { conformalAssign, distancesToMedoids } from '../engine/dtw';
-import { autoencode, classifyCNN, embedAndRetrieve, getReference, loadDeep, type DeepReference } from '../engine/onnx';
+import { autoencode, classifyIncep, classifyPatchTST, embedAndRetrieve, getReference, loadDeep, type DeepReference } from '../engine/onnx';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const COLORS = ['#4f9cf9', '#f97b4f', '#41c98d', '#c94fd0', '#d8c14a'];
-const METHODS = ['diagnostics', 'dtw', 'conformal', 'cnn', 'autoencoder', 'contrastive'] as const;
+const METHODS = ['diagnostics', 'dtw', 'conformal', 'inceptiontime', 'patchtst', 'autoencoder', 'contrastive'] as const;
 type Method = (typeof METHODS)[number];
 
 export function LiveLab() {
@@ -48,13 +48,15 @@ export function LiveLab() {
     diagnostics: t.live.m.diagnostics,
     dtw: t.live.m.dtw,
     conformal: t.live.m.conformal,
-    cnn: t.live.m.cnn,
+    inceptiontime: t.live.m.inceptiontime,
+    patchtst: t.live.m.patchtst,
     autoencoder: t.live.m.autoencoder,
     contrastive: t.live.m.contrastive,
   };
   const tier: Record<Method, string> = {
     diagnostics: t.live.tierClassical, dtw: t.live.tierSota, conformal: t.live.tierNovel,
-    cnn: t.live.tierLearned, autoencoder: t.live.tierLearned, contrastive: t.live.tierLearned,
+    inceptiontime: t.live.tierLearned, patchtst: t.live.tierLearned,
+    autoencoder: t.live.tierLearned, contrastive: t.live.tierLearned,
   };
 
   return (
@@ -92,7 +94,14 @@ export function LiveLab() {
           {method !== 'diagnostics' && !deepReady && <p className="muted">{t.live.loadingModels}</p>}
           {method === 'dtw' && ref && model && <DtwView x={model.x} ref={ref} />}
           {method === 'conformal' && ref && model && <ConformalView x={model.x} ref={ref} />}
-          {method === 'cnn' && ref && model && <CnnView x={model.x} ref={ref} />}
+          {method === 'inceptiontime' && ref && model && (
+            <ClassifierView x={model.x} classify={classifyIncep}
+              desc={t.live.incepDesc} acc={ref.metrics.incep_test_accuracy} />
+          )}
+          {method === 'patchtst' && ref && model && (
+            <ClassifierView x={model.x} classify={classifyPatchTST}
+              desc={t.live.patchtstDesc} acc={ref.metrics.patchtst_test_accuracy} />
+          )}
           {method === 'autoencoder' && ref && model && <AeView x={model.x} ref={ref} />}
           {method === 'contrastive' && ref && model && <ContrastiveView x={model.x} ref={ref} />}
         </ErrorBoundary>
@@ -301,17 +310,20 @@ function ConformalView({ x, ref }: { x: number[]; ref: DeepReference }) {
   );
 }
 
-// ---------- learned: 1D-CNN class probabilities (ONNX live) ----------
-function CnnView({ x, ref }: { x: number[]; ref: DeepReference }) {
+// ---------- learned: a GeoType classifier's class probabilities (ONNX live). Shared by the
+//            InceptionTime (CNN) and PatchTST-lite (transformer) heads. ----------
+function ClassifierView({ x, classify, desc, acc }: {
+  x: number[]; classify: (c: number[]) => Promise<number[]>; desc: string; acc: number;
+}) {
   const t = useT();
   const [p, setP] = useState<number[] | null>(null);
-  useEffect(() => { classifyCNN(x).then(setP).catch(() => setP(null)); }, [x]);
+  useEffect(() => { classify(x).then(setP).catch(() => setP(null)); }, [x, classify]);
   if (!p) return <p className="muted">{t.common.loading}</p>;
   const top = p.indexOf(Math.max(...p));
   return (
     <div>
-      <p className="muted">{t.live.cnnDesc}</p>
-      <span className="readout">{t.live.predicted}: <b style={{ color: COLORS[top % COLORS.length] }}>GT{top}</b> ({(p[top] * 100).toFixed(0)}%) · {t.live.acc} {(ref.metrics.cnn_test_accuracy * 100).toFixed(0)}%</span>
+      <p className="muted">{desc}</p>
+      <span className="readout">{t.live.predicted}: <b style={{ color: COLORS[top % COLORS.length] }}>GT{top}</b> ({(p[top] * 100).toFixed(0)}%) · {t.live.acc} {(acc * 100).toFixed(0)}%</span>
       <table style={{ marginTop: '.6rem' }}>
         <thead><tr><th>GeoType</th><th>{t.live.probability}</th></tr></thead>
         <tbody>{p.map((v, g) => (<tr key={g}><td style={{ color: COLORS[g % COLORS.length] }}>GT{g}</td><td><Bar frac={v} color={COLORS[g % COLORS.length]} label={(v * 100).toFixed(1) + '%'} /></td></tr>))}</tbody>

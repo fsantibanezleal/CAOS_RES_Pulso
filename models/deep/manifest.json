@@ -1,6 +1,7 @@
 {
   "models": [
-    "geotype_cnn",
+    "geotype_incep",
+    "geotype_patchtst",
     "curve_ae",
     "curve_embed"
   ],
@@ -10,9 +11,11 @@
     "n_test": 225,
     "k": 3,
     "n_points": 96,
-    "silhouette_train": 0.19031998554506388,
-    "cnn_test_accuracy": 0.8533,
-    "ae_test_recon_mse": 0.47518,
-    "embed_retrieval_at1": 0.9111
+    "silhouette_train": 0.19031998554159232,
+    "device": "cuda",
+    "incep_test_accuracy": 0.9111,
+    "patchtst_test_accuracy": 0.9022,
+    "ae_test_recon_mse": 0.5535,
+    "embed_retrieval_at1": 0.6222
   }
 }

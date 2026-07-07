@@ -15,6 +15,8 @@ Adjusted Rand Index), never asserted.
   eigen-shapes, and the catch22 feature signature, all aligned to the committed members.
 - [03 · Diagnostics (P2c)](methods/03_diagnostics.md): live flow-regime auto-detection + marking,
   Warren-Root and Theis fits that recover the parameters from the curve, and the p'' curvature.
+- [04 · Learned tier (P2d)](methods/04_learned-tier.md): InceptionTime + PatchTST-lite classifiers, a deep
+  conv-AE (OOD), and a TS2Vec-style contrastive encoder, GPU-trained and exported to ONNX (parity < 1e-4),
+  run live via onnxruntime-web.
 
-*(Later groups: the learned tier (InceptionTime/conv-AE/TS2Vec/PatchTST, GPU to ONNX), and attribution &
-assignment (ROM sweep, Mondrian conformal). Authored per unit as each group ships.)*
+*(Final group: attribution & assignment (ROM sweep, Mondrian conformal). Authored as it ships.)*
