@@ -31,4 +31,19 @@ GEO="$(cd .. && pwd)/CAOS_GeoTypes"
 [ -d "$GEO" ] && "$VR" -m pip install -q -e "$GEO"
 echo "[setup] .venv ready."
 
+# GPU training lane (.venv-train): torch cu124 for the learned tier (P2). ISOLATED from .venv-pipeline
+# (which stays CPU for the deterministic offline bake + open-DARTS). Opt-in via PULSO_TRAIN=1 (only on a
+# CUDA machine); skipped by default so a CPU-only checkout still sets up.
+if [ "${PULSO_TRAIN:-}" = "1" ]; then
+  echo "[setup] .venv-train (GPU training lane, torch cu124)…"
+  mkvenv .venv-train
+  VT="$(venvpy .venv-train)"
+  "$VT" -m pip install --upgrade pip -q
+  "$VT" -m pip install -q torch --index-url https://download.pytorch.org/whl/cu124
+  "$VT" -m pip install -q -r data-pipeline/requirements-train.txt
+  [ -d "$GEO" ] && "$VT" -m pip install -q -e "$GEO[fast,attr]"
+  "$VT" -m pip install -q -e .
+  echo "[setup] .venv-train ready. Verify: .venv-train/Scripts/python.exe scripts/gpu_smoke.py"
+fi
+
 echo "[setup] done. Next:  ./scripts/precompute.sh   then   ./scripts/dev.sh"
