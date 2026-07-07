@@ -3,7 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FlowDNA — the geological DNA of fractured reservoirs</title>
+    <title>Pulso — pressure-transient flow-behaviour catalogue</title>
+    <meta
+      name="description"
+      content="Pulso: unsupervised cataloguing of pressure-transient flow behaviours over fracture-network ensembles."
+    />
+    <!-- pre-paint theme (avoid a flash): mirror the shell's persisted choice before React mounts -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('caos.theme');
+          document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

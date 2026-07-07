@@ -1,7 +1,7 @@
 {
-  "name": "flowdna-frontend",
+  "name": "pulso-frontend",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.10.000",
   "type": "module",
   "scripts": {
     "predev": "node copy-data.mjs",
@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fasl-work/caos-app-shell": "^0.3.0",
     "i18next": "^23.16.8",
     "katex": "^0.16.47",
     "lucide-react": "^0.460.0",

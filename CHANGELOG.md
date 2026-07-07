@@ -1,9 +1,30 @@
 # Changelog
 
-All notable changes to FlowDNA. Format: `X.XX.XXX` (display) — see `flowdnalab.__version__`. Keep `0.x`
-while the DARTS transient-on-DFN lane and the real-data (4TU) studies are pending. Tag every release.
+All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
+`0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
-## [0.07.000] — 2026-07-04
+## [0.10.000] — 2026-07-04
+
+### Changed: rebuild phase P0.1, adopt the shared shell (was hand-rolled, no footer)
+- **Product renamed FlowDNA to Pulso.** The old name was the source paper's "geological DNA" metaphor;
+  the paper is inspiration plus one SOTA reference, not the product. Pulso: a well test is a pressure
+  pulse; the product catalogues pressure pulses into flow-behaviour types. Repo `CAOS_RES_FlowDNA` to
+  `CAOS_RES_Pulso` (old auto-redirects); frontend package `flowdna-frontend` to `pulso-frontend`.
+- **Adopted `@fasl-work/caos-app-shell` (ADR-0016 + ADR-0058).** Replaced the hand-rolled header (which
+  had NO footer and a stale, invisible version) with the shared shell: `AppShell` header (brand + six
+  routes + GitHub/personal/portfolio + language + theme + the info button) and the shell FOOTER (name,
+  version, "Developed by Felipe Santibanez-Leal", engine/data provenance + licenses, honest one-liner).
+  Version single-sourced from `package.json` to the footer. The shell owns theme + language
+  (`useShellLang`); removed the app-local `useUI` store and the i18next runtime init. Removed the
+  hand-rolled `Header.tsx` + `ArchitectureModal.tsx`; the shell's `ArchitectureModal` renders the five
+  Pulso arch tabs (bilingual body text now; deep SVG artwork in phase P4).
+- Screenshot-verified in light + dark, 0 console errors; tsc + vitest (6) green.
+- Docs: `docs/architecture/09_frontend-shell.md`.
+
+> Note: this phase adopts the SHELL only. The App workbench, the ~22-method ladder, the
+> rubric-compliant visualizations and the graduate-level page content are rebuilt in phases P2-P4.
+
+## [0.07.000] — 2026-07-04 (as FlowDNA)
 
 ### Added — bringing FlowDNA to the product bar (deeper SOTA + live web)
 - **The learned tier (deep-learning SOTA, the missing piece)**: three real deep models trained

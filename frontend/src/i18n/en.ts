@@ -1,6 +1,6 @@
 // English locale (source of truth per ADR-0011). ES mirrors these keys.
 export const en = {
-  brand: 'FlowDNA',
+  brand: 'Pulso',
   tagline: 'The geological DNA of fractured reservoirs',
   nav: {
     app: 'App',

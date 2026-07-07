@@ -1,4 +1,4 @@
-// Minimal replay renderers for the two FlowDNA artifact kinds (the full ADR-0016 six-page shell is
+// Minimal replay renderers for the two Pulso artifact kinds (the full ADR-0016 six-page shell is
 // the next phase; this keeps the contract exercised end-to-end: index -> manifest -> trace -> pixels).
 import type { DartsTrace, DfnTrace, StudyTrace } from '../lib/contract.types';
 
