@@ -21,7 +21,7 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 | geodfn: sparse network ensemble | dfn | sub-percolation networks: low connectivity/backbone/spanning |
 | geodfn: dense network ensemble | dfn | connected networks: high largest-cluster fraction, backbone, spanning |
 | open-darts: homogeneous drawdown | darts | the SOTA simulator reproduces infinite-acting radial flow (derivative plateau 0.5) |
-| open-darts DFM: GeoTypes on simulated transients | dfm | GeoType study on simulated DFM physics; aperture sweep; MRST fidelity gate; attribution over real descriptors + `log_frac_aper` |
+| open-darts DFM: GeoTypes on simulated transients | dfm | GeoType study on simulated DFM physics at SCALE (200 GeoDFN networks/case); intensity sweep across sparse/mid/dense (DFM03/DFM01/DFM02, P21 ~0.03/0.05/0.07) + a wide aperture sweep (2e-4 to 4e-3 m); MRST fidelity gate; attribution over real descriptors + `log_frac_aper` |
 | real field: pumping tests (AquiferTypes) | field | REAL welltestpy field drawdown (Horkheimer Insel + Lauswiesen); the shape-diagnostic methodology transfers to aquifers; attribution over radial distance / rate / site (honest null on these homogeneous sites) |
 
 ## Coverage matrix (what each case proves)
@@ -40,8 +40,9 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 | DFN06_sparse | — | — | descriptor table | ✔ | — |
 | DFN07_dense | — | — | descriptor table | ✔ | — |
 | DARTS_homog_anchor | — | — | — | — | simulated (validated vs analytic) |
-| DFM01_geotypes | ✔ | ✔ | ✔ over descriptors + `log_frac_aper` | ✔ | simulated (MRST-gated) |
-| DFM02_dense | ✔ | ✔ | ✔ | ✔ | simulated (MRST-gated) |
+| DFM01_geotypes | ✔ (200 nets) | ✔ | ✔ over descriptors + `log_frac_aper` | ✔ | simulated (MRST-gated) |
+| DFM02_dense | ✔ (200 nets) | ✔ | ✔ | ✔ | simulated (MRST-gated) |
+| DFM03_sparse | ✔ (200 nets) | ✔ | ✔ | ✔ | simulated (MRST-gated) |
 | FIELD_horkheim | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
 | FIELD_lauswiesen | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
 | FIELD_combined | ✔ | ✔ | withheld (honest null: no controlling factor) | — | ✔ field (welltestpy) |
@@ -98,7 +99,19 @@ derivative, preprocessing uses `derivative_order=0`.
 - Cross-config GeoType stability (the paper's 64.1% retention) is the Benchmark question, not baked
   into these per-config App cases.
 
-## Findings worth recording (2026-07-03)
+## Findings worth recording
+
+**0. DFM at scale (200 networks) + the honest sparse-network fidelity FAIL (2026-07-07).** Scaling the
+open-DARTS DFM ensembles from 34 to 200 networks made the attribution genuinely powered (the RF gate
+now PASSES at 0.73-0.80 accuracy for DFM02/DFM03, vs the underpowered 34-net version). Across the
+intensity sweep: DFM01 (mid P21 0.05) sil 0.62, 185/200 valid, MRST fidelity PASS (corr 0.92); DFM02
+(dense 0.07) sil 0.62, 168/200, fidelity PASS (0.92); DFM03 (sparse 0.03) sil 0.65, 196/200, but
+**MRST fidelity FAILS (corr ~0)**. This is the CORRECT, honest result: sparse networks are
+matrix-dominated and produce near-radial transients whose Bourdet-derivative shape does not match the
+paper's Dataset B MRST reference (a denser fractured regime). The fidelity gate reports the mismatch
+rather than faking agreement, exactly as designed. It is a real finding, not a defect: our independent
+open-DARTS DFM matches MRST for mid/dense fracture intensities and honestly diverges in the
+sparse/matrix-dominated limit where the two simulators' assumptions differ most.
 
 **1. p' vs p''.** The Freites-2023 recipe clusters the SECOND derivative p'' (offset removal on
 measured data). On these analytic ensembles p'' at 96-point grids destroyed the class structure

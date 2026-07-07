@@ -118,12 +118,26 @@ def run_dfm(
     + conformally classifies one curve against the baked catalogue; the DFM simulation is offline."""
     import numpy as np
 
-    study_trace = build_study_trace(
-        case_id=case.id, t_grid=arrays.t_grid, X=np.asarray(arrays.X, dtype=float),
-        catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
-        assignments=assignments, k_diagnostics=trained["k_diagnostics"],
-        attribution=trained["attribution"], metrics=metrics, params_sample=[],
-    )
+    # CONTRACT-3: build the full-ensemble study base (members + envelopes + DTW + MDS) when the train
+    # stage kept the ensemble arrays, so a DFM study is as rich as an analytic/real one; v1 fallback.
+    if all(kk in trained for kk in ("D", "labels", "X_train", "embedding")):
+        study_trace = build_study_trace_v2(
+            case_id=case.id, t_grid=arrays.t_grid,
+            X_train=np.asarray(trained["X_train"], dtype=float),
+            labels=np.asarray(trained["labels"], dtype=int),
+            D=np.asarray(trained["D"], dtype=float),
+            embedding=trained["embedding"], medoid_idx=trained.get("medoid_idx", []),
+            catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
+            assignments=assignments, k_diagnostics=trained["k_diagnostics"],
+            attribution=trained["attribution"], metrics=metrics,
+        )
+    else:
+        study_trace = build_study_trace(
+            case_id=case.id, t_grid=arrays.t_grid, X=np.asarray(arrays.X, dtype=float),
+            catalogue=trained["catalogue"], assigner=trained["assigner"], split=trained["split"],
+            assignments=assignments, k_diagnostics=trained["k_diagnostics"],
+            attribution=trained["attribution"], metrics=metrics, params_sample=[],
+        )
     trace = build_dfm_trace(
         case_id=case.id, study_trace=study_trace, sample_transient=dfm["sample_transient"],
         fidelity=dfm["fidelity"], mesh_stats=dfm["mesh_stats"], physical=dfm["physical"],

@@ -143,20 +143,32 @@ CASES: list[Case] = [
     # against the paper's MRST ensemble. Vault + open-darts only; skipped otherwise.
     Case(
         "DFM01_geotypes", "open-darts DFM: GeoTypes on simulated transients (aperture sweep)", "dfm",
-        DfmStudySpec(case_id="DFM01_geotypes", n_networks=34, intensity_set1=0.05, intensity_set2=0.04,
-                     frac_aper_min=3.0e-4, frac_aper_max=3.0e-3, fidelity_dataset="A", k_max=5),
-        "REAL simulated physics: open-DARTS DFM drawdowns over a GeoDFN ensemble cluster into "
-        "GeoTypes; attribution should surface log_frac_aper (the conductivity control) alongside "
-        "intensity/backbone; the ensemble-median derivative passes the MRST fidelity gate (Dataset A).",
+        DfmStudySpec(case_id="DFM01_geotypes", n_networks=200, intensity_set1=0.05, intensity_set2=0.04,
+                     frac_aper_min=2.0e-4, frac_aper_max=4.0e-3, fidelity_dataset="A", k_max=6),
+        "REAL simulated physics at SCALE (200 GeoDFN networks): open-DARTS DFM drawdowns cluster into "
+        "GeoTypes; the wide aperture sweep (2e-4 to 4e-3 m) spans tight to open-fracture conductivity "
+        "regimes so attribution can surface log_frac_aper as a real control alongside intensity/"
+        "backbone; the ensemble-median derivative passes the MRST fidelity gate (Dataset A).",
         "simulated-dfm",
     ),
     Case(
         "DFM02_dense", "open-darts DFM: dense-network GeoTypes on simulated transients", "dfm",
-        DfmStudySpec(case_id="DFM02_dense", n_networks=34, intensity_set1=0.06, intensity_set2=0.05,
-                     frac_aper_min=3.0e-4, frac_aper_max=3.0e-3, fidelity_dataset="C", k_max=5),
-        "denser networks (higher P21) simulated + clustered: more fracture-dominated early flow; "
-        "GeoType families still driven by aperture + connectivity; MRST fidelity vs Dataset C. "
-        "(Intensity capped at 0.06: very dense nets can make gmsh meshing pathological.)",
+        DfmStudySpec(case_id="DFM02_dense", n_networks=200, intensity_set1=0.07, intensity_set2=0.06,
+                     frac_aper_min=2.0e-4, frac_aper_max=4.0e-3, fidelity_dataset="C", k_max=6),
+        "denser networks (higher P21, 200 realizations) simulated + clustered: more fracture-dominated "
+        "early flow; GeoType families driven by aperture + connectivity; MRST fidelity vs Dataset C. "
+        "(Intensity capped ~0.07: very dense nets can make gmsh meshing pathological; the crash-safe "
+        "isolated worker skips those and the honest n_ok/n_fail is recorded.)",
+        "simulated-dfm",
+    ),
+    Case(
+        "DFM03_sparse", "open-darts DFM: sparse-network GeoTypes (low intensity end of the sweep)", "dfm",
+        DfmStudySpec(case_id="DFM03_sparse", n_networks=200, intensity_set1=0.03, intensity_set2=0.025,
+                     frac_aper_min=2.0e-4, frac_aper_max=4.0e-3, fidelity_dataset="B", k_max=6),
+        "sparse networks (low P21, 200 realizations): weakly-connected DFNs where the transient is "
+        "matrix-dominated for longer; the catalogue should separate the rare well-connected outliers "
+        "from the bulk near-radial responses. Completes the intensity sweep (sparse/mid/dense across "
+        "DFM03/DFM01/DFM02); MRST fidelity vs Dataset B.",
         "simulated-dfm",
     ),
     # REAL FIELD DATA (the methodology generalizes beyond fractured reservoirs): welltestpy transient

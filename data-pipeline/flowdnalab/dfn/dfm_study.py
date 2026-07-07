@@ -98,6 +98,13 @@ def run_dfm_ensemble(spec: DfmStudySpec, seed: int = 42) -> dict:
         buffer_constant=spec.buffer_constant,
     )
     ens = generate_ensemble(dfn_spec, seed=seed)
+    # GeoDFN opens a matplotlib polar figure per network and never closes them; at 200 networks that
+    # leaks 200 figures (a RuntimeWarning + memory). Close any it left open (defensive; GeoDFN's bug).
+    try:
+        import matplotlib.pyplot as _plt
+        _plt.close("all")
+    except Exception:  # noqa: BLE001 (matplotlib may be headless/absent)
+        pass
     networks = ens["networks"]
     descriptors = ens["descriptors"]
     # log10(aperture) joins the geometry descriptors: it is a real control on the flow regime, so
