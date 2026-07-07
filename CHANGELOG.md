@@ -3,6 +3,18 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.11.001] — 2026-07-04
+
+### Added: rebuild phase P1a, the GPU training lane (`.venv-train`)
+- Isolated **`.venv-train`** with **torch 2.6.0+cu124** for the learned tier (P2), verified on the
+  RTX 4070 Laptop (sm_89, CUDA 12.4). Kept SEPARATE from `.venv-pipeline` (which stays CPU-only for the
+  deterministic offline bake + open-DARTS). Never global.
+- `data-pipeline/requirements-train.txt` (onnx/onnxscript/scikit-learn/pandas/pyarrow; torch installed
+  from the CUDA index, not pinned). `scripts/setup.{ps1,sh}` provision it opt-in (`-Train` /
+  `PULSO_TRAIN=1`) so a CPU-only checkout still sets up. `scripts/gpu_smoke.py` asserts CUDA + runs a
+  1D-conv forward/backward on the GPU (exits non-zero if the GPU is unusable). `.venv-train` gitignored.
+- Docs: `docs/guides/03_gpu-lane.md` (recreate + verify the lane).
+
 ## [0.11.000] — 2026-07-04
 
 ### Added: rebuild phase P0.2, CONTRACT-3 full-ensemble study artifact (kills the 2-medoid toy)
