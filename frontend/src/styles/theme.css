@@ -10,6 +10,7 @@
   --geo-3: #c94fd0;
   --geo-4: #d8c14a;
   --ok: #2ea44f;
+  --warn: #d9822b;
   --bad: #e5484d;
   --radius: 10px;
   --maxw: 1120px;
@@ -126,4 +127,5 @@ th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid var(--
 th { color: var(--fg-2); font-weight: 600; }
 .badge { display: inline-block; padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; font-weight: 600; }
 .badge.ok { background: color-mix(in srgb, var(--ok) 20%, transparent); color: var(--ok); }
+.badge.warn { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
 .badge.bad { background: color-mix(in srgb, var(--bad) 20%, transparent); color: var(--bad); }

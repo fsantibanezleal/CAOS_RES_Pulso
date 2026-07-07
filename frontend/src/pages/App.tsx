@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { loadIndex, loadManifest, loadTrace } from '../api/artifacts';
 import type { CaseManifest, Trace } from '../lib/contract.types';
-import { isDartsTrace, isDfmTrace, isDfnTrace, isStudyTrace } from '../lib/contract.types';
+import { isDartsTrace, isDfmTrace, isDfnTrace, isStudyTrace, isStudyTraceV2 } from '../lib/contract.types';
 import { useT } from '../i18n/useT';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { CatalogueView } from '../render/CatalogueView';
@@ -12,7 +12,13 @@ import { ClassifyView } from '../render/ClassifyView';
 import { AttributionView } from '../render/AttributionView';
 import { DartsChart, DfnChart } from '../render/CurveChart';
 import { DfmView } from '../render/DfmView';
+import { MethodAgreementView } from '../render/MethodAgreementView';
 import { LiveLab } from './LiveLab';
+
+// a study-v2 trace with the P2a comparison baked in (comparison-enabled cases only)
+function methodComparison(trace: Trace) {
+  return isStudyTraceV2(trace) ? trace.method_comparison : undefined;
+}
 
 type Source = 'synthetic' | 'real' | 'darts';
 
@@ -69,9 +75,11 @@ export function AppPage() {
 
   const tabs = useMemo(() => {
     if (!trace) return [];
+    // the P2a method-agreement tab appears only when the comparison was baked for this case
+    const methods = methodComparison(trace) ? ['methods'] : [];
     // a dfm trace is-a study trace, so check it FIRST to add the simulated-physics tab
-    if (isDfmTrace(trace)) return ['catalogue', 'classify', 'attribution', 'simulation', 'context'];
-    if (isStudyTrace(trace)) return ['catalogue', 'classify', 'attribution', 'context'];
+    if (isDfmTrace(trace)) return ['catalogue', 'classify', 'attribution', ...methods, 'simulation', 'context'];
+    if (isStudyTrace(trace)) return ['catalogue', 'classify', 'attribution', ...methods, 'context'];
     if (isDartsTrace(trace)) return ['anchor', 'context'];
     return ['network', 'context'];
   }, [trace]);
@@ -143,6 +151,9 @@ export function AppPage() {
               {tab === 'catalogue' && isStudyTrace(trace) && <CatalogueView trace={trace} />}
               {tab === 'classify' && isStudyTrace(trace) && <ClassifyView trace={trace} />}
               {tab === 'attribution' && isStudyTrace(trace) && <AttributionView trace={trace} />}
+              {tab === 'methods' && methodComparison(trace) && (
+                <MethodAgreementView mc={methodComparison(trace)!} />
+              )}
               {tab === 'anchor' && isDartsTrace(trace) && <DartsChart trace={trace} />}
               {tab === 'simulation' && isDfmTrace(trace) && <DfmView trace={trace} />}
               {tab === 'network' && isDfnTrace(trace) && <DfnChart trace={trace} />}

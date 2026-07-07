@@ -87,11 +87,28 @@ export interface MdsEmbedding {
   stress: number;
   medoid_idx: number[]; // member indices of the k medoids
 }
+// P2a: the distances-and-clustering method comparison (soft-DTW / k-Shape / hierarchical / spectral /
+// HDBSCAN / baselines vs the DTW-PAM reference), shown on the Benchmark method-agreement view.
+export interface ClusteringMethod {
+  name: string;
+  k?: number;
+  silhouette?: number | null;
+  ari?: number; // Adjusted Rand Index vs the DTW-PAM reference labels
+  note?: string;
+  skipped?: boolean;
+}
+export interface MethodComparison {
+  reference: { name: string; k: number; silhouette: number | null };
+  methods: ClusteringMethod[];
+  subsampled: string | null; // "600/N" when the comparison ran on a subsample (large corpora)
+}
+
 export interface StudyTraceV2 extends StudyTrace {
   members: EnsembleMembers;
   envelopes: ClusterEnvelope[];
   dtw: DtwMatrix;
   embedding: MdsEmbedding;
+  method_comparison?: MethodComparison; // present only on comparison-enabled cases (P2a)
   stats: {
     n_members: number; // the full population size
     n_committed?: number; // curves actually committed (== n_members unless capped)

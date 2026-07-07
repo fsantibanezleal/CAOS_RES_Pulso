@@ -8,8 +8,10 @@ pandas==3.0.3
 pyarrow==24.0.0
 GeoDFN==2.0.0                 # geologically consistent 2-D DFN generation (paper authors' engine, MIT)
 dtaidistance==2.4.0           # C-fast pairwise DTW matrices (offline backend of pygeotypes.distance)
-scikit-learn==1.9.0           # Random Forest (attribution layer)
+scikit-learn==1.9.0           # Random Forest (attribution) + spectral/t-SNE (representation/clustering)
 shap==0.52.0                  # TreeSHAP (attribution layer)
+tslearn>=0.9.0                # P2a: soft-DTW k-means (Cuturi-Blondel 2017) + k-Shape (Paparrizos 2015)
+hdbscan>=0.8.0                # P2a: HDBSCAN density clustering (Campello 2013 / McInnes 2017)
 # pygeotypes (CAOS_GeoTypes, private until PyPI release): installed by scripts/setup from the
 # sibling checkout — `pip install -e ../CAOS_GeoTypes[fast,attr]` — or in CI from
 # git+https with the GH_PAT secret. After the PyPI release this becomes `pygeotypes[fast,attr]==0.x`.

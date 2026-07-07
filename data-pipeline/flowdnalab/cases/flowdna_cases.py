@@ -42,7 +42,8 @@ CASES: list[Case] = [
     Case(
         "WR01_baseline", "dual-porosity: broad ensemble", "study",
         EnsembleSpec(case_id="WR01_baseline", kind="warren_root", n_curves=120,
-                     omega_range=(0.01, 0.5), lam_range=(1e-8, 1e-4), noise_sd=0.01, derivative_order=1),
+                     omega_range=(0.01, 0.5), lam_range=(1e-8, 1e-4), noise_sd=0.01, derivative_order=1,
+                     compare_methods=True),
         "K in 2-5; valley-shape families split by omega depth + lambda timing; coverage >= 1-alpha",
         "synthetic-analytic",
     ),
@@ -97,7 +98,7 @@ CASES: list[Case] = [
     # derivative_order=0. Vault-only; skipped when FLOWDNA_VAULT/real-curves is absent.
     Case(
         "REAL_A_lowperm", "real 4TU: dataset A (matrix-fracture perm config A)", "real",
-        RealDataSpec(case_id="REAL_A_lowperm", dataset="A", n_subsample=400),
+        RealDataSpec(case_id="REAL_A_lowperm", dataset="A", n_subsample=400, compare_methods=True),
         "REAL curves: GeoTypes from the paper's own transients; attribution over real DFN "
         "descriptors (log_I intensity, connectivity, kLog permeability, backbone) should surface "
         "fracture intensity + backbone as top controls (the paper's finding)",
@@ -216,7 +217,7 @@ CASES: list[Case] = [
     # skipped when Dataset_X_DTW.npy is absent.
     Case(
         "BENCH_A", "benchmark: full 4TU corpus, dataset A (low matrix-fracture perm)", "benchmark",
-        BenchmarkSpec(case_id="BENCH_A", dataset="A", k_max=6),
+        BenchmarkSpec(case_id="BENCH_A", dataset="A", k_max=6, compare_methods=True),
         "The FULL ~4768-curve corpus for config A clustered on the precomputed DTW: the honest "
         "full-corpus silhouette + K + attribution (the paper reports K=4, sil ~0.37-0.46). Contrast "
         "with REAL_A_lowperm (400-subsample) whose silhouette is inflated by the subsample + K choice.",
@@ -224,14 +225,14 @@ CASES: list[Case] = [
     ),
     Case(
         "BENCH_B", "benchmark: full 4TU corpus, dataset B (mid matrix-fracture perm)", "benchmark",
-        BenchmarkSpec(case_id="BENCH_B", dataset="B", k_max=6),
+        BenchmarkSpec(case_id="BENCH_B", dataset="B", k_max=6, compare_methods=True),
         "The FULL corpus for config B on the precomputed DTW; full-corpus K/silhouette/attribution, the "
         "honest baseline for the cross-dataset retention (the Sankey, P3) vs A and C.",
         "benchmark-4tu",
     ),
     Case(
         "BENCH_C", "benchmark: full 4TU corpus, dataset C (high matrix-fracture perm)", "benchmark",
-        BenchmarkSpec(case_id="BENCH_C", dataset="C", k_max=6),
+        BenchmarkSpec(case_id="BENCH_C", dataset="C", k_max=6, compare_methods=True),
         "The FULL corpus for config C on the precomputed DTW; the paper's headline is that fracture "
         "intensity is among the top controls on the high-permeability config, checked here at full scale.",
         "benchmark-4tu",
