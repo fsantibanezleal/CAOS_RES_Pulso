@@ -3,6 +3,27 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.16.000] · 2026-07-07
+
+### Added: rebuild phase P2c, well-test diagnostics (live TS engine)
+- **`engine/diagnostics.ts`** (extends `engine/pta.ts`, all LIVE in-browser, no baked artifact):
+  - `detectRegimes`: auto-detects flow regimes on the log-log Bourdet derivative (wellbore storage,
+    radial 0.5 plateau, linear 1/2, bilinear 1/4, dual-porosity transition valley, boundary) and returns
+    contiguous shaded segments. The valley is detected by value (derivative below 0.5, flanks steep) and
+    a despeckling pass removes noise-flipped points, so a Warren-Root curve reads cleanly as
+    radial -> transition -> radial.
+  - `fitWarrenRoot`: recovers (omega, lambda) by a coarse grid + local refinement minimising the
+    log-pressure residual (downsampled grid, cheap enough per slider change). `fitTheis`: recovers skin.
+    The lower-RMSE model is the supported one; both are reported recovered-vs-set (the honest test: a
+    fitter that recovers your inputs on a clean curve).
+  - `secondLogDerivative`: the p'' curvature, shown in a compact linear panel.
+- **Live lab `Bourdet diagnostics` tool rebuilt** (`pages/LiveLab.tsx`): the log-log plot now shades the
+  auto-detected regimes, overlays the winning analytic fit (dashed), shows the p'' curvature strip, the
+  detected-regime chips, and the recovered-vs-set parameter table. Reacts to every slider live,
+  bilingual EN/ES, light + dark.
+- Tests: `engine/__tests__/diagnostics.test.ts` (the fits recover the generating omega/lambda/skin;
+  regimes detected; p'' finite). Docs: `docs/methods/03_diagnostics.md`.
+
 ## [0.15.000] · 2026-07-07
 
 ### Added: rebuild phase P2b, representations method group
