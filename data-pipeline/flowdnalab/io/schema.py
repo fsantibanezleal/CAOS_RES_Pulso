@@ -248,6 +248,30 @@ class FieldDataSpec:
 
 
 @dataclass(frozen=True)
+class BenchmarkSpec:
+    """One FULL-corpus benchmark operating point (a Pulso *case* of kind 'benchmark').
+
+    Runs the ENTIRE ~4768-curve 4TU corpus for a dataset through the GeoType pipeline, reusing the
+    vault's precomputed DTW matrix (`Dataset_X_DTW.npy`) so it does not recompute 4768^2 DTW. The
+    honest full-corpus silhouette/K/attribution numbers feed the Benchmark PAGE (contrasted with the
+    400-subsample App `real` cases, which inflate silhouette). Vault-only; skipped without the corpus.
+    """
+
+    case_id: str
+    dataset: str = "A"                   # 'A' | 'B' | 'C'
+    n_points: int = 96
+    derivative_order: int = 0            # the corpus is already the Bourdet first derivative
+    L: float = 0.2
+    norm: str = "zscore"
+    dtw_window: int = 10                 # unused (DTW is precomputed) but kept for schema uniformity
+    k_min: int = 2
+    k_max: int = 6
+    frac_cal: float = 0.2
+    frac_test: float = 0.2
+    alpha: float = 0.15
+
+
+@dataclass(frozen=True)
 class CurveSet:
     """The preprocessed-ready ensemble handed from preprocess -> feature_extraction."""
 

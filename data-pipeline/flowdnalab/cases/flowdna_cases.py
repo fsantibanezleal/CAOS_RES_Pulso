@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import Union
 
 from ..io.schema import (
+    BenchmarkSpec,
     DartsWellTestSpec,
     DfmStudySpec,
     DFNSpec,
@@ -28,8 +29,11 @@ from ..io.schema import (
 class Case:
     id: str
     category: str
-    kind: str                       # 'study' | 'real' | 'darts' | 'dfn' | 'dfm' | 'field'
-    spec: Union[EnsembleSpec, RealDataSpec, DartsWellTestSpec, DFNSpec, DfmStudySpec, FieldDataSpec]
+    kind: str                       # 'study' | 'real' | 'darts' | 'dfn' | 'dfm' | 'field' | 'benchmark'
+    spec: Union[
+        EnsembleSpec, RealDataSpec, DartsWellTestSpec, DFNSpec, DfmStudySpec, FieldDataSpec,
+        BenchmarkSpec,
+    ]
     expected_band: str
     real_or_synthetic: str
 
@@ -205,5 +209,31 @@ CASES: list[Case] = [
         "aquifers are hydraulically similar in their transient diagnostic signature. A real null result: "
         "the methodology transfers, and it honestly reports 'no strong controlling factor here'.",
         "field-pumping",
+    ),
+    # FULL-CORPUS BENCHMARK: the ENTIRE ~4768-curve 4TU corpus per dataset (A/B/C), reusing the vault's
+    # precomputed DTW matrix (no 4768^2 recompute). Feeds the Benchmark PAGE with honest full-corpus
+    # numbers, contrasted with the 400-subsample App `real` cases (which inflate silhouette). Vault-only;
+    # skipped when Dataset_X_DTW.npy is absent.
+    Case(
+        "BENCH_A", "benchmark: full 4TU corpus, dataset A (low matrix-fracture perm)", "benchmark",
+        BenchmarkSpec(case_id="BENCH_A", dataset="A", k_max=6),
+        "The FULL ~4768-curve corpus for config A clustered on the precomputed DTW: the honest "
+        "full-corpus silhouette + K + attribution (the paper reports K=4, sil ~0.37-0.46). Contrast "
+        "with REAL_A_lowperm (400-subsample) whose silhouette is inflated by the subsample + K choice.",
+        "benchmark-4tu",
+    ),
+    Case(
+        "BENCH_B", "benchmark: full 4TU corpus, dataset B (mid matrix-fracture perm)", "benchmark",
+        BenchmarkSpec(case_id="BENCH_B", dataset="B", k_max=6),
+        "The FULL corpus for config B on the precomputed DTW; full-corpus K/silhouette/attribution, the "
+        "honest baseline for the cross-dataset retention (the Sankey, P3) vs A and C.",
+        "benchmark-4tu",
+    ),
+    Case(
+        "BENCH_C", "benchmark: full 4TU corpus, dataset C (high matrix-fracture perm)", "benchmark",
+        BenchmarkSpec(case_id="BENCH_C", dataset="C", k_max=6),
+        "The FULL corpus for config C on the precomputed DTW; the paper's headline is that fracture "
+        "intensity is among the top controls on the high-permeability config, checked here at full scale.",
+        "benchmark-4tu",
     ),
 ]

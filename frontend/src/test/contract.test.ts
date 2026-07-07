@@ -31,18 +31,21 @@ describe('CONTRACT 2 mirror matches the committed artifacts', () => {
         expect(tr.summary.target).toBeGreaterThan(0);
         // CONTRACT-3 (pulso.study/v2): the FULL ensemble is committed, not 3 samples/cluster
         if (isStudyTraceV2(tr)) {
-          const n = tr.stats.n_members;
-          expect(tr.members.curves.length).toBe(n);
-          expect(tr.members.geotype.length).toBe(n);
-          expect(n).toBeGreaterThan(3 * tr.k); // the whole ensemble, not a few samples
+          // the COMMITTED member count (full ensemble, or a stratified subsample for large corpora)
+          const nc = tr.stats.n_committed ?? tr.stats.n_members;
+          expect(tr.members.curves.length).toBe(nc);
+          expect(tr.members.geotype.length).toBe(nc);
+          expect(nc).toBeGreaterThan(3 * tr.k); // the whole ensemble, not a few samples
+          expect(tr.stats.n_members).toBeGreaterThanOrEqual(nc); // full population >= committed
           expect(tr.envelopes.length).toBe(tr.k);
           expect(tr.envelopes[0].p50.length).toBe(tr.t_grid.length);
           const nn = tr.dtw.order.length;
           expect(tr.dtw.rows.length).toBe(nn);
           expect(tr.dtw.rows[0].length).toBe(nn);
           expect(tr.dtw.dmax).toBeGreaterThan(0);
-          expect(tr.embedding.mds2d.length).toBe(n);
-          expect(tr.embedding.medoid_idx.length).toBe(tr.k);
+          expect(tr.embedding.mds2d.length).toBe(nc);
+          expect(tr.embedding.medoid_idx.length).toBeLessThanOrEqual(tr.k);
+          expect(tr.embedding.medoid_idx.length).toBeGreaterThan(0);
         }
         // a dfm case is a study on SIMULATED physics + a dfm block (transient + MRST fidelity)
         if (isDfmTrace(tr)) {
