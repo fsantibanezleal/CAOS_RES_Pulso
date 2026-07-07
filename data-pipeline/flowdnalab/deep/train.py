@@ -28,14 +28,16 @@ def train_all(out_dir: str | Path, seed: int = 0, epochs: int = 60) -> dict:
     from .datasets import build_training_set
     from .models import (
         AEExport,
-        ContrastiveEncoder,
-        CurveAutoencoder,
-        GeoTypeCNN,
-        GeoTypeCNNProba,
+        DeepAutoencoder,
+        InceptionTime,
+        PatchTSTLite,
+        ProbaExport,
+        TS2VecEncoder,
     )
 
     torch.manual_seed(seed)
     np.random.seed(seed)
+    dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
 
@@ -44,32 +46,43 @@ def train_all(out_dir: str | Path, seed: int = 0, epochs: int = 60) -> dict:
     y = data["labels"]
     n, N = X.shape
     K = data["k"]
-    Xt = torch.from_numpy(X).unsqueeze(1)          # (n,1,N)
-    yt = torch.from_numpy(y)
+    Xt = torch.from_numpy(X).unsqueeze(1).to(dev)  # (n,1,N)
+    yt = torch.from_numpy(y).to(dev)
     tr, te = _split(n, seed)
-    tr_t, te_t = torch.from_numpy(tr), torch.from_numpy(te)
+    tr_t, te_t = torch.from_numpy(tr).to(dev), torch.from_numpy(te).to(dev)
 
     metrics: dict = {"n_train": int(tr.size), "n_test": int(te.size), "k": K, "n_points": N,
-                     "silhouette_train": data["silhouette"]}
+                     "silhouette_train": data["silhouette"], "device": dev.type}
 
-    # ---------- 1D-CNN classifier ----------
-    cnn = GeoTypeCNN(n_classes=K, n_points=N)
-    opt = torch.optim.Adam(cnn.parameters(), lr=2e-3, weight_decay=1e-4)
-    for _ in range(epochs):
-        cnn.train()
-        opt.zero_grad()
-        loss = F.cross_entropy(cnn(Xt[tr_t]), yt[tr_t])
-        loss.backward()
-        opt.step()
-    cnn.eval()
-    with torch.no_grad():
-        acc = (cnn(Xt[te_t]).argmax(1) == yt[te_t]).float().mean().item()
-    metrics["cnn_test_accuracy"] = round(acc, 4)
-    cnn_proba = GeoTypeCNNProba(cnn).eval()
-    _export(cnn_proba, Xt[:1], out / "geotype_cnn.onnx", ["curve"], ["proba"])
+    def train_classifier(model, tag, key, lr=1e-3, wd=1e-4, ep=None):
+        model = model.to(dev)
+        opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
+        sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=ep or epochs)
+        for _ in range(ep or epochs):
+            model.train()
+            opt.zero_grad()
+            loss = F.cross_entropy(model(Xt[tr_t]), yt[tr_t])
+            loss.backward()
+            opt.step()
+            sched.step()
+        model.eval()
+        with torch.no_grad():
+            acc = (model(Xt[te_t]).argmax(1) == yt[te_t]).float().mean().item()
+        metrics[key] = round(acc, 4)
+        ProbaExport(model).eval().to("cpu")
+        _export(ProbaExport(model).eval().to("cpu"), Xt[:1].to("cpu"), out / tag, ["curve"], ["proba"])
+        return model
 
-    # ---------- conv autoencoder ----------
-    ae = CurveAutoencoder(n_points=N)
+    # ---------- InceptionTime classifier (SOTA CNN) ----------
+    train_classifier(InceptionTime(n_classes=K, n_points=N), "geotype_incep.onnx",
+                     "incep_test_accuracy", lr=1e-3, wd=1e-4)
+
+    # ---------- PatchTST-lite classifier (SOTA transformer) ----------
+    train_classifier(PatchTSTLite(n_classes=K, n_points=N), "geotype_patchtst.onnx",
+                     "patchtst_test_accuracy", lr=8e-4, wd=1e-4)
+
+    # ---------- deeper conv autoencoder (anomaly / OOD) ----------
+    ae = DeepAutoencoder(n_points=N).to(dev)
     opt = torch.optim.Adam(ae.parameters(), lr=2e-3, weight_decay=1e-5)
     for _ in range(epochs):
         ae.train()
@@ -83,32 +96,33 @@ def train_all(out_dir: str | Path, seed: int = 0, epochs: int = 60) -> dict:
         rec_te, _ = ae(Xt[te_t])
         rec_err = F.mse_loss(rec_te, Xt[te_t]).item()
     metrics["ae_test_recon_mse"] = round(rec_err, 5)
-    ae_export = AEExport(ae).eval()
-    _export(ae_export, Xt[:1], out / "curve_ae.onnx", ["curve"], ["latent", "recon_error"])
+    ae_cpu = ae.to("cpu").eval()
+    _export(AEExport(ae_cpu).eval(), Xt[:1].to("cpu"), out / "curve_ae.onnx", ["curve"], ["latent", "recon_error"])
 
-    # ---------- contrastive embedding (triplet) ----------
-    enc = ContrastiveEncoder(n_points=N)
-    opt = torch.optim.Adam(enc.parameters(), lr=2e-3, weight_decay=1e-5)
-    rng = np.random.default_rng(seed)
-    for _ in range(epochs * 3):
+    # ---------- TS2Vec-style contrastive embedding (NT-Xent over two masked views) ----------
+    enc = TS2VecEncoder(n_points=N).to(dev)
+    opt = torch.optim.Adam(enc.parameters(), lr=1e-3, weight_decay=1e-5)
+    gen = torch.Generator(device=dev).manual_seed(seed)
+    Xtr = Xt[tr_t]
+    for _ in range(epochs * 4):
         enc.train()
-        a, p, ng = _triplets(y[tr], rng, 64)
-        A, P, Ng = tr[a], tr[p], tr[ng]
-        ea, ep, en = enc(Xt[A]), enc(Xt[P]), enc(Xt[Ng])
-        loss = F.triplet_margin_loss(ea, ep, en, margin=0.4)
+        v1 = _mask_view(Xtr, 0.15, gen)
+        v2 = _mask_view(Xtr, 0.15, gen)
+        z1, z2 = enc(v1), enc(v2)
+        loss = _nt_xent(z1, z2, temp=0.2)
         opt.zero_grad()
         loss.backward()
         opt.step()
-    enc.eval()
-    metrics["embed_retrieval_at1"] = round(_retrieval_at1(enc, Xt, y, tr, te), 4)
-    _export(enc, Xt[:1], out / "curve_embed.onnx", ["curve"], ["embedding"])
+    enc = enc.to("cpu").eval()
+    Xt_cpu = Xt.to("cpu")
+    metrics["embed_retrieval_at1"] = round(_retrieval_at1(enc, Xt_cpu, y, tr, te), 4)
+    _export(enc, Xt_cpu[:1], out / "curve_embed.onnx", ["curve"], ["embedding"])
 
     # committed reference artifacts the browser needs alongside the ONNX: the training-set embedding
     # cloud (for the latent/retrieval viz) + the medoids + preprocessing spec
     with torch.no_grad():
-        emb = enc(Xt).numpy()
-        lat, _ = ae(Xt)
-        latents = ae.encode(Xt).numpy()
+        emb = enc(Xt_cpu).numpy()
+        latents = ae_cpu.encode(Xt_cpu).numpy()
     # class-conditional split-conformal calibration: DTW distance of each training curve to its
     # class medoid (the browser's live conformal assignment reads these).
     from pygeotypes.distance import distances_to_references
@@ -132,26 +146,41 @@ def train_all(out_dir: str | Path, seed: int = 0, epochs: int = 60) -> dict:
         "metrics": metrics,
     }
     (out / "reference.json").write_text(json.dumps(ref, separators=(",", ":")), encoding="utf-8")
-    (out / "manifest.json").write_text(json.dumps({"models": ["geotype_cnn", "curve_ae", "curve_embed"],
-                                                   "opset": 18, "metrics": metrics}, indent=2), encoding="utf-8")
+    (out / "manifest.json").write_text(json.dumps(
+        {"models": ["geotype_incep", "geotype_patchtst", "curve_ae", "curve_embed"],
+         "opset": 18, "metrics": metrics}, indent=2), encoding="utf-8")
+    # remove the superseded 1D-CNN artifact if a previous run left it
+    for stale in ("geotype_cnn.onnx", "geotype_cnn.onnx.data"):
+        (out / stale).unlink(missing_ok=True)
     return metrics
 
 
-def _triplets(labels: np.ndarray, rng, m: int):
-    a, p, n = [], [], []
-    idx_by = {c: np.where(labels == c)[0] for c in np.unique(labels)}
-    classes = list(idx_by)
-    for _ in range(m):
-        c = rng.choice(classes)
-        if idx_by[c].size < 2:
-            continue
-        ai, pi = rng.choice(idx_by[c], 2, replace=False)
-        oc = rng.choice([x for x in classes if x != c])
-        ni = rng.choice(idx_by[oc])
-        a.append(ai)
-        p.append(pi)
-        n.append(ni)
-    return np.array(a), np.array(p), np.array(n)
+def _mask_view(x, frac, gen):
+    """A TS2Vec augmentation: zero out a random contiguous span (per sample) of the input curve."""
+    import torch
+
+    b, _, n = x.shape
+    out = x.clone()
+    span = max(1, int(frac * n))
+    starts = torch.randint(0, n - span + 1, (b,), generator=gen, device=x.device)
+    for i in range(b):
+        out[i, :, starts[i]:starts[i] + span] = 0.0
+    return out
+
+
+def _nt_xent(z1, z2, temp: float = 0.2):
+    """NT-Xent contrastive loss over two views: each sample's two views are positives, all other
+    samples (both views) are negatives (SimCLR/TS2Vec instance contrast)."""
+    import torch
+    import torch.nn.functional as F
+
+    b = z1.shape[0]
+    z = torch.cat([z1, z2], dim=0)               # (2b, E), already L2-normalized
+    sim = (z @ z.t()) / temp                       # cosine similarity matrix
+    sim.fill_diagonal_(-1e9)                        # exclude self
+    targets = torch.arange(b, device=z.device)
+    targets = torch.cat([targets + b, targets], dim=0)  # positive index for each row
+    return F.cross_entropy(sim, targets)
 
 
 def _retrieval_at1(enc, Xt, y, tr, te) -> float:

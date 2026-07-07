@@ -3,6 +3,27 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.17.000] · 2026-07-07
+
+### Added: rebuild phase P2d, SOTA learned tier (GPU -> ONNX)
+- Upgraded the learned tier to four SOTA architectures, GPU-trained in `.venv-train` (torch 2.6 cu124,
+  RTX 4070), exported to ONNX (opset 18, self-contained, parity < 1e-4), run live via onnxruntime-web:
+  - **InceptionTime** GeoType classifier (Ismail Fawaz 2020): multi-scale Inception modules + residuals.
+  - **PatchTST-lite** GeoType classifier (Nie 2023): patchified series + a Transformer encoder (the
+    transformer counterpart to InceptionTime).
+  - **deep conv-AE** (anomaly/OOD): 3 stride-2 conv blocks -> latent -> 3 deconv; reconstruction error.
+  - **TS2Vec-style** encoder (Yue 2022): dilated-conv residual encoder trained contrastively (NT-Xent
+    over two masked views); L2-normalized embedding for nearest-neighbour retrieval.
+- `deep/models.py`: the four architectures + a generic `ProbaExport` softmax wrapper. `deep/train.py`:
+  GPU device handling, cosine LR schedule, the NT-Xent contrastive loss + masking augmentation, all four
+  exported with the parity gate; `reference.json`/`manifest.json` updated to the new model set.
+- Live lab method ladder: the `1D-CNN` tool is replaced by **InceptionTime** + a new **PatchTST** tool
+  (shared `ClassifierView`); the Autoencoder + Contrastive tools now run the deeper / TS2Vec models.
+  `engine/onnx.ts` loads `geotype_incep.onnx` + `geotype_patchtst.onnx` (+ ae/embed) and adds
+  `classifyIncep` / `classifyPatchTST`.
+- Docs: `docs/methods/04_learned-tier.md`. `.venv-train` now also installs pygeotypes + onnx/onnxruntime
+  (needed for the offline train+export lane).
+
 ## [0.16.000] · 2026-07-07
 
 ### Added: rebuild phase P2c, well-test diagnostics (live TS engine)
