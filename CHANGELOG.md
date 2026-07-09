@@ -3,6 +3,24 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.24.000] · 2026-07-09
+
+### Added: Benchmark page to the ADR-0017 s2 bar - the five doc pages are now all at bar
+- **Live in-browser learned-vs-classical panel**: `deep/train.py` now commits a held-out test set (120
+  model-ready z-scored curves + true labels) into `reference.json` (`benchmark` block); the Benchmark page
+  runs BOTH the learned models (InceptionTime, PatchTST via onnxruntime-web) AND the classical
+  DTW-nearest-medoid on the SAME held-out curves live, computing the accuracy + a confusion matrix with
+  per-class recall in the browser (verified: InceptionTime 88.3%, PatchTST 90.8%; recall 82/95/79%).
+- **Honest robustness curve** (InceptionTime accuracy vs increasing Gaussian noise) computed live.
+- **Real-corpora method agreement** from the committed `method_comparison` blocks (REAL_A + BENCH_A/B/C),
+  and a **provenance table** stating live-vs-committed for every number.
+- **Honest scope, not faked**: the DTW baseline is the label generator (100% by construction; the learned
+  models' ~90% is their agreement with the catalogue - noted); and the learned tier is trained on synthetic
+  Warren-Root archetypes, so the held-out domain is labelled `synthetic-archetypes` and a real-4TU-trained
+  learned benchmark is an explicit roadmap item (not pretended).
+- Verified centered `.page-body`, live inference + matrix render, 0 console errors. Benchmark, Introduction,
+  Methodology, Implementation and Experiments are all now at the ADR-0017 s2 content-depth bar.
+
 ## [0.23.000] · 2026-07-09
 
 ### Added: Implementation + Experiments pages to the ADR-0017 s2 content-depth bar
