@@ -3,7 +3,7 @@
 // ALSO shows the forbidden anti-pattern struck out; a real datasets table with per-set redistribution +
 // live-vs-roadmap; honest negatives. Study metrics are read from the committed manifests.
 import { useEffect, useState } from 'react';
-import { Callout, Cite, Equation, Figure, Refs, SubTabs, useShellLang } from '@fasl-work/caos-app-shell';
+import { Callout, Cite, Equation, Figure, Refs, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
 import { loadIndex, loadManifest } from '../api/artifacts';
 import type { CaseIndex, CaseManifest } from '../lib/contract.types';
 
@@ -184,7 +184,7 @@ export function Experiments() {
             : 'The experimental questions, separated: the leakage-safe protocol, the conformal coverage, the method agreement, the datasets with their provenance, the studies table (committed-artifact metrics) and the honest negative results. Numbers from artifacts, not typed in.'}
         </p>
       </div>
-      <SubTabs tabs={tabs} orientation="vertical" ariaLabel={es ? 'Experimentos' : 'Experiments'} />
+      <Tabs tabs={tabs} ariaLabel={es ? 'Experimentos' : 'Experiments'} />
     </div>
   );
 }

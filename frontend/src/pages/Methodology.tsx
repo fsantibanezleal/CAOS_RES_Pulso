@@ -1,9 +1,9 @@
-// Methodology (ADR-0017 section 2): the method ladder as deep method-family SubTabs. Each tab carries
+// Methodology (ADR-0017 section 2): the method ladder as deep method-family Tabs. Each tab carries
 // >=4 dense bilingual paragraphs naming the build's exact behaviour + constants, >=2 captioned KaTeX
 // equations, >=1 hand-authored theme-aware SVG, one honest Callout, and an inline Refs. >=2 tabs are the
 // learned methods. Transcribed from docs/methods/{01..05} + docs/frameworks. Theme-aware SVGs use
 // currentColor + var(--bg-3) so they read in light and dark.
-import { Callout, Cite, Equation, Figure, Refs, SubTabs, useShellLang } from '@fasl-work/caos-app-shell';
+import { Callout, Cite, Equation, Figure, Refs, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
 
 const box = { fill: 'var(--bg-3, #eef1f5)', stroke: 'currentColor', strokeOpacity: 0.35 } as const;
 
@@ -377,7 +377,7 @@ export function Methodology() {
             : 'The method ladder, family by family: from preprocessing and the DTW distance to the k-medoids catalogue, the SOTA clustering alternatives, the representations, the live diagnostics, the learned tier (GPU to ONNX), and conformal assignment with attribution. Each family carries a classical or SOTA baseline and, where it is a product capability, a novel-beyond-SOTA layer.'}
         </p>
       </div>
-      <SubTabs tabs={tabs} orientation="vertical" ariaLabel={es ? 'Familias de metodos' : 'Method families'} />
+      <Tabs tabs={tabs} ariaLabel={es ? 'Familias de metodos' : 'Method families'} />
     </div>
   );
 }

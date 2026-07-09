@@ -61,29 +61,12 @@ a:hover { text-decoration: underline; }
 
 h1, h2, h3 { line-height: 1.25; }
 
-/* header */
-.hdr {
-  position: sticky; top: 0; z-index: 20;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
-}
-.hdr-in { display: flex; align-items: center; gap: 1rem; height: 56px; }
-.brand { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: .5rem; }
-.brand .dot { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, var(--geo-0), var(--geo-2)); }
-.nav { display: flex; gap: .25rem; margin-left: .5rem; flex-wrap: wrap; }
-.nav a { padding: .35rem .6rem; border-radius: 7px; color: var(--fg-2); font-size: .9rem; }
-.nav a.active { color: var(--fg); background: var(--bg-3); }
-.nav a:hover { color: var(--fg); text-decoration: none; }
-.hdr-tools { margin-left: auto; display: flex; align-items: center; gap: .4rem; }
-.icon-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
-  background: transparent; border: 1px solid var(--border); color: var(--fg-2);
-}
-.icon-btn:hover { color: var(--fg); background: var(--bg-3); }
+/* The header, footer, brand, nav, icon buttons, tabs (.tablist/.tab/.subtab), .select, .range, .muted,
+   .badge, .card are ALL owned by the shared shell (@fasl-work/caos-app-shell/styles.css). This app CSS
+   MUST NOT redefine them (ADR-0017 s1.4): doing so overrides the shell's design system and makes the
+   chrome look non-standard (boxed header icons, broken tabs). Only genuinely app-local widgets go here. */
 
-/* chips / pills */
+/* chips / pills (app-local: the shell exposes .cs-chip/.btn, not a generic .chip) */
 .chip {
   display: inline-flex; align-items: center; gap: .4rem;
   padding: .32rem .7rem; border-radius: 999px; cursor: pointer;
@@ -95,39 +78,40 @@ h1, h2, h3 { line-height: 1.25; }
 /* panels */
 .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.15rem; }
 .grid { display: grid; gap: 1rem; }
-.muted { color: var(--fg-2); }
 .tag { font-family: var(--mono); font-size: .8rem; color: var(--fg-2); }
 
-/* tabs */
-.tabs { display: flex; gap: .3rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
-.tab {
-  padding: .5rem .8rem; cursor: pointer; color: var(--fg-2); font-size: .9rem;
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
-}
-.tab.on { color: var(--fg); border-bottom-color: var(--accent); }
-.tab:hover { color: var(--fg); }
+/* NOTE: .tabs/.tab (the shell owns .tablist/.tab/.subtab) and .muted are NOT redefined here on purpose:
+   the shell's pill tabs + subtitle color are the standard. Redefining them broke the tab chrome. */
 
 /* prose pages: .prose / .page-body / .lede are the shell's (ADR-0017 s1.4); do NOT narrow or restyle
    them here. Only app-local widgets belong in this file. */
 .katex-block { overflow-x: auto; padding: .5rem 0; }
 
-/* App workbench: the ADR-0017 s3 two-zone <app>-layout (control aside + workbench main). */
-.pulso-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
-.pulso-side { position: sticky; top: 1rem; display: grid; gap: 1rem; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+/* App workbench: the ADR-0017 s3 two-zone <app>-layout (control aside + workbench main), mirroring the
+   RotorVitals reference (.rv-layout/.rv-side/.rv-main): a 320px control column + a fluid workbench, the
+   aside a plain flex column (not a boxed/sticky panel), controls as label-over-input rows. */
+.pulso-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.pulso-side { display: flex; flex-direction: column; gap: 0.9rem; }
 .pulso-main { min-width: 0; }
-@media (max-width: 900px) { .pulso-layout { grid-template-columns: 1fr; } .pulso-side { position: static; } }
+@media (max-width: 900px) { .pulso-layout { grid-template-columns: 1fr; } }
 
 .mode-switch { display: inline-flex; gap: .25rem; background: var(--bg-3); border-radius: 999px; padding: .25rem; }
 .mode-btn { flex: 1; border: none; background: transparent; color: var(--fg-2); font: inherit; font-size: .88rem; padding: .35rem .7rem; border-radius: 999px; cursor: pointer; }
 .mode-btn.on { background: var(--accent); color: #fff; }
 
-.side-field { display: grid; gap: .35rem; }
+.side-field { display: flex; flex-direction: column; gap: .35rem; }
 .side-label { font-size: .78rem; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
 .side-field select { width: 100%; padding: .5rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font: inherit; font-size: .9rem; }
 .side-readout { display: grid; gap: .3rem; border-top: 1px solid var(--border); padding-top: .8rem; }
 .side-readout-row { display: flex; justify-content: space-between; align-items: baseline; font-size: .86rem; }
 .side-readout-row span { color: var(--fg-2); }
 .side-readout-row b { font-family: var(--mono); font-size: .84rem; }
+
+/* live-lab controls in the sidebar (mirror .rv-ctl): a label over a full-width range input */
+.side-controls { display: flex; flex-direction: column; gap: .7rem; border-top: 1px solid var(--border); padding-top: .8rem; }
+.side-ctl { display: flex; flex-direction: column; gap: .3rem; font-size: .82rem; color: var(--fg-2); }
+.side-ctl input[type="range"] { width: 100%; accent-color: var(--accent); }
+.side-check { display: inline-flex; align-items: center; gap: .45rem; font-size: .85rem; color: var(--fg-2); }
 
 /* modal */
 .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; }
