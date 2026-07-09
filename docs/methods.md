@@ -18,5 +18,10 @@ Adjusted Rand Index), never asserted.
 - [04 · Learned tier (P2d)](methods/04_learned-tier.md): InceptionTime + PatchTST-lite classifiers, a deep
   conv-AE (OOD), and a TS2Vec-style contrastive encoder, GPU-trained and exported to ONNX (parity < 1e-4),
   run live via onnxruntime-web.
+- [05 · Attribution & assignment (P2e)](methods/05_attribution-assignment.md): predictability-vs-K, the ROM
+  descriptor sensitivity sweep, and the beyond-SOTA dual-representation Mondrian conformal (shape-space
+  INTERSECT descriptor-space, a coverage-controlled assignment that catches "right shape, wrong physics").
 
-*(Final group: attribution & assignment (ROM sweep, Mondrian conformal). Authored as it ships.)*
+The method ladder is complete: distances/clustering, representations, diagnostics, the learned tier, and
+attribution & assignment, each with a classical or SOTA baseline and, where it is a product capability
+(not a lab), a novel-beyond-SOTA layer (class-conditional conformal; the dual-representation conformal).

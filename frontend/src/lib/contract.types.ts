@@ -124,6 +124,39 @@ export interface Representations {
   catch22: Catch22Table;
 }
 
+// P2e: attribution-and-assignment depth. predictability-vs-K + ROM descriptor sweep + the NOVEL
+// dual-representation Mondrian conformal (shape-space DTW conformal INTERSECT descriptor-space RF
+// conformal). Present only on rich-method cases; degrades honestly (see `note` / `error`).
+export interface PredictabilityPoint {
+  k: number;
+  silhouette: number;
+  rf_accuracy: number | null;
+}
+export interface RomSweep {
+  descriptors: string[];
+  sensitivity: number[]; // per descriptor, fraction of the sweep that flips the GeoType argmax
+  sweeps: Array<{ name: string; xs: number[]; argmax: number[] }>;
+  note?: string;
+}
+export interface DualConformal {
+  alpha: number;
+  coverage_shape: number;
+  coverage_dual: number;
+  mean_set_shape: number;
+  mean_set_dual: number;
+  caught_by_physics: number; // test curves the dual layer flags OOD that shape-only conformal accepts
+  n_test: number;
+  examples: Array<{ test_index: number; shape_set: number[]; dual_set: number[]; reason: string }>;
+  note?: string;
+}
+export interface AttributionPlus {
+  predictability: PredictabilityPoint[];
+  chosen_k: number;
+  rom: RomSweep;
+  dual_conformal: DualConformal;
+  error?: string;
+}
+
 export interface StudyTraceV2 extends StudyTrace {
   members: EnsembleMembers;
   envelopes: ClusterEnvelope[];
@@ -131,6 +164,7 @@ export interface StudyTraceV2 extends StudyTrace {
   embedding: MdsEmbedding;
   method_comparison?: MethodComparison; // present only on comparison-enabled cases (P2a)
   representations?: Representations; // present only on rich-method cases (P2b)
+  attribution_plus?: AttributionPlus; // present only on rich-method cases (P2e)
   stats: {
     n_members: number; // the full population size
     n_committed?: number; // curves actually committed (== n_members unless capped)
