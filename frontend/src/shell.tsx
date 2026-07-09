@@ -40,13 +40,16 @@ export const shellConfig: ShellConfig = {
   version: VERSION,
   architecture,
   footer: {
+    // ADR-0016 s2: COMPACT one-wrapping-line footer. Provenance = engines (offline bake / live ONNX)
+    // as one short clause; disclaimer = a single honest one-liner. NOT multi-sentence paragraphs (those
+    // forced the footer into stacked blocks with orphaned separators, breaking the one-line rule).
     provenance: {
-      en: 'Engines: pygeotypes (Apache-2.0), GeoDFN (MIT), open-DARTS (GPL-3, offline), scikit-learn + SHAP, onnxruntime-web. Data: our GeoDFN + open-DARTS simulations, welltestpy field campaigns (MIT), community benchmark corpora.',
-      es: 'Motores: pygeotypes (Apache-2.0), GeoDFN (MIT), open-DARTS (GPL-3, offline), scikit-learn + SHAP, onnxruntime-web. Datos: nuestras simulaciones GeoDFN + open-DARTS, campanas de campo welltestpy (MIT), corpus de referencia comunitarios.',
+      en: 'Engines: GeoDFN + open-DARTS (offline) + onnxruntime-web (live ONNX)',
+      es: 'Motores: GeoDFN + open-DARTS (offline) + onnxruntime-web (ONNX en vivo)',
     },
     disclaimer: {
-      en: 'Numbers come from committed offline artifacts; the learned models run live in-browser via onnxruntime-web. Honest scope: no single method wins everywhere.',
-      es: 'Los numeros provienen de artefactos offline comprometidos; los modelos aprendidos corren en vivo en el navegador con onnxruntime-web. Alcance honesto: ningun metodo gana en todo.',
+      en: 'Offline-baked numbers, learned models live in-browser; no single method wins everywhere',
+      es: 'Numeros pre-calculados offline, modelos aprendidos en vivo; ningun metodo gana en todo',
     },
   },
 };
