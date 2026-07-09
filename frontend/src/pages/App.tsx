@@ -35,14 +35,30 @@ const CATEGORY_KEY: Record<string, keyof ReturnType<typeof useT>['app']['cat']> 
   'benchmark-4tu': 'bench',
 };
 
-function wrap(label: string, node: React.ReactNode): React.ReactNode {
-  return <ErrorBoundary label={label}>{node}</ErrorBoundary>;
+// the case KIND (R/S badge): measured/corpus data is 'real', everything simulated/analytic is 'synthetic'
+const REAL_LANES = new Set(['real-4tu', 'field-pumping', 'benchmark-4tu']);
+
+// a curated short name per case that ADDS meaning next to the mono id (never a de-slug of the id).
+// Falls back to a light humanization only for an unmapped case.
+const CASE_NAME: Record<string, string> = {
+  CTRL_single_regime: 'Single-regime control', MIX04_homog_vs_dp: 'Homogeneous vs dual-porosity',
+  WR01_baseline: 'Warren-Root baseline', WR02_depth_families: 'Depth-scaled families',
+  WR03_timing_families: 'Transition-timing families', WR05_noisy: 'Noisy Warren-Root',
+  FIELD_combined: 'Combined field campaigns', FIELD_horkheim: 'Horkheimer Insel aquifer',
+  FIELD_lauswiesen: 'Lauswiesen aquifer', DFN06_sparse: 'Sparse fracture network',
+  DFN07_dense: 'Dense fracture network', BENCH_A: 'Full corpus: dataset A',
+  BENCH_B: 'Full corpus: dataset B', BENCH_C: 'Full corpus: dataset C',
+  DARTS_homog_anchor: 'Homogeneous drawdown anchor', REAL_A_lowperm: '4TU dataset A (low perm)',
+  REAL_B_midperm: '4TU dataset B (mid perm)', REAL_C_highperm: '4TU dataset C (high perm)',
+  DFM01_geotypes: 'DFM GeoType study', DFM02_dense: 'DFM dense networks',
+  DFM03_sparse: 'DFM sparse networks',
+};
+function caseName(id: string): string {
+  return CASE_NAME[id] ?? id.replace(/_/g, ' ');
 }
 
-// a readable case name from the slug (the CaseSelector shows the mono id + this friendly name)
-function humanize(id: string): string {
-  return id.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/\b([a-z])/g, (m) => m.toUpperCase());
+function wrap(label: string, node: React.ReactNode): React.ReactNode {
+  return <ErrorBoundary label={label}>{node}</ErrorBoundary>;
 }
 
 // The workbench families for a given trace: Tabs (families) -> SubTabs (tools). Only families with a
@@ -139,8 +155,9 @@ export function AppPage() {
   const cases: CaseDef[] = useMemo(
     () => Object.values(manifests)
       .map((m) => ({
-        id: m.case_id, name: humanize(m.case_id),
+        id: m.case_id, name: caseName(m.case_id),
         category: t.app.cat[CATEGORY_KEY[m.real_or_synthetic] ?? 'analytic'],
+        kind: (REAL_LANES.has(m.real_or_synthetic) ? 'real' : 'synthetic') as 'real' | 'synthetic',
         expectedBand: m.expected_band,
       }))
       .sort((a, b) => (a.category + a.id).localeCompare(b.category + b.id)),
@@ -168,10 +185,10 @@ export function AppPage() {
   ];
 
   return (
-    <div className="grid" style={{ gap: '1.25rem' }}>
-      <div>
-        <h1 style={{ marginBottom: '.25rem' }}>{t.app.title}</h1>
-        <p className="muted" style={{ marginTop: 0 }}>{t.app.intro}</p>
+    <div className="page-body grid" style={{ gap: '1.25rem' }}>
+      <div className="page-head">
+        <h1>{t.app.title}</h1>
+        <p className="lede">{t.app.intro}</p>
       </div>
       {err && <div className="panel" style={{ borderColor: 'var(--bad)' }}>{t.common.error}: {err}</div>}
 
@@ -196,7 +213,7 @@ export function AppPage() {
             <CaseSelector cases={cases} selectedId={sel} onSelect={setSel} lang={lang} deepLink="case" />
             {manifest && (
               <p className="readout" style={{ marginTop: '.7rem' }}>
-                lane {manifest.lane} · engine {manifest.engine.package} {manifest.engine.version}
+                {t.app.cat[CATEGORY_KEY[manifest.real_or_synthetic] ?? 'analytic']} · {manifest.lane === 'live' ? t.app.laneLive : t.app.lanePrecompute}
               </p>
             )}
           </div>

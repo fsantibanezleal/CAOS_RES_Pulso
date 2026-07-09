@@ -3,6 +3,28 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.21.000] · 2026-07-09
+
+### Fixed / Changed: apply ADR-0017 (layout contract, citations, case selector) + Introduction to bar
+Felipe flagged the pages as out of bar (thin content, bad reference use, no SVG, no deep sections) and
+the case selector as a senseless mess. Read ADR-0016/0017 and applied them:
+- **Layout contract (ADR-0017 s1):** removed the illegal shell-primitive overrides in `theme.css`
+  (`--maxw`, `.container`, and the `.prose { max-width:820px }` narrowing - the exact "capped-narrow"
+  regression the ADR forbids) and the hand-rolled `.container` wrapper in `main.tsx`. Every page now owns
+  a centered `.page-body` (measured 1200px, centered on a 1440 viewport) with `.page-head` (h1 + `.lede`).
+- **Citations (ADR-0017 s4):** added `data/citations.ts` (25 entries, every one carrying a real DOI/URL),
+  mounted `<CitationsProvider>` at the root; replaced the raw `<a href=doi>` bibliography with inline
+  `<Cite>` + per-section `<Refs>`.
+- **Introduction rebuilt to the s2 bar:** centered `.page-body prose`, an overview pipeline SVG (Figure),
+  5 deep sections, 3 captioned KaTeX equations (Bourdet derivative, Warren-Root Laplace solution,
+  omega/lambda), a 10-item symbol glossary, an honest callout, and inline Cite/Refs per section. Bilingual.
+- **Case selector fixed:** curated descriptive names per case (code + meaning, not a de-slug), a MEANINGFUL
+  R/S kind badge (real measured data vs synthetic/simulated), and a clean provenance line (dropped the
+  stale `flowdnalab 0.07.000` engine string).
+- Methodology/Implementation/Experiments/Benchmark moved into the correct `.page-body prose` layout with
+  per-section `<Refs>`; their content-depth deepening to the s2 tabbed bar continues per-unit.
+- Verified light + dark: page-body centered, 6 equations + 21 DOI-linked refs on Introduction, 0 console errors.
+
 ## [0.20.000] · 2026-07-09
 
 ### Added: rebuild phase P2e, attribution & assignment - COMPLETES the P2 method ladder
