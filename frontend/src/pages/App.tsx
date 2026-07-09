@@ -19,6 +19,7 @@ import { MethodAgreementView } from '../render/MethodAgreementView';
 import { RepresentationsView } from '../render/RepresentationsView';
 import { EnsembleExplorerView } from '../render/EnsembleExplorerView';
 import { DtwHeatmapView } from '../render/DtwHeatmapView';
+import { AttributionPlusView } from '../render/AttributionPlusView';
 import { LiveLab } from './LiveLab';
 
 type Mode = 'explore' | 'live';
@@ -64,14 +65,16 @@ function buildFamilies(trace: Trace, manifest: CaseManifest, t: ReturnType<typeo
     }
     fam.push({ id: 'ensemble', label: t.app.fam.ensemble, content: <SubTabs tabs={ensemble} ariaLabel={t.app.fam.ensemble} /> });
 
-    // Assignment = classify a curve + explain the labels
-    fam.push({
-      id: 'assignment', label: t.app.fam.assignment,
-      content: <SubTabs ariaLabel={t.app.fam.assignment} tabs={[
-        { id: 'classify', label: tool.classify, content: wrap('classify', <ClassifyView trace={trace} />) },
-        { id: 'attribution', label: tool.attribution, content: wrap('attribution', <AttributionView trace={trace} />) },
-      ]} />,
-    });
+    // Assignment = classify a curve + explain the labels (+ the P2e depth when baked)
+    const assignment: SubTabDef[] = [
+      { id: 'classify', label: tool.classify, content: wrap('classify', <ClassifyView trace={trace} />) },
+      { id: 'attribution', label: tool.attribution, content: wrap('attribution', <AttributionView trace={trace} />) },
+    ];
+    const ap = isStudyTraceV2(trace) ? trace.attribution_plus : undefined;
+    if (ap) {
+      assignment.push({ id: 'attrplus', label: tool.attrplus, content: wrap('attrplus', <AttributionPlusView ap={ap} />) });
+    }
+    fam.push({ id: 'assignment', label: t.app.fam.assignment, content: <SubTabs ariaLabel={t.app.fam.assignment} tabs={assignment} /> });
 
     // Methods = the SOTA benchmarks computed on THIS ensemble (rich-method cases only)
     const mc = isStudyTraceV2(trace) ? trace.method_comparison : undefined;
