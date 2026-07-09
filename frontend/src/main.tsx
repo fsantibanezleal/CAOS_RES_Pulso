@@ -11,7 +11,7 @@ import { Introduction } from './pages/Prose';
 import { Methodology } from './pages/Methodology';
 import { Implementation } from './pages/Implementation';
 import { Experiments } from './pages/Experiments';
-import { Benchmark } from './pages/Prose';
+import { Benchmark } from './pages/Benchmark';
 
 // the shared shell owns theme + language state; set the theme pre-paint from the persisted choice
 applyTheme(readTheme());

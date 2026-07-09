@@ -135,6 +135,18 @@ def train_all(out_dir: str | Path, seed: int = 0, epochs: int = 60) -> dict:
         d = np.array([distances_to_references(r, medoids[g], window=dtw_window)[0] for r in rows])
         cal[str(g)] = np.round(np.sort(d), 5).tolist()
 
+    # committed HELD-OUT test set (curves + true labels) so the Benchmark page can run BOTH the learned
+    # ONNX and the classical DTW-nearest-medoid on the SAME held-out curves live and build a real
+    # confusion matrix. Capped to keep reference.json compact. NOTE: this training set is synthetic
+    # Warren-Root/homogeneous archetypes; a real-4TU-trained learned benchmark is a documented roadmap.
+    n_bench = int(min(120, te.size))
+    bi = te[:n_bench]
+    benchmark = {
+        "domain": "synthetic-archetypes",
+        "curves": np.round(X[bi], 4).tolist(),
+        "labels": y[bi].tolist(),
+    }
+
     ref = {
         "k": K, "n_points": N, "labels": y.tolist(),
         "dtw_window": dtw_window,
@@ -142,6 +154,7 @@ def train_all(out_dir: str | Path, seed: int = 0, epochs: int = 60) -> dict:
         "latent": np.round(latents, 4).tolist(),
         "medoids": np.round(medoids, 5).tolist(),
         "calibration_scores": cal,
+        "benchmark": benchmark,
         "preprocessing": {"derivative_order": 1, "norm": "zscore", "n_points": N},
         "metrics": metrics,
     }
