@@ -9,7 +9,9 @@ import { CITATIONS } from './data/citations';
 import { AppPage } from './pages/App';
 import { Introduction } from './pages/Prose';
 import { Methodology } from './pages/Methodology';
-import { Benchmark, Experiments, Implementation } from './pages/Prose';
+import { Implementation } from './pages/Implementation';
+import { Experiments } from './pages/Experiments';
+import { Benchmark } from './pages/Prose';
 
 // the shared shell owns theme + language state; set the theme pre-paint from the persisted choice
 applyTheme(readTheme());
