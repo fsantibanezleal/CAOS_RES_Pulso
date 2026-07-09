@@ -3,6 +3,25 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.23.000] · 2026-07-09
+
+### Added: Implementation + Experiments pages to the ADR-0017 s2 content-depth bar
+- **Implementation** (`pages/Implementation.tsx`): 8 module tabs (vertical SubTabs) - architecture (with an
+  offline->artifact->CDN->live SVG + a determinism banner), the two data contracts (+ a CONTRACT-3 SVG and
+  the uint8 DTW-quantisation equation), the staged pipeline (+ the seeded split equation), the two isolated
+  environments (CPU bake vs GPU train), the DTW backend (+ the O(n^2 L w) cost), the ONNX export + the
+  parity-gate equation (< 1e-4), the measured lane/gate, and the static deployment. Each names the exact
+  stages + constants + the live/precompute boundary; honest callouts throughout.
+- **Experiments** (`pages/Experiments.tsx`): 6 prose tabs (never info-box cards) - the leakage-safe protocol
+  (with a protocol SVG that ALSO draws the forbidden anti-pattern struck out), conformal coverage (+ the
+  empirical-coverage equation), method agreement (the honest BENCH_B "only spectral agrees" result), the
+  datasets table with per-set redistribution + synthetic labelling, the studies table (metrics read from the
+  committed manifests, never typed), and the honest negative results (BENCH_B, field cross-site null, DFM03
+  fidelity FAIL). Inline Cite/Refs throughout.
+- Both wired into the routes; verified centered `.page-body`, equations + theme-aware SVGs render, light +
+  dark, 0 console errors. (Benchmark page to the s2 bar - incl. the live real-held-out inference panel - is
+  the next unit.)
+
 ## [0.22.000] · 2026-07-09
 
 ### Fixed: App entry rebuilt to the ADR-0017 s3 layout (was a broken, chaotic case-selector wall)
