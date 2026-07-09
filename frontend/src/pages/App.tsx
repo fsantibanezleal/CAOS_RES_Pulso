@@ -17,6 +17,8 @@ import { DartsChart, DfnChart } from '../render/CurveChart';
 import { DfmView } from '../render/DfmView';
 import { MethodAgreementView } from '../render/MethodAgreementView';
 import { RepresentationsView } from '../render/RepresentationsView';
+import { EnsembleExplorerView } from '../render/EnsembleExplorerView';
+import { DtwHeatmapView } from '../render/DtwHeatmapView';
 import { LiveLab } from './LiveLab';
 
 type Mode = 'explore' | 'live';
@@ -53,6 +55,10 @@ function buildFamilies(trace: Trace, manifest: CaseManifest, t: ReturnType<typeo
     const ensemble: SubTabDef[] = [
       { id: 'catalogue', label: tool.catalogue, content: wrap('catalogue', <CatalogueView trace={trace} />) },
     ];
+    if (isStudyTraceV2(trace)) {
+      ensemble.push({ id: 'explorer', label: tool.explorer, content: wrap('explorer', <EnsembleExplorerView trace={trace} />) });
+      ensemble.push({ id: 'dtwmap', label: tool.dtwmap, content: wrap('dtwmap', <DtwHeatmapView trace={trace} />) });
+    }
     if (isStudyTraceV2(trace) && trace.representations) {
       ensemble.push({ id: 'shape', label: tool.shape, content: wrap('shape', <RepresentationsView trace={trace} />) });
     }
