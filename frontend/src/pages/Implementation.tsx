@@ -2,7 +2,7 @@
 // (offline bake -> committed artifact -> CDN -> thin live) with a determinism banner; each tab states the
 // EXACT stages + constants + the live/precompute boundary + the artifact/ONNX contract; a real Deployment
 // tab. Theme-aware SVGs use currentColor + var(--bg-3). Transcribed from the repo's docs/architecture.
-import { Callout, Equation, Figure, Refs, SubTabs, useShellLang } from '@fasl-work/caos-app-shell';
+import { Callout, Equation, Figure, Refs, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
 
 const box = { fill: 'var(--bg-3, #eef1f5)', stroke: 'currentColor', strokeOpacity: 0.35 } as const;
 
@@ -222,7 +222,7 @@ export function Implementation() {
             : 'The system, module by module: the offline-heavy deterministic-replay architecture, the two data contracts, the staged pipeline, the two isolated environments (CPU + GPU), the DTW backend, the ONNX export with a parity gate, the lane gate, and the static deployment. No backend.'}
         </p>
       </div>
-      <SubTabs tabs={tabs} orientation="vertical" ariaLabel={es ? 'Modulos de implementacion' : 'Implementation modules'} />
+      <Tabs tabs={tabs} ariaLabel={es ? 'Modulos de implementacion' : 'Implementation modules'} />
     </div>
   );
 }

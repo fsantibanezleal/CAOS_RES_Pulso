@@ -5,7 +5,7 @@
 // trained on synthetic Warren-Root archetypes (the held-out set's domain is stated); a real-4TU-trained
 // learned benchmark is a documented roadmap item.
 import { useEffect, useMemo, useState } from 'react';
-import { Callout, Refs, SubTabs, useShellLang } from '@fasl-work/caos-app-shell';
+import { Callout, Refs, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
 import { classifyIncep, classifyPatchTST, getReference, loadDeep, type DeepReference } from '../engine/onnx';
 import { distancesToMedoids } from '../engine/dtw';
 import { loadTrace } from '../api/artifacts';
@@ -241,7 +241,7 @@ export function Benchmark() {
             : 'The honest comparison: the learned models against the classical baseline on the SAME held-out set, with inference running live in the browser; the method agreement over the real corpora from committed artifacts; and the provenance of every number. Numbers come from artifacts or are computed live, never typed by hand.'}
         </p>
       </div>
-      <SubTabs tabs={tabs} orientation="vertical" ariaLabel="Benchmark" />
+      <Tabs tabs={tabs} ariaLabel="Benchmark" />
     </div>
   );
 }
