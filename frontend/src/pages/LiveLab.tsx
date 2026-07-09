@@ -3,6 +3,7 @@
 // run in the TS engine; the LEARNED tools (1D-CNN, autoencoder, contrastive) run live via
 // onnxruntime-web on the committed ONNX. No server, no replay — genuine in-browser compute.
 import { useEffect, useMemo, useState } from 'react';
+import { SubTabs, Tabs, type SubTabDef, type TabDef } from '@fasl-work/caos-app-shell';
 import { useT } from '../i18n/useT';
 import { generateResponse, preprocessForModels, warrenRootPd, homogeneousPd, bourdet } from '../engine/pta';
 import {
@@ -13,8 +14,6 @@ import { autoencode, classifyIncep, classifyPatchTST, embedAndRetrieve, getRefer
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const COLORS = ['#4f9cf9', '#f97b4f', '#41c98d', '#c94fd0', '#d8c14a'];
-const METHODS = ['diagnostics', 'dtw', 'conformal', 'inceptiontime', 'patchtst', 'autoencoder', 'contrastive'] as const;
-type Method = (typeof METHODS)[number];
 
 export function LiveLab() {
   const t = useT();
@@ -23,15 +22,10 @@ export function LiveLab() {
   const [skin, setSkin] = useState(0);
   const [noise, setNoise] = useState(0.01);
   const [homog, setHomog] = useState(false);
-  const [method, setMethod] = useState<Method>('diagnostics');
   const [ref, setRef] = useState<DeepReference | null>(null);
-  const [deepReady, setDeepReady] = useState(false);
 
   useEffect(() => {
-    loadDeep().then(() => {
-      setRef(getReference());
-      setDeepReady(true);
-    }).catch(() => setDeepReady(false));
+    loadDeep().then(() => setRef(getReference())).catch(() => setRef(null));
   }, []);
 
   const lam = Math.pow(10, logLam);
@@ -44,20 +38,38 @@ export function LiveLab() {
     [resp, ref],
   );
 
-  const methodLabels: Record<Method, string> = {
-    diagnostics: t.live.m.diagnostics,
-    dtw: t.live.m.dtw,
-    conformal: t.live.m.conformal,
-    inceptiontime: t.live.m.inceptiontime,
-    patchtst: t.live.m.patchtst,
-    autoencoder: t.live.m.autoencoder,
-    contrastive: t.live.m.contrastive,
-  };
-  const tier: Record<Method, string> = {
-    diagnostics: t.live.tierClassical, dtw: t.live.tierSota, conformal: t.live.tierNovel,
-    inceptiontime: t.live.tierLearned, patchtst: t.live.tierLearned,
-    autoencoder: t.live.tierLearned, contrastive: t.live.tierLearned,
-  };
+  // the method ladder grouped by tier: Tabs (Classical / Shape / Learned) -> SubTabs (tools). The
+  // learned/shape tools need the ONNX + reference loaded; until then they show a loading note.
+  const truth = { omega: homog ? 1 : omega, lam, skin, homog };
+  const ready = !!(ref && model);
+  const loading = <p className="muted">{t.live.loadingModels}</p>;
+  const sub = (id: string, label: string, node: React.ReactNode): SubTabDef => ({
+    id, label, content: <ErrorBoundary label={id}>{node}</ErrorBoundary>,
+  });
+  const ladder: TabDef[] = [
+    {
+      id: 'classical', label: t.live.tierClassical,
+      content: <SubTabs ariaLabel={t.live.tierClassical} tabs={[
+        sub('diag', t.live.m.diagnostics, <Diagnostics resp={resp} truth={truth} />),
+      ]} />,
+    },
+    {
+      id: 'shape', label: t.live.tierShape,
+      content: <SubTabs ariaLabel={t.live.tierShape} tabs={[
+        sub('dtw', t.live.m.dtw, ready ? <DtwView x={model!.x} ref={ref!} /> : loading),
+        sub('conformal', t.live.m.conformal, ready ? <ConformalView x={model!.x} ref={ref!} /> : loading),
+      ]} />,
+    },
+    {
+      id: 'learned', label: t.live.tierLearned,
+      content: <SubTabs ariaLabel={t.live.tierLearned} tabs={[
+        sub('incep', t.live.m.inceptiontime, ready ? <ClassifierView x={model!.x} classify={classifyIncep} desc={t.live.incepDesc} acc={ref!.metrics.incep_test_accuracy} /> : loading),
+        sub('patchtst', t.live.m.patchtst, ready ? <ClassifierView x={model!.x} classify={classifyPatchTST} desc={t.live.patchtstDesc} acc={ref!.metrics.patchtst_test_accuracy} /> : loading),
+        sub('ae', t.live.m.autoencoder, ready ? <AeView x={model!.x} ref={ref!} /> : loading),
+        sub('contrastive', t.live.m.contrastive, ready ? <ContrastiveView x={model!.x} ref={ref!} /> : loading),
+      ]} />,
+    },
+  ];
 
   return (
     <div className="grid" style={{ gap: '1rem' }}>
@@ -79,32 +91,9 @@ export function LiveLab() {
         </label>
       </div>
 
-      {/* method ladder tabs */}
-      <div className="tabs">
-        {METHODS.map((m) => (
-          <span key={m} className={`tab ${method === m ? 'on' : ''}`} onClick={() => setMethod(m)}>
-            {methodLabels[m]} <span className="tag" style={{ fontSize: '.7rem' }}>· {tier[m]}</span>
-          </span>
-        ))}
-      </div>
-
+      {/* method ladder: tiers (Classical / Shape / Learned) -> tools */}
       <div className="panel">
-        <ErrorBoundary label={method} key={method}>
-          {method === 'diagnostics' && <Diagnostics resp={resp} truth={{ omega: homog ? 1 : omega, lam, skin, homog }} />}
-          {method !== 'diagnostics' && !deepReady && <p className="muted">{t.live.loadingModels}</p>}
-          {method === 'dtw' && ref && model && <DtwView x={model.x} ref={ref} />}
-          {method === 'conformal' && ref && model && <ConformalView x={model.x} ref={ref} />}
-          {method === 'inceptiontime' && ref && model && (
-            <ClassifierView x={model.x} classify={classifyIncep}
-              desc={t.live.incepDesc} acc={ref.metrics.incep_test_accuracy} />
-          )}
-          {method === 'patchtst' && ref && model && (
-            <ClassifierView x={model.x} classify={classifyPatchTST}
-              desc={t.live.patchtstDesc} acc={ref.metrics.patchtst_test_accuracy} />
-          )}
-          {method === 'autoencoder' && ref && model && <AeView x={model.x} ref={ref} />}
-          {method === 'contrastive' && ref && model && <ContrastiveView x={model.x} ref={ref} />}
-        </ErrorBoundary>
+        <Tabs tabs={ladder} ariaLabel={t.live.ladder} />
       </div>
     </div>
   );

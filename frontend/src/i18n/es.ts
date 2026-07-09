@@ -197,7 +197,8 @@ export const es: Dict = {
     controls: 'Controles en vivo (arrastra para recomputar)',
     homogeneous: 'homogeneo (sin fracturas, la respuesta nula)',
     loadingModels: 'cargando los modelos ONNX aprendidos…',
-    tierClassical: 'clasico', tierSota: 'SOTA', tierNovel: 'novel', tierLearned: 'aprendido (ONNX)',
+    tierClassical: 'Clasico', tierSota: 'SOTA', tierNovel: 'novel', tierLearned: 'Aprendido (ONNX)',
+    tierShape: 'Coincidencia de forma', ladder: 'Escalera de metodos',
     m: {
       diagnostics: 'Diagnostico Bourdet', dtw: 'DTW → GeoType', conformal: 'Conformal',
       inceptiontime: 'InceptionTime', patchtst: 'PatchTST', autoencoder: 'Autoencoder', contrastive: 'Contrastivo',

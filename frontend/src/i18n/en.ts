@@ -195,7 +195,8 @@ export const en = {
     controls: 'Live controls (drag to recompute)',
     homogeneous: 'homogeneous (no fractures, the null response)',
     loadingModels: 'loading the ONNX learned models…',
-    tierClassical: 'classical', tierSota: 'SOTA', tierNovel: 'novel', tierLearned: 'learned (ONNX)',
+    tierClassical: 'Classical', tierSota: 'SOTA', tierNovel: 'novel', tierLearned: 'Learned (ONNX)',
+    tierShape: 'Shape matching', ladder: 'Method ladder',
     m: {
       diagnostics: 'Bourdet diagnostics', dtw: 'DTW → GeoType', conformal: 'Conformal',
       inceptiontime: 'InceptionTime', patchtst: 'PatchTST', autoencoder: 'Autoencoder', contrastive: 'Contrastive',
