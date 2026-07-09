@@ -3,6 +3,27 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.25.000] · 2026-07-09
+
+### Fixed: the App + chrome now MIRROR the RotorVitals reference (ADR-0017), not a re-derivation
+- **Blank-workbench bug on a cross-family case switch (real defect)**: switching to a case with a
+  different family set (e.g. `DFM03_sparse` -> `DARTS_homog_anchor`, which has only Physics + Context)
+  left the family Tabs pointed at a family that no longer existed, so the panel was blank. Fixed by
+  clearing the previous trace before the new one loads (`App.tsx`), so the Tabs remount fresh and the
+  first family + its first sub-tab auto-select. Verified with the exact repro in both themes.
+- **Live-lab controls moved to the LEFT sidebar** (ADR-0017 s3): `LiveLab` split into a `useLiveLab`
+  hook + `LiveControls` (sidebar) + `LiveTools` (main), mirroring the RotorVitals `rv-side` pattern.
+  The ONNX models now load only when Live mode is opened (no eager compute on the Explore landing).
+- **Removed illegal shell-primitive CSS overrides** (ADR-0017 s1.4): `theme.css` was redefining the
+  shell-owned `.icon-btn` (which boxed the header icons) and `.tab`/`.tabs` (which broke the pill tabs).
+  Deleted them so the header + tabs render as the standard shell design system again.
+- **Doc pages use HORIZONTAL tabs** (Methodology, Implementation, Experiments, Benchmark): switched from
+  the vertical sub-tab rail to the shell `Tabs`, matching the RotorVitals doc pages.
+- **App is workbench-first**: `page-body` now carries the two-zone layout directly (no space-eating
+  page-head), the aside is a plain flex control column (not a boxed sticky panel).
+- Verified: `DFM03->DARTS` and `->DFN06` auto-select + render content; 4 live sliders in the sidebar and
+  0 in the main; horizontal tablists on every doc page; 0 console/page errors, light + dark.
+
 ## [0.24.000] · 2026-07-09
 
 ### Added: Benchmark page to the ADR-0017 s2 bar - the five doc pages are now all at bar

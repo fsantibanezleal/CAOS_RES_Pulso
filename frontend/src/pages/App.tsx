@@ -20,7 +20,7 @@ import { RepresentationsView } from '../render/RepresentationsView';
 import { EnsembleExplorerView } from '../render/EnsembleExplorerView';
 import { DtwHeatmapView } from '../render/DtwHeatmapView';
 import { AttributionPlusView } from '../render/AttributionPlusView';
-import { LiveLab } from './LiveLab';
+import { useLiveLab, LiveControls, LiveTools } from './LiveLab';
 
 type Mode = 'explore' | 'live';
 
@@ -178,7 +178,13 @@ export function AppPage() {
 
   useEffect(() => {
     if (mode !== 'explore' || !sel || !manifests[sel]) return;
-    loadTrace(manifests[sel].artifact.path).then(setTrace).catch((e) => setErr(String(e)));
+    // clear the previous case's trace FIRST so the workbench families are rebuilt from the NEW trace,
+    // not the stale one. Without this, switching to a case with a different family set (e.g. DFM study ->
+    // DARTS: Physics/Context only) leaves the family Tabs pointed at a family that no longer exists -> blank.
+    setTrace(null);
+    let alive = true;
+    loadTrace(manifests[sel].artifact.path).then((tr) => alive && setTrace(tr)).catch((e) => setErr(String(e)));
+    return () => { alive = false; };
   }, [sel, manifests, mode]);
 
   const manifest = manifests[sel];
@@ -186,6 +192,9 @@ export function AppPage() {
     () => (trace && manifest ? buildFamilies(trace, manifest, t) : []),
     [trace, manifest, t],
   );
+  // the live-lab state lives here so its CONTROLS render in the sidebar and its TOOLS in the main area
+  // (mirrors the RotorVitals rv-side pattern); the ONNX models only load once Live mode is opened.
+  const lab = useLiveLab(mode === 'live');
 
   const modeChips = (
     <div className="mode-switch" role="tablist" aria-label={t.app.modeLabel}>
@@ -196,46 +205,40 @@ export function AppPage() {
     </div>
   );
 
-  // ADR-0017 section 3: the App is a two-zone `page-body <app>-layout` - a compact control aside + a
-  // workbench main. The case is picked from a grouped dropdown (not a 21-chip wall); the sidebar shows a
-  // live read-out of the selected case, and the main area holds the workbench families -> tools.
+  // ADR-0017 section 3 (mirroring the RotorVitals Tool): the App IS the workbench. `page-body` carries the
+  // two-zone grid directly (no page-head eating vertical space): a control aside holding EVERY parameter
+  // (mode + case picker + read-out in Explore, the live sliders in Live) and a workbench main that holds a
+  // single Tabs of the domain tools. Switching case/mode remounts the Tabs so the first tab auto-selects.
   return (
-    <div className="page-body">
-      <div className="page-head">
-        <h1>{t.app.title}</h1>
-        <p className="lede">{t.app.intro}</p>
-      </div>
-      {err && <div className="panel" style={{ borderColor: 'var(--bad)', marginBottom: '1rem' }}>{t.common.error}: {err}</div>}
+    <div className="page-body pulso-layout">
+      <aside className="pulso-side">
+        {modeChips}
+        {mode === 'explore' ? (
+          <>
+            <label className="side-field">
+              <span className="side-label">{t.app.case}</span>
+              <select value={sel} onChange={(e) => setSel(e.target.value)} aria-label={t.app.case}>
+                {groups.map((g) => (
+                  <optgroup key={g.key} label={g.label}>
+                    {g.cases.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+            </label>
+            {manifest && <CaseReadout manifest={manifest} t={t} />}
+          </>
+        ) : (
+          <LiveControls lab={lab} />
+        )}
+      </aside>
 
-      <div className="pulso-layout">
-        <aside className="pulso-side">
-          {modeChips}
-          {mode === 'explore' ? (
-            <>
-              <label className="side-field">
-                <span className="side-label">{t.app.case}</span>
-                <select value={sel} onChange={(e) => setSel(e.target.value)} aria-label={t.app.case}>
-                  {groups.map((g) => (
-                    <optgroup key={g.key} label={g.label}>
-                      {g.cases.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
-              {manifest && <CaseReadout manifest={manifest} t={t} />}
-            </>
-          ) : (
-            <p className="muted" style={{ fontSize: '.85rem' }}>{t.app.mode.liveHelp}</p>
-          )}
-        </aside>
-
-        <div className="pulso-main">
-          {mode === 'live'
-            ? <LiveLab />
-            : families.length > 0
-              ? <Tabs key={sel} tabs={families} ariaLabel={t.app.workbench} />
-              : <p className="muted">{t.common.loading}</p>}
-        </div>
+      <div className="pulso-main">
+        {err && <div className="panel" style={{ borderColor: 'var(--bad)', marginBottom: '1rem' }}>{t.common.error}: {err}</div>}
+        {mode === 'live'
+          ? <LiveTools lab={lab} />
+          : families.length > 0
+            ? <Tabs key={sel} tabs={families} ariaLabel={t.app.workbench} />
+            : <p className="muted">{t.common.loading}</p>}
       </div>
     </div>
   );

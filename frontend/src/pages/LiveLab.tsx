@@ -15,7 +15,9 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const COLORS = ['#4f9cf9', '#f97b4f', '#41c98d', '#c94fd0', '#d8c14a'];
 
-export function LiveLab() {
+// The live-lab STATE + derived method ladder as a hook, so the App can render the CONTROLS in its left
+// sidebar (ADR-0017 s3 / the RotorVitals rv-side pattern) and the TOOLS in the main area from one source.
+export function useLiveLab(active = true) {
   const t = useT();
   const [omega, setOmega] = useState(0.05);
   const [logLam, setLogLam] = useState(-6);
@@ -24,9 +26,12 @@ export function LiveLab() {
   const [homog, setHomog] = useState(false);
   const [ref, setRef] = useState<DeepReference | null>(null);
 
+  // only pull the ONNX models + reference once Live mode is actually opened, so the Explore landing
+  // does not instantiate four inference sessions it never uses (no eager compute on the entry page).
   useEffect(() => {
+    if (!active) return;
     loadDeep().then(() => setRef(getReference())).catch(() => setRef(null));
-  }, []);
+  }, [active]);
 
   const lam = Math.pow(10, logLam);
   const resp = useMemo(
@@ -38,8 +43,7 @@ export function LiveLab() {
     [resp, ref],
   );
 
-  // the method ladder grouped by tier: Tabs (Classical / Shape / Learned) -> SubTabs (tools). The
-  // learned/shape tools need the ONNX + reference loaded; until then they show a loading note.
+  // the method ladder grouped by tier: Tabs (Classical / Shape / Learned) -> SubTabs (tools).
   const truth = { omega: homog ? 1 : omega, lam, skin, homog };
   const ready = !!(ref && model);
   const loading = <p className="muted">{t.live.loadingModels}</p>;
@@ -71,30 +75,37 @@ export function LiveLab() {
     },
   ];
 
+  return { omega, setOmega, logLam, setLogLam, lam, skin, setSkin, noise, setNoise, homog, setHomog, ladder };
+}
+
+export type LiveLabHook = ReturnType<typeof useLiveLab>;
+
+// The live controls, for the LEFT SIDEBAR (mirrors RotorVitals rv-side: the parametrization lives in the aside).
+export function LiveControls({ lab }: { lab: LiveLabHook }) {
+  const t = useT();
+  const { omega, setOmega, logLam, setLogLam, lam, skin, setSkin, noise, setNoise, homog, setHomog } = lab;
   return (
-    <div className="grid" style={{ gap: '1rem' }}>
-      <p className="muted" style={{ margin: 0 }}>{t.live.intro}</p>
+    <div className="side-controls">
+      <div className="side-label">{t.live.controls}</div>
+      <Slider label={`ω = ${homog ? '1 (homog.)' : omega.toFixed(3)}`} min={0.005} max={0.5} step={0.005} value={omega} onChange={setOmega} disabled={homog} />
+      <Slider label={`λ = ${lam.toExponential(1)}`} min={-9} max={-4} step={0.1} value={logLam} onChange={setLogLam} disabled={homog} />
+      <Slider label={`skin = ${skin.toFixed(1)}`} min={0} max={5} step={0.5} value={skin} onChange={setSkin} />
+      <Slider label={`noise = ${(noise * 100).toFixed(0)}%`} min={0} max={0.08} step={0.005} value={noise} onChange={setNoise} />
+      <label className="side-check">
+        <input type="checkbox" checked={homog} onChange={(e) => setHomog(e.target.checked)} />
+        {t.live.homogeneous}
+      </label>
+    </div>
+  );
+}
 
-      {/* live controls */}
-      <div className="panel">
-        <div className="tag" style={{ marginBottom: '.6rem' }}>{t.live.controls}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>
-          <Slider label={`ω = ${homog ? '1 (homog.)' : omega.toFixed(3)}`} min={0.005} max={0.5} step={0.005}
-            value={omega} onChange={setOmega} disabled={homog} />
-          <Slider label={`λ = ${lam.toExponential(1)}`} min={-9} max={-4} step={0.1} value={logLam} onChange={setLogLam} disabled={homog} />
-          <Slider label={`skin = ${skin.toFixed(1)}`} min={0} max={5} step={0.5} value={skin} onChange={setSkin} />
-          <Slider label={`noise = ${(noise * 100).toFixed(0)}%`} min={0} max={0.08} step={0.005} value={noise} onChange={setNoise} />
-        </div>
-        <label style={{ display: 'inline-flex', gap: '.4rem', marginTop: '.7rem', fontSize: '.9rem' }}>
-          <input type="checkbox" checked={homog} onChange={(e) => setHomog(e.target.checked)} />
-          {t.live.homogeneous}
-        </label>
-      </div>
-
-      {/* method ladder: tiers (Classical / Shape / Learned) -> tools */}
-      <div className="panel">
-        <Tabs tabs={ladder} ariaLabel={t.live.ladder} />
-      </div>
+// The method ladder (tier tabs -> tools), for the MAIN area.
+export function LiveTools({ lab }: { lab: LiveLabHook }) {
+  const t = useT();
+  return (
+    <div>
+      <p className="muted" style={{ margin: '0 0 1rem' }}>{t.live.intro}</p>
+      <Tabs tabs={lab.ladder} ariaLabel={t.live.ladder} />
     </div>
   );
 }
@@ -103,10 +114,10 @@ function Slider({ label, min, max, step, value, onChange, disabled }: {
   label: string; min: number; max: number; step: number; value: number; onChange: (v: number) => void; disabled?: boolean;
 }) {
   return (
-    <label className="tag" style={{ opacity: disabled ? 0.4 : 1 }}>
+    <label className="side-ctl" style={{ opacity: disabled ? 0.4 : 1 }}>
       {label}
       <input type="range" min={min} max={max} step={step} value={value} disabled={disabled}
-        onChange={(e) => onChange(Number(e.target.value))} style={{ display: 'block', width: '100%', marginTop: '.3rem' }} />
+        onChange={(e) => onChange(Number(e.target.value))} />
     </label>
   );
 }
