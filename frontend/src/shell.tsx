@@ -30,7 +30,13 @@ export const shellConfig: ShellConfig = {
     { path: '/experiments', en: 'Experiments', es: 'Experimentos' },
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
-  links: { github: REPO },
+  // github + Felipe's canonical personal/portfolio URLs (kept identical app-to-app per the shell standard),
+  // so the header icon-links and the footer link row are complete, not just "Source on GitHub".
+  links: {
+    github: REPO,
+    personal: 'https://fsantibanezleal.github.io',
+    portfolio: 'https://fasl-work.com',
+  },
   version: VERSION,
   architecture,
   footer: {
