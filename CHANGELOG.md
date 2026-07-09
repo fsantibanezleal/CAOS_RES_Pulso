@@ -3,6 +3,28 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.22.000] · 2026-07-09
+
+### Fixed: App entry rebuilt to the ADR-0017 s3 layout (was a broken, chaotic case-selector wall)
+The v0.21 App dumped all 21 cases as an expanded chip wall at the landing and, worse, the `.page-body grid`
+root broke content rendering when a case was selected. Both fixed, applying the App-interactivity contract:
+- **Two-zone `page-body pulso-layout`** (ADR-0017 s3): a compact control **sidebar** (~300px) + a workbench
+  **main**. The sidebar holds the mode toggle (Explore / Live lab), a single grouped `<select>` that
+  navigates all 21 cases via `<optgroup>` (not a 21-chip wall), and a **live read-out** of the selected
+  case (source, lane, K, silhouette, coverage) - the sidebar live-diagnosis the ADR requires.
+- The workbench families -> tools now render in the main area; verified content shows on land AND on case
+  change, in light and dark, and the Live lab renders its tier tabs in the same layout. 0 console errors.
+- Footer/header links completed with Felipe's canonical personal + portfolio URLs (kept identical
+  app-to-app per the shell standard), so the header icon-links are complete.
+
+### Added: Methodology page to the ADR-0017 s2 content-depth bar
+- **10 method-family tabs** (vertical `SubTabs`): preprocessing, DTW distance, k-medoids catalogue, the
+  SOTA clustering comparison, representations, live diagnostics, learned classifiers, anomaly + retrieval,
+  conformal assignment, attribution. Each tab carries >=4 dense bilingual paragraphs naming the exact build
+  behaviour + constants, >=2 captioned KaTeX equations, a hand-authored theme-aware SVG (DTW warping grid,
+  Inception module, dual-conformal intersection, etc.), an honest Callout, and inline Cite/Refs. >=2 tabs
+  are the learned methods. Transcribed from docs/methods.
+
 ## [0.21.000] · 2026-07-09
 
 ### Fixed / Changed: apply ADR-0017 (layout contract, citations, case selector) + Introduction to bar

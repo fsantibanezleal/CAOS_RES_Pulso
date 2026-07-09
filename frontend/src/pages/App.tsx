@@ -4,7 +4,7 @@
 // view runs on the committed artifact of the selected case. Case selection uses the shell CaseSelector
 // (grouped by category, URL-synced); the tab chrome uses the shell Tabs/SubTabs (keyboard + ARIA).
 import { useEffect, useMemo, useState } from 'react';
-import { CaseSelector, SubTabs, Tabs, readCaseParam, useShellLang, type CaseDef, type SubTabDef, type TabDef } from '@fasl-work/caos-app-shell';
+import { SubTabs, Tabs, readCaseParam, type SubTabDef, type TabDef } from '@fasl-work/caos-app-shell';
 import { loadIndex, loadManifest, loadTrace } from '../api/artifacts';
 import type { CaseManifest, Trace } from '../lib/contract.types';
 import { isDartsTrace, isDfmTrace, isDfnTrace, isStudyTrace, isStudyTraceV2 } from '../lib/contract.types';
@@ -34,9 +34,6 @@ const CATEGORY_KEY: Record<string, keyof ReturnType<typeof useT>['app']['cat']> 
   'simulated-darts': 'darts',
   'benchmark-4tu': 'bench',
 };
-
-// the case KIND (R/S badge): measured/corpus data is 'real', everything simulated/analytic is 'synthetic'
-const REAL_LANES = new Set(['real-4tu', 'field-pumping', 'benchmark-4tu']);
 
 // a curated short name per case that ADDS meaning next to the mono id (never a de-slug of the id).
 // Falls back to a light humanization only for an unmapped case.
@@ -134,7 +131,6 @@ function buildFamilies(trace: Trace, manifest: CaseManifest, t: ReturnType<typeo
 
 export function AppPage() {
   const t = useT();
-  const lang = useShellLang();
   const [manifests, setManifests] = useState<Record<string, CaseManifest>>({});
   const [mode, setMode] = useState<Mode>('explore');
   // seed the selected case from the ?case= deep link so a shared URL opens that case (the CaseSelector
@@ -152,21 +148,33 @@ export function AppPage() {
       .catch((e) => setErr(String(e)));
   }, []);
 
-  const cases: CaseDef[] = useMemo(
-    () => Object.values(manifests)
-      .map((m) => ({
-        id: m.case_id, name: caseName(m.case_id),
-        category: t.app.cat[CATEGORY_KEY[m.real_or_synthetic] ?? 'analytic'],
-        kind: (REAL_LANES.has(m.real_or_synthetic) ? 'real' : 'synthetic') as 'real' | 'synthetic',
-        expectedBand: m.expected_band,
-      }))
-      .sort((a, b) => (a.category + a.id).localeCompare(b.category + b.id)),
-    [manifests, t],
-  );
+  // cases grouped by category for the compact sidebar dropdown (a native <optgroup> select navigates
+  // all 21 cases in one control instead of a 21-chip wall). Categories ordered real -> field -> DFM ->
+  // analytic -> the rest, so measured data is first.
+  const CAT_ORDER = ['real', 'field', 'dfm', 'darts', 'dfn', 'analytic', 'bench'];
+  const groups = useMemo(() => {
+    const by: Record<string, { id: string; name: string }[]> = {};
+    for (const m of Object.values(manifests)) {
+      const key = CATEGORY_KEY[m.real_or_synthetic] ?? 'analytic';
+      (by[key] ??= []).push({ id: m.case_id, name: caseName(m.case_id) });
+    }
+    for (const k of Object.keys(by)) by[k].sort((a, b) => a.id.localeCompare(b.id));
+    return CAT_ORDER.filter((k) => by[k]).map((k) => ({ key: k, label: t.app.cat[k as keyof typeof t.app.cat], cases: by[k] }));
+  }, [manifests, t]);
+  const allIds = useMemo(() => groups.flatMap((g) => g.cases.map((c) => c.id)), [groups]);
 
   useEffect(() => {
-    if (cases.length && !cases.some((c) => c.id === sel)) setSel(cases[0].id);
-  }, [cases, sel]);
+    if (allIds.length && !allIds.includes(sel)) setSel(allIds[0]);
+  }, [allIds, sel]);
+
+  // keep the ?case= deep link in sync so a shared URL reopens the case
+  useEffect(() => {
+    if (sel) {
+      const u = new URL(window.location.href);
+      u.searchParams.set('case', sel);
+      window.history.replaceState(null, '', u.toString());
+    }
+  }, [sel]);
 
   useEffect(() => {
     if (mode !== 'explore' || !sel || !manifests[sel]) return;
@@ -179,52 +187,79 @@ export function AppPage() {
     [trace, manifest, t],
   );
 
-  const modes: Array<[Mode, string]> = [
-    ['explore', t.app.mode.explore],
-    ['live', t.app.mode.live],
-  ];
+  const modeChips = (
+    <div className="mode-switch" role="tablist" aria-label={t.app.modeLabel}>
+      {(['explore', 'live'] as Mode[]).map((m) => (
+        <button key={m} role="tab" aria-selected={mode === m} className={`mode-btn ${mode === m ? 'on' : ''}`}
+          onClick={() => setMode(m)}>{m === 'explore' ? t.app.mode.explore : t.app.mode.live}</button>
+      ))}
+    </div>
+  );
 
+  // ADR-0017 section 3: the App is a two-zone `page-body <app>-layout` - a compact control aside + a
+  // workbench main. The case is picked from a grouped dropdown (not a 21-chip wall); the sidebar shows a
+  // live read-out of the selected case, and the main area holds the workbench families -> tools.
   return (
-    <div className="page-body grid" style={{ gap: '1.25rem' }}>
+    <div className="page-body">
       <div className="page-head">
         <h1>{t.app.title}</h1>
         <p className="lede">{t.app.intro}</p>
       </div>
-      {err && <div className="panel" style={{ borderColor: 'var(--bad)' }}>{t.common.error}: {err}</div>}
+      {err && <div className="panel" style={{ borderColor: 'var(--bad)', marginBottom: '1rem' }}>{t.common.error}: {err}</div>}
 
-      {/* first-level MODE selector */}
-      <div className="panel">
-        <div className="tag" style={{ marginBottom: '.5rem' }}>{t.app.modeLabel}</div>
-        <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
-          {modes.map(([m, label]) => (
-            <span key={m} className={`chip ${mode === m ? 'on' : ''}`} onClick={() => setMode(m)}>{label}</span>
-          ))}
-        </div>
-        <p className="muted" style={{ fontSize: '.85rem', margin: '.6rem 0 0' }}>
-          {mode === 'explore' ? t.app.mode.exploreHelp : t.app.mode.liveHelp}
-        </p>
-      </div>
+      <div className="pulso-layout">
+        <aside className="pulso-side">
+          {modeChips}
+          {mode === 'explore' ? (
+            <>
+              <label className="side-field">
+                <span className="side-label">{t.app.case}</span>
+                <select value={sel} onChange={(e) => setSel(e.target.value)} aria-label={t.app.case}>
+                  {groups.map((g) => (
+                    <optgroup key={g.key} label={g.label}>
+                      {g.cases.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
+              {manifest && <CaseReadout manifest={manifest} t={t} />}
+            </>
+          ) : (
+            <p className="muted" style={{ fontSize: '.85rem' }}>{t.app.mode.liveHelp}</p>
+          )}
+        </aside>
 
-      {mode === 'live' ? (
-        <LiveLab />
-      ) : (
-        <>
-          <div className="panel">
-            <CaseSelector cases={cases} selectedId={sel} onSelect={setSel} lang={lang} deepLink="case" />
-            {manifest && (
-              <p className="readout" style={{ marginTop: '.7rem' }}>
-                {t.app.cat[CATEGORY_KEY[manifest.real_or_synthetic] ?? 'analytic']} · {manifest.lane === 'live' ? t.app.laneLive : t.app.lanePrecompute}
-              </p>
-            )}
-          </div>
-
-          <div className="panel">
-            {families.length > 0
+        <div className="pulso-main">
+          {mode === 'live'
+            ? <LiveLab />
+            : families.length > 0
               ? <Tabs key={sel} tabs={families} ariaLabel={t.app.workbench} />
               : <p className="muted">{t.common.loading}</p>}
-          </div>
-        </>
-      )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// A compact live read-out of the selected case (ADR-0017 section 3.3): category, lane, and the headline
+// metrics (K, silhouette, conformal coverage) pulled from the committed manifest.
+function CaseReadout({ manifest, t }: { manifest: CaseManifest; t: ReturnType<typeof useT> }) {
+  const metrics = manifest.metrics as Record<string, unknown>;
+  const conf = (metrics.conformal ?? {}) as Record<string, number>;
+  const num = (v: unknown) => (typeof v === 'number' ? v : undefined);
+  const rows: Array<[string, string | undefined]> = [
+    [t.app.ro.category, t.app.cat[CATEGORY_KEY[manifest.real_or_synthetic] ?? 'analytic']],
+    [t.app.ro.lane, manifest.lane === 'live' ? t.app.laneLive : t.app.lanePrecompute],
+    ['K', num(metrics.k)?.toString()],
+    [t.common.silhouette, num(metrics.silhouette_train)?.toFixed(3)],
+    [t.common.coverage, num(conf.empirical_coverage_test)?.toFixed(2)],
+  ];
+  return (
+    <div className="side-readout">
+      {rows.filter(([, v]) => v !== undefined).map(([k, v]) => (
+        <div key={k} className="side-readout-row"><span>{k}</span><b>{v}</b></div>
+      ))}
+      {manifest.expected_band && <p className="muted" style={{ fontSize: '.8rem', marginTop: '.5rem' }}>{manifest.expected_band}</p>}
     </div>
   );
 }

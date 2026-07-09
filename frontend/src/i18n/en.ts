@@ -33,8 +33,10 @@ export const en = {
       'Pick how to work: explore a committed case from the corpora, or open the live lab and tune a synthetic curve. Classical + SOTA + novel tools run in a TypeScript engine; the learned deep models run via onnxruntime-web on the ONNX trained offline.',
     modeLabel: 'Mode',
     workbench: 'Workbench families',
+    case: 'Case',
     laneLive: 'live in-browser',
     lanePrecompute: 'precomputed artifact',
+    ro: { category: 'source', lane: 'lane' },
     mode: {
       explore: 'Explore a case',
       live: 'Live lab',
