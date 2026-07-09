@@ -13,6 +13,9 @@ export interface DeepReference {
   latent: number[][];
   medoids: number[][];
   calibration_scores: Record<string, number[]>;
+  // committed held-out test set (model-ready z-scored derivatives + true labels) for the Benchmark page's
+  // live learned-vs-classical confusion matrix. domain names the training distribution honestly.
+  benchmark?: { domain: string; curves: number[][]; labels: number[] };
   preprocessing: { derivative_order: number; norm: string; n_points: number };
   metrics: Record<string, number>;
 }
