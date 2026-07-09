@@ -3,7 +3,19 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
-## [0.25.000] · 2026-07-09
+## [0.24.001] · 2026-07-09
+
+Patch (all fixes, no new feature): App + chrome corrected to the reference (was mis-tagged 0.25.000; a
+fix bundle is a patch, not a minor, per the versioning convention).
+
+### Fixed: full-width workbench + one-line footer
+- **App uses the FULL page width** (the Lidar3D `.work` pattern): the workbench is no longer boxed inside
+  the capped `.page-body`; a full-width `.pulso-app` grid (320px control aside + fluid main) fills the
+  page. The reading pages keep the capped `.page-body` (prose stays at a legible measure).
+- **Footer is a compact ONE wrapping line** (ADR-0016 s2): the provenance + disclaimer were multi-sentence
+  paragraphs that stacked the footer into blocks with orphaned separators. Replaced with a short
+  provenance clause (`Engines: GeoDFN + open-DARTS (offline) + onnxruntime-web (live ONNX)`) and an honest
+  one-liner disclaimer.
 
 ### Fixed: the App + chrome now MIRROR the RotorVitals reference (ADR-0017), not a re-derivation
 - **Blank-workbench bug on a cross-family case switch (real defect)**: switching to a case with a

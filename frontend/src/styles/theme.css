@@ -87,13 +87,19 @@ h1, h2, h3 { line-height: 1.25; }
    them here. Only app-local widgets belong in this file. */
 .katex-block { overflow-x: auto; padding: .5rem 0; }
 
-/* App workbench: the ADR-0017 s3 two-zone <app>-layout (control aside + workbench main), mirroring the
-   RotorVitals reference (.rv-layout/.rv-side/.rv-main): a 320px control column + a fluid workbench, the
-   aside a plain flex column (not a boxed/sticky panel), controls as label-over-input rows. */
-.pulso-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+/* App workbench: a FULL-PAGE-WIDTH two-zone layout (the Lidar3D `.work` pattern), NOT the capped
+   `.page-body` the reading pages use, so the workbench fills the screen. A 320px control aside (a plain
+   flex column, not a boxed/sticky panel; controls are label-over-input rows) + a fluid workbench main. */
+.pulso-app { width: 100%; padding: 1.5rem 1.5rem 3rem; display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
 .pulso-side { display: flex; flex-direction: column; gap: 0.9rem; }
 .pulso-main { min-width: 0; }
-@media (max-width: 900px) { .pulso-layout { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .pulso-app { grid-template-columns: 1fr; padding: 1.25rem 1rem 2rem; } }
+
+/* Full-width chrome (the Lidar3D pattern): the header + footer bars span the full page width, aligned
+   with the full-width App, instead of the shell's default 1200px cap. This is an intentional LAYOUT
+   choice (not a design-system override); the reading pages keep their centered `.page-body` measure.
+   Header/footer padding-inline stays 1.5rem so the brand + nav line up with the App's left edge. */
+.header-inner, .footer-inner { max-width: none; }
 
 .mode-switch { display: inline-flex; gap: .25rem; background: var(--bg-3); border-radius: 999px; padding: .25rem; }
 .mode-btn { flex: 1; border: none; background: transparent; color: var(--fg-2); font: inherit; font-size: .88rem; padding: .35rem .7rem; border-radius: 999px; cursor: pointer; }
