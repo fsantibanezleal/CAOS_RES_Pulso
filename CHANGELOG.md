@@ -3,6 +3,21 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.19.000] · 2026-07-09
+
+### Added: rubric viz that consumes committed CONTRACT-3 data (S2)
+Two views were rendering nowhere despite the artifact committing their data:
+- **Ensemble explorer** (`render/EnsembleExplorerView`): the WHOLE committed ensemble - every member
+  curve (min/max-decimated) coloured by GeoType, plus the per-cluster p10/p50/p90 envelope bands that
+  summarise the full population. Modes (members + envelopes / envelopes only / members only), a hover
+  cursor reading each cluster median at the dimensionless time, honest population-vs-committed counts,
+  the member spaghetti capped + stated (envelopes always summarise every member). Ensemble family SubTab.
+- **DTW heatmap** (`render/DtwHeatmapView`): the committed cluster-ordered pairwise DTW matrix rendered
+  with a perceptually-uniform **viridis** colormap (rubric section 4, never rainbow) on Canvas2D; clusters
+  read as bright low-distance blocks on the diagonal, white cluster-boundary lines, a colorbar, and a
+  hover readout (pair distance + the two GeoTypes). Ensemble family SubTab.
+- Verified light+dark on REAL_A (200x200) + BENCH_A (512x512 capped subsample); 0 console errors.
+
 ## [0.18.000] · 2026-07-08
 
 ### Changed: App information-architecture reorganization (S1)
