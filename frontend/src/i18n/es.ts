@@ -35,8 +35,10 @@ export const es: Dict = {
       'Elige como trabajar: explora un caso comprometido de los corpus, o abre el laboratorio en vivo y ajusta una curva sintetica. Las herramientas clasico + SOTA + novel corren en un motor TypeScript; los modelos profundos aprendidos corren via onnxruntime-web sobre el ONNX entrenado offline.',
     modeLabel: 'Modo',
     workbench: 'Familias del banco',
+    case: 'Caso',
     laneLive: 'en vivo en el navegador',
     lanePrecompute: 'artefacto precomputado',
+    ro: { category: 'fuente', lane: 'via' },
     mode: {
       explore: 'Explorar un caso',
       live: 'Laboratorio en vivo',
