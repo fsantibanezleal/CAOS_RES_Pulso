@@ -205,12 +205,12 @@ export function AppPage() {
     </div>
   );
 
-  // ADR-0017 section 3 (mirroring the RotorVitals Tool): the App IS the workbench. `page-body` carries the
-  // two-zone grid directly (no page-head eating vertical space): a control aside holding EVERY parameter
-  // (mode + case picker + read-out in Explore, the live sliders in Live) and a workbench main that holds a
-  // single Tabs of the domain tools. Switching case/mode remounts the Tabs so the first tab auto-selects.
+  // The App IS the workbench and uses the FULL page width (the Lidar3D `.work` pattern), NOT the capped
+  // `.page-body` the reading pages use: a control aside holding EVERY parameter (mode + case picker +
+  // read-out in Explore, the live sliders in Live) and a workbench main that fills the rest with a single
+  // Tabs of the domain tools. Switching case/mode remounts the Tabs so the first tab auto-selects.
   return (
-    <div className="page-body pulso-layout">
+    <div className="pulso-app">
       <aside className="pulso-side">
         {modeChips}
         {mode === 'explore' ? (
