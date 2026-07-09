@@ -3,6 +3,27 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.18.000] · 2026-07-08
+
+### Changed: App information-architecture reorganization (S1)
+- **Front door reworked** from an ambiguous "source" selector into a first-level **MODE** selector
+  (Explore a case / Live lab; Guided scenarios is a later slice). This resolves the inconsistency where
+  "Live lab" (tune a synthetic curve) was a completely different UI masquerading as a data source.
+- **Adopted the shared-shell components** in place of hand-rolled chrome (no-hand-rolled-shared rule):
+  - `CaseSelector` (cases grouped by category, `?case=` deep link, keyboard/ARIA) replaces the raw
+    `<select>`. Surfaces ALL cases including the previously-UNREACHABLE analytic families / DFN / DARTS,
+    whose committed study traces were hidden under the old synthetic->LiveLab mapping.
+  - `Tabs` (families) -> `SubTabs` (tools) replace the flat `<span className="tab">` row. Workbench
+    families: **Ensemble** (Catalogue, Shape space) - **Assignment** (Classify, Attribution) - **Methods**
+    (Method agreement) - **Physics** (DFM sim / DARTS / network) - **Context**. Each family appears only
+    when it has a real tool for the selected trace (a DARTS/DFN case is not padded with empty study tabs).
+  - **Live lab** ladder regrouped from a flat 7-tab row into tier `Tabs` (Classical / Shape matching /
+    Learned ONNX) -> tool `SubTabs`; verified the grouped tabs stay selected + live-reactive across
+    slider drags.
+- Case names humanized on the chips; the workbench Tabs re-key on case change. No behaviour lost: every
+  existing view folds into the grouped structure unchanged. Verified light+dark on REAL_A (4 families),
+  DFM01 (Physics), analytic + Live lab; deep-link `?case=` honored; 0 console errors.
+
 ## [0.17.000] · 2026-07-07
 
 ### Added: rebuild phase P2d, SOTA learned tier (GPU -> ONNX)
