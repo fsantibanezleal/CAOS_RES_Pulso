@@ -3,6 +3,30 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.20.000] · 2026-07-09
+
+### Added: rebuild phase P2e, attribution & assignment - COMPLETES the P2 method ladder
+- **`methods/attribution_plus.compute_attribution_plus`** (OFFLINE, gated by `spec.compare_methods`),
+  committed to the trace `attribution_plus` block:
+  - **predictability-vs-K**: per candidate K, the RF held-out BALANCED accuracy of predicting the GeoType
+    labels from the physical descriptors (balanced so minority GeoTypes count, not the majority baseline)
+    + silhouette; K* marked. Answers "is the structure attributable across K?".
+  - **ROM descriptor sensitivity**: a reduced-order RF surrogate swept one descriptor at a time; the
+    sensitivity is the largest GeoType-probability swing across the sweep (a partial-dependence measure,
+    informative even on imbalanced ensembles where an argmax-flip count reads zero). The knobs that move
+    a curve across GeoType boundaries (connectivity/aperture/intensity dominate, physically correct).
+  - **BEYOND-SOTA: dual-representation Mondrian conformal** - conformalizes jointly across shape space
+    (DTW distance to medoid) AND physics-descriptor space (RF implausibility); the prediction set is the
+    per-class conjunction, so a shape-match with implausible physics is flagged. Reported honestly vs
+    shape-only: coverage, mean set size, and the count of "right shape, wrong physics" curves the dual
+    layer catches (REAL_A 7/100, BENCH_A 55/763), degrading to shape-only when descriptors are degenerate.
+- **App Assignment -> Attribution+ SubTab** (`render/AttributionPlusView`): the predictability-vs-K chart,
+  the ranked ROM sensitivity bars, and the dual-vs-shape conformal comparison table with examples.
+  Bilingual EN/ES, light + dark.
+- Re-baked WR01/REAL_A/BENCH_A/B/C. TS mirror (`AttributionPlus`) + Python test. Docs
+  `docs/methods/05_attribution-assignment.md`; methods landing marks the ladder complete. No new dependency.
+- Gates: ruff, pytest, tsc, vitest, build, visual-verify (light + dark, 0 console errors).
+
 ## [0.19.000] · 2026-07-09
 
 ### Added: rubric viz that consumes committed CONTRACT-3 data (S2)

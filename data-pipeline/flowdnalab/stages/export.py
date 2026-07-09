@@ -61,6 +61,7 @@ def run_study(
     # it runs only for cases that opt in via spec.compare_methods (a representative subset), not on
     # every bake. Recorded in the trace's `method_comparison` block for the Benchmark method-agreement viz.
     comparison = None
+    attribution_plus = None
     if getattr(case.spec, "compare_methods", False) and all(
         kk in trained for kk in ("D", "labels", "X_train")
     ):
@@ -69,6 +70,14 @@ def run_study(
             np.asarray(trained["X_train"], dtype=float), np.asarray(trained["D"], dtype=float),
             np.asarray(trained["labels"], dtype=int), int(trained["catalogue"].k), seed=seed,
         )
+        # P2e: predictability-vs-K + ROM descriptor sweep + the NOVEL dual-representation Mondrian
+        # conformal (shape-space DTW conformal INTERSECT descriptor-space RF conformal). Same rich-method
+        # gate. Optional/robust: any failure records an error note rather than breaking the bake.
+        from ..methods.attribution_plus import compute_attribution_plus
+        try:
+            attribution_plus = compute_attribution_plus(arrays, trained, case.spec, seed=seed)
+        except Exception as e:  # noqa: BLE001
+            attribution_plus = {"error": str(e)[:160]}
 
     # CONTRACT-3 (P0.2): the FULL-ensemble study artifact (pulso.study/v2) when the train stage kept
     # the ensemble arrays; falls back to the v1 builder otherwise (e.g. an old cached trained dict).
@@ -95,6 +104,8 @@ def run_study(
         schema = TRACE_SCHEMA
     if comparison is not None:
         trace["method_comparison"] = comparison
+    if attribution_plus is not None:
+        trace["attribution_plus"] = attribution_plus
     artifact_rel = f"{case.id}/trace.json"
     trace_bytes = write_json(Path(derived_dir) / artifact_rel, trace)
     # Live posture of a STUDY case: the browser re-generates ONE analytic curve + classifies it with
