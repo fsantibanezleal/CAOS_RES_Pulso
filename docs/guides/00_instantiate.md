@@ -3,7 +3,7 @@
 1. **Copy** the template tree into the new product repo (its own git repo; code-repo flow `task/* → develop → main`).
 2. **Rename** the package `flowdnalab` → `<slug>lab` (the folder + all imports + `pyproject.toml`
    `[tool.setuptools.packages.find].where`/name + the scripts' `-m flowdnalab.pipeline` + docs).
-3. **Replace the EXAMPLE engine**: `<slug>lab/model/` + the bodies of `stages/{preprocess,feature_extraction,train,
+3. **Replace the example engine**: `<slug>lab/model/` + the bodies of `stages/{preprocess,feature_extraction,train,
    infer,evaluate}` with your research-chosen SOTA engine. **Keep the stage names + both contracts.**
 4. **Write CONTRACT 1** (`io/contract.py`) for YOUR raw data — required columns, units, ranges, explicit outlier
    policy — plus a tiny `data/examples/` sample that passes it; document it in `data/README.md`. Update

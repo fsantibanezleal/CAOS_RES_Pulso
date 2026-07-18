@@ -1,7 +1,7 @@
 # Frameworks
 
 One card per research-chosen engine/library — **the deep research, made binding**. Every engine the pipeline uses
-gets a card here AND an exact pin in the matching `requirements-*.txt`. No hand-rolled toy substitute for a SOTA
+gets a card here and an exact pin in the matching `requirements-*.txt`. No hand-rolled toy substitute for a SOTA
 engine the research prescribed.
 
 - [00 — card TEMPLATE](frameworks/00_TEMPLATE.md) — copy per engine to `frameworks/<NN>_<tool>/<tool>.md`

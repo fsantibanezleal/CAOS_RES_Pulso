@@ -19,7 +19,7 @@ DFNGeneratorWithSeed(domain_x, domain_y, [set1, set2], APERTURE_PARAMS, case_id,
                      num_realizations=n, savePic=False, output_dir=vault_dir)
 ```
 
-- The constructor RUNS the generation and writes per-realization files:
+- The constructor runs the generation and writes per-realization files:
   `fractureCoordinates/NNNfractureCoordinates.txt` (x1 y1 x2 y2 per fracture),
   `aperture/NNNaperture.txt`, `outputProperties*`.
 - The adapter parses those, computes the descriptor table

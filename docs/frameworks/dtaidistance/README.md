@@ -3,7 +3,7 @@
 **What / why.** [dtaidistance](https://github.com/wannesm/dtaidistance) (Apache-2.0, KU Leuven) is
 the offline accelerator behind `pygeotypes.distance.dtw_matrix(backend="auto")`: full pairwise DTW
 matrices over training ensembles run in its OpenMP C core instead of the pure-numpy DP (orders of
-magnitude faster at n≥100 curves). The numpy DP remains the reference implementation and the ONLY
+magnitude faster at n≥100 curves). The numpy DP remains the reference implementation and the only
 one the live lane uses (dtaidistance has no Pyodide wheel).
 
 **Install.** `pip install dtaidistance==2.4.0` (binary wheels for Windows/Linux, Python 3.12).

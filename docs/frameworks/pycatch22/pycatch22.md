@@ -34,7 +34,7 @@ set MSSdk=1
 python -m pip install --no-build-isolation "pycatch22>=0.4.0"
 ```
 
-On Linux/WSL a normal `pip install pycatch22` builds with gcc. offline-only (features are baked into the
+On Linux/WSL a normal `pip install pycatch22` builds with gcc. Offline-only (features are baked into the
 `representations.catch22` block); never in the live lane or Pyodide. If the wheel cannot be built the
 block degrades to a recorded `skipped`, never a crash.
 

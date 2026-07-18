@@ -48,12 +48,12 @@ simulated Bourdet derivative plateaus at 0.5 (the infinite-acting radial-flow si
 skin-corrected p_wD matches the analytical line-source to ~1% (rel-L2 0.011), with an apparent skin
 of ~0.4 from the grid-block well.** Case `DARTS_homog_anchor`; validated in `tests/test_darts.py`.
 Concrete API notes (for Step B): `DrawdownModel(DartsModel)` sets `self.reservoir` + `self.physics`
-in `__init__`; `set_sim_params()` MUST precede `init()`; the Geothermal property container needs the
+in `__init__`; `set_sim_params()` must precede `init()`; the Geothermal property container needs the
 full `GeothermalIAPWSFluidProps` evaluators + custom rock evaluators; BHP is read from
 `output.store_well_time_data()['well_<name>_BHP']`; a large domain + short test keep the response
 infinite-acting.
 
-*Step B — FOUNDATION DONE (2026-07-04): DFN conformal meshing works.* `dfn/dfn_mesh.py` turns a
+*Step B — foundation DONE (2026-07-04): DFN conformal meshing works.* `dfn/dfn_mesh.py` turns a
 GeoDFN network (`[[x1,y1,x2,y2], ...]` segments) into a conformal DFM `.msh` mesh via open-DARTS'
 `frac_preprocessing` (MIT, de Hoop & Voskov) + gmsh: it cleans the network (intersections, merging),
 writes a `.geo`, and meshes it. The GeoDFN output format matches `frac_preprocessing`'s input, so the
@@ -74,20 +74,20 @@ Bourdet derivative. **Result: a valid DFN drawdown (verified on the probe networ
 fracture + 952 matrix cells, ~6 bar drawdown) with the characteristic morphology — a suppressed early
 derivative from the conductive fracture network rising to a closed-domain late-time signature.**
 
-`dfn/dfm_fidelity.py` gates the simulated derivative against the paper's MRST reference ENSEMBLE
+`dfn/dfm_fidelity.py` gates the simulated derivative against the paper's MRST reference ensemble
 (4TU `Dataset_<X>_FirstDerivativeDimensionless.parquet`, vault-only): ensemble-membership by p5-p95
 band coverage + a scale-aligned shape metric (the paper normalizes t_D with the network k_eq, we with
 matrix perm; the fitted scale ~0.06-0.11 implies k_eq/k_matrix ~10-17, a sensible fracture-enhanced
 permeability). Honest + discriminating: Datasets A and C pass (shape corr 0.85-0.96), B fails (0.09);
 a missing corpus returns `reference: none` and never passes.
 
-`dfn/dfm_study.py` + the `dfm` case kind (`DFM01_geotypes`, `DFM02_dense`) are the GRADUATION: an
+`dfn/dfm_study.py` + the `dfm` case kind (`DFM01_geotypes`, `DFM02_dense`) are the graduation: an
 ensemble of GeoDFN networks is meshed + DFM-drawn-down (fracture aperture swept log-uniform to span
 conductivity regimes), and the resulting dimensionless derivatives are clustered into GeoTypes (DTW
 k-medoids + conformal split + RF/SHAP attribution over the real GeoDFN descriptors + `log_frac_aper`)
 exactly like the analytic/real studies. The `flowdna.dfm/v1` artifact carries the study + a
 representative transient + the MRST fidelity gate. `transient_simulation` is now a real, gated result
-- NOT `pending`. Tests: `tests/test_dfm.py` (tag reader + gate honesty without the corpus + the full
+- Not `pending`. Tests: `tests/test_dfm.py` (tag reader + gate honesty without the corpus + the full
 engine run on a freshly-meshed network, skipped without open-darts).
 
 *Original Step-B plan, step-by-step:*

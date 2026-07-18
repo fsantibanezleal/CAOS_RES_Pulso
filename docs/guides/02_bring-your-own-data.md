@@ -3,7 +3,7 @@
 The product is **applicable to NEW data**, not just the baked cases — that is what makes it a tool. The door is
 **CONTRACT 1** (`data-pipeline/flowdnalab/io/contract.py`).
 
-1. Put your input in the documented standard format (see [`data/README.md`](../../data/README.md) — EXAMPLE: a
+1. Put your input in the documented standard format (see [`data/README.md`](../../data/README.md) — example: a
    params CSV with `case_id,beta,gamma,N,I0[,days]`). Drop the file under `data/raw/` (git-ignored).
 2. Point `preprocess` at it (or pass it on the CLI) and run `scripts/precompute.{sh,ps1}`. CONTRACT 1 validates
    each row: **rejected** with a reason if it violates the schema/ranges (NaN, out-of-range, `I0>N`, …),

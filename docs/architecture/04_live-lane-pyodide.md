@@ -2,7 +2,7 @@
 
 Optional client-side recompute, like SimLab: load Pyodide in a web worker, load the inlined engine sources
 (`frontend/public/pyodide/sources.json`, produced by `copy-data.mjs`), and call
-`flowdnalab.live.run_trace_json(case_id|params, seed)` — which uses ONLY `flowdnalab/model/` (pure-Python,
+`flowdnalab.live.run_trace_json(case_id|params, seed)` — which uses only `flowdnalab/model/` (pure-Python,
 Pyodide-safe), so the live engine shares the offline code path.
 
 Key points:

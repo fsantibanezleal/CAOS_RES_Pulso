@@ -1,7 +1,7 @@
 # 04 · Learned tier (P2d)
 
 **What this group answers.** Beyond the classical / SOTA-clustering / conformal tools, can learned neural
-models read a pressure transient, and do they run genuinely LIVE in the browser? This group trains four
+models read a pressure transient, and do they run genuinely live in the browser? This group trains four
 SOTA architectures on the GPU (torch, `.venv-train` cu124), exports each to ONNX with parity < 1e-4, and
 runs them live via onnxruntime-web on the tuned curve. No server, no replay: real in-browser inference.
 

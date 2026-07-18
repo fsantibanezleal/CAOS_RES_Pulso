@@ -384,7 +384,7 @@ function LatentScatter({ cloud, labels, point, highlight }: { cloud: number[][];
           stroke={i === highlight ? '#fff' : 'none'} strokeWidth={1} />
       ))}
       <circle cx={sx(point[0])} cy={sy(point[1])} r={7} fill="#fff" stroke="#111" strokeWidth={2} />
-      <text x={sx(point[0]) + 10} y={sy(point[1])} fill="var(--fg)" fontSize={12}>your curve</text>
+      <text x={sx(point[0]) + 10} y={sy(point[1])} fill="var(--fg)" fontSize={12}>tuned curve</text>
     </svg>
   );
 }

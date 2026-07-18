@@ -47,7 +47,7 @@ GeoDFN ensembles ──► pressure-transient simulation ──► Bourdet deriv
 This repo is an instantiation of the CAOS product-repo archetype (ADR-0057): frozen base, rework
 only in the core (models, visualization, content). Status: **v0.03.000 — real data integrated**:
 the staged pipeline runs the real core end-to-end (pygeotypes + GeoDFN) over **11 committed cases**
-— 6 analytic Warren-Root/mixture studies, **3 REAL studies on the paper's own 4TU corpus**
+— 6 analytic Warren-Root/mixture studies, **3 real studies on the paper's own 4TU corpus**
 (Datasets A/B/C), and 2 GeoDFN network ensembles — all with honest metrics (silhouette, K table,
 empirical conformal coverage, OOD rate, gated attribution). The real transients cluster more cleanly
 than the analytic ones (silhouette up to 0.86) and REAL_C's top attribution `log_I` partially
