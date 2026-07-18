@@ -30,7 +30,7 @@ separates the dual-porosity behaviours.)
 
 ## 3. Beyond-SOTA: dual-representation Mondrian conformal
 
-Standard and Mondrian conformal use ONE nonconformity score. A real pressure transient can be
+Standard and Mondrian conformal use one nonconformity score. A real pressure transient can be
 **shape-close to the wrong physics**: a curve that matches a medoid by DTW shape yet whose physical
 descriptors are atypical for that GeoType. Our proposal conformalizes jointly across two representations:
 
@@ -43,7 +43,7 @@ $p_\text{desc}$. The dual prediction set is the per-class **conjunction**:
 
 $$ \Gamma^\alpha(x) = \{\, g : p_\text{shape}(x,g) > \alpha \ \wedge\ p_\text{desc}(x,g) > \alpha \,\} $$
 
-A curve is accepted for $g$ only if it is BOTH shape-consistent AND descriptor-consistent; a shape-match
+A curve is accepted for $g$ only if it is both shape-consistent and descriptor-consistent; a shape-match
 with implausible physics is excluded. This is beyond single-score conformal and beyond RF+SHAP (which has
 no coverage guarantee): a coverage-controlled assignment that fuses shape space and physics-descriptor
 space.
@@ -56,7 +56,7 @@ to shape-only and says so.
 
 ## Where it runs
 
-OFFLINE, `methods/attribution_plus.py`, gated by `spec.compare_methods` (WR01, REAL_A, BENCH_A/B/C). The
+Offline, `methods/attribution_plus.py`, gated by `spec.compare_methods` (WR01, REAL_A, BENCH_A/B/C). The
 App **Assignment -> Attribution+** SubTab reads the baked block: the predictability-vs-K chart, the ROM
 sensitivity bars, and the dual-vs-shape conformal comparison. No new dependency (scikit-learn + pygeotypes).
 

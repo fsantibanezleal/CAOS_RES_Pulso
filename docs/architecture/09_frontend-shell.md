@@ -19,7 +19,7 @@ lands in one place. Pulso does not hand-roll any of them.
 - **Content primitives** for the deep pages: `Tabs`, `SubTabs`, `Equation`/`InlineMath`, `Callout`,
   `Figure`, and `CitationsProvider` + `Cite`/`Refs`/`ReferenceList` (used from phase P4 onward for
   graduate-level pages with inline citations and per-section reference lists).
-- **State**: the shell OWNS theme + language (zustand + `data-theme`); the app reads the current
+- **State**: the shell owns theme + language (zustand + `data-theme`); the app reads the current
   language via `useShellLang`. See `Single source of truth` below.
 
 ## How Pulso wires it (`frontend/src`)
@@ -32,7 +32,7 @@ lands in one place. Pulso does not hand-roll any of them.
   git release tag), the footer provenance + disclaimer (bilingual), and the architecture modal config.
 - `architecture.ts` — the five ADR-0058 tabs (What Pulso is · The lanes · The web-app flow · The
   method ladder · The data contracts), each with bilingual body text and a themed SVG served from
-  `public/svg/tech/`. NOTE: the SVG artwork is still the template placeholder in P0.1; the deep,
+  `public/svg/tech/`. Note: the SVG artwork is still the template placeholder in P0.1; the deep,
   hand-authored Pulso diagrams are authored in phase P4.
 - `i18n/useT.ts` — reads `useShellLang()` so the shell's language toggle drives all app content.
 - `index.html` — the product `<title>` + description + a pre-paint theme script (mirrors the shell's
@@ -53,7 +53,7 @@ Screenshot-verified in **both themes** (light + dark), 0 console errors: the hea
 (name + v0.10.000 + Developed-by + provenance + licenses + honest one-liner), and the architecture
 modal all render. Harness: `_CAOS_MANAGE/tools/visual-verify/pulso-shell.mjs`.
 
-## What this is NOT (yet)
+## What this is not (yet)
 
 P0.1 adopts the shell only. The App workbench content, the ~22-method ladder, the rubric-compliant
 visualizations, the graduate-level page content, and the deep architecture SVGs are later rebuild

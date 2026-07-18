@@ -6,9 +6,9 @@ A product is only real if data flows through two **enforced** contracts. Both ar
 `data-pipeline/flowdnalab/io/contract.py`. Declares the required schema (columns, units, ranges) + an explicit
 **outlier policy** (reject / clip / flag). A dataset is accepted iff it passes; bad rows are rejected **with a
 reason**, never silently coerced; suspicious-but-plausible rows are flagged (the flag is recorded in the
-manifest). This is what lets a third party point the tool at THEIR data instead of only replaying baked cases.
+manifest). This is what lets a third party point the tool at their data instead of only replaying baked cases.
 
-EXAMPLE (SIR): columns `case_id,beta,gamma,N,I0[,days]`; ranges per `RANGES`; reject NaN/Inf/out-of-range/`I0>N`;
+Example (SIR): columns `case_id,beta,gamma,N,I0[,days]`; ranges per `RANGES`; reject NaN/Inf/out-of-range/`I0>N`;
 flag `R0>20`. Full table: [`data/README.md`](../../data/README.md).
 
 ## CONTRACT 2 — artifact (`pipeline → web`)
@@ -25,10 +25,10 @@ artifacts; it never recomputes (except the optional live lane, which emits the s
 
 Added in the rebuild (v0.11.000, phase P0.2). The v1 study trace committed only the medoid curves +
 3 example curves per GeoType, which is the "2 curves is all" toy: the visualizations had nothing to
-show. CONTRACT-3 commits the WHOLE ensemble per case so the rich P3 visualizations render without any
+show. CONTRACT-3 commits the whole ensemble per case so the rich P3 visualizations render without any
 recomputation in the browser:
 
-- `members` — EVERY training-slice curve, decimated **min/max-per-pixel** (extrema-preserving, so the
+- `members` — every training-slice curve, decimated **min/max-per-pixel** (extrema-preserving, so the
   dual-porosity valley and boundary rise survive), each with its cluster label.
 - `envelopes` — per GeoType, the p10/p50/p90 curve band over its members on `t_grid` (what the
   ensemble explorer draws when N is large, instead of spaghetti).

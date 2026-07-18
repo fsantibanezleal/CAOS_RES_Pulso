@@ -21,7 +21,7 @@ Pinned in `data-pipeline/requirements.txt`:
 umap-learn>=0.5.0     # UMAP manifold layout (McInnes 2018); offline representation
 ```
 
-Pure-Python (numba-accelerated); installs cleanly into `.venv-pipeline` with no C toolchain. offline-only
+Pure-Python (numba-accelerated); installs cleanly into `.venv-pipeline` with no C toolchain. Offline-only
 (the layout is baked into the `representations` block), so it never touches the live lane or Pyodide.
 
 ## Usage

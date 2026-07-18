@@ -1,9 +1,9 @@
 # Template blueprint — the authoritative structure (align here BEFORE mass-generating)
 
-This is the agreed shape of a REAL product repo. Every requirement Felipe raised is captured here. Nothing is
+This is the agreed shape of a real product repo. Every requirement Felipe raised is captured here. Nothing is
 built against it until the shape is approved, so we don't build-then-redo.
 
-## Three execution lanes + a replay fallback — SEPARATE dependencies AND implementation
+## Three execution lanes + a replay fallback — separate dependencies and implementation
 
 A product can run in up to three lanes. They do **not** share one engine by default: the offline engine is the
 heavy SOTA one; the live engine is often a **reduced / surrogate / small-Pyodide** model; the web always has a
@@ -19,8 +19,8 @@ mandatory — never let a heavy native dep leak into the live lane, never let th
 
 - **`flowdnalab/model/`** — the pure-Python analytic/physics core that is **shared and Pyodide-safe**, usable by the
   offline stages, the live lane, and the api. The *only* code that may run in more than one lane.
-- **`flowdnalab/stages/`** — the OFFLINE pipeline (heavy engines), never imported by the live lane.
-- **`flowdnalab/live/`** — the LIVE-lane engine (reduced/surrogate/small), importing only `model/` + Pyodide-safe deps.
+- **`flowdnalab/stages/`** — the offline pipeline (heavy engines), never imported by the live lane.
+- **`flowdnalab/live/`** — the live-lane engine (reduced/surrogate/small), importing only `model/` + Pyodide-safe deps.
 - **`web/`** — the app; runs the live lane (Pyodide importing `flowdnalab.live`, or a TS engine in `src/engine/`) and
   always falls back to **replaying** committed artifacts.
 - **`api/`** *(optional, dormant)* — a thin FastAPI layer over `flowdnalab/model/`; imports it, never re-implements.
@@ -37,7 +37,7 @@ explicit **input→output contract** to the next stage. Not a monolith.
 |---|---|---|---|---|
 | 1 | `preprocess.py` | raw dataset (via `io/contract.py`) | cleaned, validated table | applies the **ingestion contract** + outlier policy |
 | 2 | `features.py` | cleaned table | feature table (standard format) | feature extraction; deterministic |
-| 3 | `train.py` | features (+ engine labels) | fitted model artifact → `models/` | OFFLINE; e.g. surrogate / CNN → ONNX |
+| 3 | `train.py` | features (+ engine labels) | fitted model artifact → `models/` | offline; e.g. surrogate / CNN → ONNX |
 | 4 | `infer.py` | model + case params | predictions / emergent outputs | runs the **research-chosen SOTA engine** + the model |
 | 5 | `evaluate.py` | predictions vs held-out | metrics (R²/MAPE/AUC, parity) | the **TEST / validation** stage (held-out, leakage-safe) |
 | 6 | `export.py` | predictions + metrics | compact standard-format **web artifact** + `manifests/<case>.json` | the **export pipeline** — the processing→web contract |
@@ -56,7 +56,7 @@ persists artifact + manifest. Add domain stages as needed (e.g. `calibrate.py`, 
 
 `flowdnalab/io/formats.py`: domain-standard readers/writers — CSV (sieve-series / tabular), parquet (heavy full
 dataset, gitignored/LFS), npz/JSON (compact committed artifact), and per-product `.vtk/.vtu`, `.h5`, `.mat`,
-GeoTIFF. The compact committed artifacts in `data/artifacts/` ARE the standardized synthetic datasets.
+GeoTIFF. The compact committed artifacts in `data/artifacts/` are the standardized synthetic datasets.
 
 ## Full tree
 
