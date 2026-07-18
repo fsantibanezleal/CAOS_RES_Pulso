@@ -11,8 +11,8 @@ function ArchSVG({ es }: { es: boolean }) {
   const artifacts = es ? ['trace.json (pulso.study/v2)', 'manifest.json (gate)', 'modelo.onnx'] : ['trace.json (pulso.study/v2)', 'manifest.json (gate)', 'model.onnx'];
   return (
     <Figure caption={es
-      ? 'Arquitectura: el procesamiento pesado corre OFFLINE (bake determinista + entrenamiento GPU) y se compromete como artefactos estaticos; GitHub Pages los sirve por CDN; el navegador corre EN VIVO solo las piezas ligeras (generacion + DTW + conformal + inferencia ONNX). No hay backend.'
-      : 'Architecture: the heavy processing runs OFFLINE (deterministic bake + GPU training) and is committed as static artifacts; GitHub Pages serves them over a CDN; the browser runs LIVE only the light pieces (generation + DTW + conformal + ONNX inference). There is no backend.'}>
+      ? 'Arquitectura: el procesamiento pesado corre offline (bake determinista + entrenamiento GPU) y se compromete como artefactos estaticos; GitHub Pages los sirve por CDN; el navegador corre EN VIVO solo las piezas ligeras (generacion + DTW + conformal + inferencia ONNX). No hay backend.'
+      : 'Architecture: the heavy processing runs offline (deterministic bake + GPU training) and is committed as static artifacts; GitHub Pages serves them over a CDN; the browser runs LIVE only the light pieces (generation + DTW + conformal + ONNX inference). There is no backend.'}>
       <svg viewBox="0 0 720 210" width="100%" style={{ maxWidth: 720 }} role="img"
         aria-label={es ? 'Diagrama de arquitectura' : 'Architecture diagram'}>
         <text x={110} y={16} textAnchor="middle" fontSize={11} fill="currentColor" opacity={0.7}>OFFLINE</text>
@@ -36,7 +36,7 @@ function Contract3SVG({ es }: { es: boolean }) {
   const fields = ['members', 'envelopes', 'dtw', 'embedding', 'method_comparison', 'representations', 'attribution_plus'];
   return (
     <Figure caption={es
-      ? 'El artefacto de estudio pulso.study/v2 (CONTRACT-3): compromete el ENSAMBLE completo (curvas miembro decimadas, envolventes p10/p50/p90, matriz DTW cuantizada, embedding MDS) mas los bloques de metodos, de modo que la web renderiza sin recomputar.'
+      ? 'El artefacto de estudio pulso.study/v2 (CONTRACT-3): compromete el ENSAMBLE completo (curvas miembro decimadas, envolventes p10/p50/p90, matriz DTW cuantizada, embedding MDS) mas los bloques de métodos, de modo que la web renderiza sin recomputar.'
       : 'The pulso.study/v2 study artifact (CONTRACT-3): commits the WHOLE ensemble (decimated member curves, p10/p50/p90 envelopes, quantised DTW matrix, MDS embedding) plus the method blocks, so the web renders without recomputation.'}>
       <svg viewBox="0 0 560 150" width="100%" style={{ maxWidth: 560 }} role="img" aria-label="CONTRACT-3">
         <rect x={10} y={10} width={540} height={130} rx={8} {...box} />
@@ -54,11 +54,11 @@ function Architecture({ es }: { es: boolean }) {
         {es ? 'Pulso sigue el arquetipo de producto-datos (ADR-0057): el trabajo pesado se hornea offline y se compromete; la web es estatica y determinista. La misma entrada produce el mismo artefacto byte-a-byte (nada de Date.now ni aleatoriedad sin semilla en el bake).' : 'Pulso follows the data-product archetype (ADR-0057): the heavy work is baked offline and committed; the web is static and deterministic. The same input produces the same artifact byte-for-byte (no Date.now or unseeded randomness in the bake).'}
       </Callout>
       <p>{es
-        ? 'Hay tres carriles. OFFLINE (el pipeline por lotes en .venv-pipeline y el entrenamiento GPU en .venv-train) hace todo el procesamiento pesado: la matriz DTW NxN, PAM, el entrenamiento de los modelos aprendidos. El resultado se comprime a artefactos compactos comprometidos en el repo. LIVE (el navegador) reejecuta solo las piezas ligeras. REPLAY reproduce lo horneado. La web no tiene servidor.'
-        : 'There are three lanes. OFFLINE (the batch pipeline in .venv-pipeline and the GPU training in .venv-train) does all the heavy processing: the NxN DTW matrix, PAM, the training of the learned models. The result is compressed to compact artifacts committed to the repo. LIVE (the browser) re-runs only the light pieces. REPLAY reproduces the baked output. The web has no server.'}</p>
+        ? 'Hay tres carriles. offline (el pipeline por lotes en .venv-pipeline y el entrenamiento GPU en .venv-train) hace todo el procesamiento pesado: la matriz DTW NxN, PAM, el entrenamiento de los modelos aprendidos. El resultado se comprime a artefactos compactos comprometidos en el repo. LIVE (el navegador) reejecuta solo las piezas ligeras. REPLAY reproduce lo precalculado. La web no tiene servidor.'
+        : 'There are three lanes. offline (the batch pipeline in .venv-pipeline and the GPU training in .venv-train) does all the heavy processing: the NxN DTW matrix, PAM, the training of the learned models. The result is compressed to compact artifacts committed to the repo. LIVE (the browser) re-runs only the light pieces. REPLAY reproduces the baked output. The web has no server.'}</p>
       <ArchSVG es={es} />
       <p>{es
-        ? 'El limite live/precompute es explicito: un caso de estudio se clasifica en vivo (el navegador genera una curva y la asigna con pygeotypes en numpy/TS contra el catalogo horneado); la matriz DTW offline y PAM nunca corren en vivo. Cada artefacto lleva un veredicto de gate que registra su carril medido.'
+        ? 'El limite live/precompute es explicito: un caso de estudio se clasifica en vivo (el navegador genera una curva y la asigna con pygeotypes en numpy/TS contra el catalogo precalculado); la matriz DTW offline y PAM nunca corren en vivo. Cada artefacto lleva un veredicto de gate que registra su carril medido.'
         : 'The live/precompute boundary is explicit: a study case is classified live (the browser generates a curve and assigns it with pygeotypes in numpy/TS against the baked catalogue); the offline DTW matrix and PAM never run live. Each artifact carries a gate verdict recording its measured lane.'}</p>
       <Refs ids={['khait2018']} label="Refs" />
     </div>
@@ -69,10 +69,10 @@ function DataContracts({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'Dos contratos de datos congelan la frontera entre el pipeline y la web. CONTRACT-1 es el manifiesto por caso: el veredicto de carril/gate, el tamano en bytes del artefacto, las banderas de preproceso y las metricas. CONTRACT-2/3 es la traza: la forma que la web replica.'
+        ? 'Dos contratos de datos congelan la frontera entre el pipeline y la web. CONTRACT-1 es el manifiesto por caso: el veredicto de carril/gate, el tamaño en bytes del artefacto, las banderas de preproceso y las metricas. CONTRACT-2/3 es la traza: la forma que la web replica.'
         : 'Two data contracts freeze the boundary between the pipeline and the web. CONTRACT-1 is the per-case manifest: the lane/gate verdict, the artifact byte size, the preprocessing flags and the metrics. CONTRACT-2/3 is the trace: the shape the web replays.'}</p>
       <p>{es
-        ? 'CONTRACT-3 (pulso.study/v2) es el artefacto de estudio de ensamble completo. Compromete cada curva miembro decimada (min/max por pixel, 64 columnas), las envolventes p10/p50/p90 por cluster, la matriz DTW ordenada por cluster y cuantizada a uint8 (tope 512), el embedding MDS, y los bloques method_comparison, representations y attribution_plus de la escalera de metodos.'
+        ? 'CONTRACT-3 (pulso.study/v2) es el artefacto de estudio de ensamble completo. Compromete cada curva miembro decimada (min/max por pixel, 64 columnas), las envolventes p10/p50/p90 por cluster, la matriz DTW ordenada por cluster y cuantizada a uint8 (tope 512), el embedding MDS, y los bloques method_comparison, representations y attribution_plus de la escalera de métodos.'
         : 'CONTRACT-3 (pulso.study/v2) is the full-ensemble study artifact. It commits every decimated member curve (min/max-per-pixel, 64 columns), the per-cluster p10/p50/p90 envelopes, the cluster-ordered DTW matrix quantised to uint8 (capped at 512), the MDS embedding, and the method_comparison, representations and attribution_plus blocks from the method ladder.'}</p>
       <Contract3SVG es={es} />
       <Equation tex="q_{ij} = \mathrm{round}\!\left(\frac{D_{ij}}{d_{\max}}\cdot 255\right), \qquad d_{\max} = \max_{ij} D_{ij}"
@@ -81,7 +81,7 @@ function DataContracts({ es }: { es: boolean }) {
         ? 'El contrato se hace cumplir en tiempo de BUILD: la forma TypeScript en contract.types.ts refleja los esquemas Python; una divergencia hace fallar tsc, de modo que la web no puede publicarse leyendo una forma que el pipeline no produce.'
         : 'The contract is enforced at BUILD time: the TypeScript shape in contract.types.ts mirrors the Python schemas; a drift fails tsc, so the web cannot ship reading a shape the pipeline does not produce.'}</p>
       <Callout variant="honest" title={es ? 'Presupuesto de bytes' : 'Byte budget'}>
-        {es ? 'Los ensambles grandes (benchmark de corpus completo, miles de curvas) exceden el presupuesto si se comprometen enteros; se compromete un submuestreo estratificado de miembros (los medoides siempre incluidos) y de la matriz DTW, y stats reporta el N completo vs el comprometido. Nada se oculta: el tamano real esta en el manifiesto.' : 'Large ensembles (the full-corpus benchmark, thousands of curves) exceed the budget if committed whole; a stratified subsample of members (medoids always included) and of the DTW matrix is committed, and stats reports the full N vs the committed count. Nothing is hidden: the real size is in the manifest.'}
+        {es ? 'Los ensambles grandes (benchmark de corpus completo, miles de curvas) exceden el presupuesto si se comprometen enteros; se compromete un submuestreo estratificado de miembros (los medoides siempre incluidos) y de la matriz DTW, y stats reporta el N completo vs el comprometido. Nada se oculta: el tamaño real esta en el manifiesto.' : 'Large ensembles (the full-corpus benchmark, thousands of curves) exceed the budget if committed whole; a stratified subsample of members (medoids always included) and of the DTW matrix is committed, and stats reports the full N vs the committed count. Nothing is hidden: the real size is in the manifest.'}
       </Callout>
     </div>
   );
@@ -102,7 +102,7 @@ function Pipeline({ es }: { es: boolean }) {
       <Equation tex="n = n_{\text{train}} + n_{\text{cal}} + n_{\text{test}}, \qquad n_{\text{cal}} = \lceil f_{\text{cal}}\,n\rceil,\; n_{\text{test}} = \lceil f_{\text{test}}\,n\rceil"
         caption={es ? 'Ec. El split semilla-fijo train/calibracion/prueba: una permutacion determinista particiona el ensamble; el catalogo se entrena solo sobre train, la calibracion conformal solo sobre cal.' : 'Eq. The seeded train/calibration/test split: a deterministic permutation partitions the ensemble; the catalogue trains only on train, the conformal calibration only on cal.'} />
       <Callout variant="honest" title={es ? 'Sin fugas por construccion' : 'Leakage-safe by construction'}>
-        {es ? 'Como el split es una permutacion semilla-fija y el catalogo nunca ve cal ni test, la cobertura conformal reportada es honesta; el protocolo se dibuja explicitamente (con el anti-patron tachado) en la pagina de Experimentos.' : 'Because the split is a seeded permutation and the catalogue never sees cal or test, the reported conformal coverage is honest; the protocol is drawn explicitly (with the anti-pattern struck out) on the Experiments page.'}
+        {es ? 'Como el split es una permutacion semilla-fija y el catalogo nunca ve cal ni test, la cobertura conformal reportada es honesta; el protocolo se dibuja explicitamente (con el anti-patron tachado) en la página de Experimentos.' : 'Because the split is a seeded permutation and the catalogue never sees cal or test, the reported conformal coverage is honest; the protocol is drawn explicitly (with the anti-pattern struck out) on the Experiments page.'}
       </Callout>
     </div>
   );
@@ -112,10 +112,10 @@ function TwoVenvs({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'El procesamiento se reparte en dos entornos aislados, nunca globales. .venv-pipeline es CPU y determinista: corre el bake por lotes, DTW (backend C de dtaidistance via pygeotypes), PAM, conformal, atribucion, y la simulacion open-DARTS. .venv-train es la GPU (torch 2.6 + cu124): entrena la escalera aprendida y exporta a ONNX. Estan separados a proposito para que el bake determinista no dependa de la GPU.'
+        ? 'El procesamiento se reparte en dos entornos aislados, nunca globales. .venv-pipeline es CPU y determinista: corre el bake por lotes, DTW (backend C de dtaidistance via pygeotypes), PAM, conformal, atribucion, y la simulacion open-DARTS. .venv-train es la GPU (torch 2.6 + cu124): entrena la escalera aprendida y exporta a ONNX. Estan separados a propósito para que el bake determinista no dependa de la GPU.'
         : 'The processing is split across two isolated (never global) environments. .venv-pipeline is CPU and deterministic: it runs the batch bake, DTW (dtaidistance C backend via pygeotypes), PAM, conformal, attribution, and the open-DARTS simulation. .venv-train is the GPU (torch 2.6 + cu124): it trains the learned ladder and exports to ONNX. They are separated on purpose so the deterministic bake does not depend on the GPU.'}</p>
       <p>{es
-        ? 'Los motores elegidos por la investigacion se usan de verdad y se fijan en requirements: pygeotypes (Apache-2.0) para el nucleo de forma; dtaidistance para DTW rapido; tslearn/hdbscan/umap-learn/pycatch22 para las alternativas y representaciones; scikit-learn + shap para atribucion; torch + onnx + onnxruntime para el nivel aprendido; open-DARTS (GPL-3, solo offline) para la fisica. Ningun sustituto artesanal de un motor SOTA.'
+        ? 'Los motores elegidos por la investigacion se usan de verdad y se fijan en requirements: pygeotypes (Apache-2.0) para el nucleo de forma; dtaidistance para DTW rápido; tslearn/hdbscan/umap-learn/pycatch22 para las alternativas y representaciones; scikit-learn + shap para atribucion; torch + onnx + onnxruntime para el nivel aprendido; open-DARTS (GPL-3, solo offline) para la física. Ningun sustituto artesanal de un motor SOTA.'
         : 'The research-chosen engines are used for real and pinned in requirements: pygeotypes (Apache-2.0) for the shape core; dtaidistance for fast DTW; tslearn/hdbscan/umap-learn/pycatch22 for the alternatives and representations; scikit-learn + shap for attribution; torch + onnx + onnxruntime for the learned tier; open-DARTS (GPL-3, offline only) for the physics. No hand-rolled substitute for a SOTA engine.'}</p>
       <ul>
         <li><b>.venv-pipeline</b> {es ? '(CPU): bake determinista + open-DARTS' : '(CPU): deterministic bake + open-DARTS'}</li>
@@ -136,7 +136,7 @@ function DtwBackend({ es }: { es: boolean }) {
         ? 'La distancia DTW es el objeto mas costoso del bake. El backend offline es la implementacion en C de dtaidistance (via pygeotypes), que calcula la matriz NxN con la banda de Sakoe-Chiba en tiempo razonable para cientos de curvas. El navegador reimplementa la MISMA recurrencia en TypeScript para la asignacion en vivo de una sola curva contra los medoides.'
         : 'The DTW distance is the most expensive object in the bake. The offline backend is the C implementation in dtaidistance (via pygeotypes), which computes the NxN matrix with the Sakoe-Chiba band in reasonable time for hundreds of curves. The browser reimplements the SAME recurrence in TypeScript for the live assignment of a single curve against the medoids.'}</p>
       <Equation tex="\text{cost} \sim \mathcal{O}(n^2 \cdot L \cdot w), \qquad n = \#\text{curvas},\; L = \#\text{puntos},\; w = \text{banda}"
-        caption={es ? 'Ec. El costo de la matriz DTW crece con el cuadrado del numero de curvas; por eso PAM escala sus reinicios hacia abajo para matrices grandes y el benchmark reutiliza la matriz precomputada del corpus.' : 'Eq. The DTW matrix cost grows with the square of the number of curves; hence PAM scales its restarts down for large matrices and the benchmark reuses the corpus precomputed matrix.'} />
+        caption={es ? 'Ec. El costo de la matriz DTW crece con el cuadrado del número de curvas; por eso PAM escala sus reinicios hacia abajo para matrices grandes y el benchmark reutiliza la matriz precomputada del corpus.' : 'Eq. The DTW matrix cost grows with the square of the number of curves; hence PAM scales its restarts down for large matrices and the benchmark reuses the corpus precomputed matrix.'} />
       <p>{es
         ? 'Para el benchmark de corpus completo (cada dataset ~4768 curvas) recomputar NxN seria horas; en su lugar se reutiliza la matriz DTW precomputada de 4768x4768 del corpus 4TU (~90 MB, solo en el vault) y se corta al slice de entrenamiento. El resultado es la contraparte honesta de corpus completo de los casos App de submuestreo.'
         : 'For the full-corpus benchmark (each dataset ~4768 curves) recomputing NxN would be hours; instead the corpus 4TU precomputed 4768x4768 DTW matrix (~90 MB, vault-only) is reused and sliced to the training split. The result is the honest full-corpus counterpart of the subsampled App cases.'}</p>
@@ -168,17 +168,17 @@ function LaneGate({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'Cada caso lleva un veredicto de gate que clasifica su carril de forma MEDIDA, no declarada. El gate mide el tiempo de la primitiva en vivo (el navegador genera una curva y la clasifica conformemente) y el tamano del artefacto, y decide si el caso es apto para el carril en vivo o solo para replay.'
+        ? 'Cada caso lleva un veredicto de gate que clasifica su carril de forma medida, no declarada. El gate mide el tiempo de la primitiva en vivo (el navegador genera una curva y la clasifica conformemente) y el tamaño del artefacto, y decide si el caso es apto para el carril en vivo o solo para replay.'
         : 'Each case carries a gate verdict that classifies its lane in a MEASURED way, not a declared one. The gate times the live primitive (the browser generates a curve and classifies it conformally) and the artifact size, and decides whether the case is fit for the live lane or replay-only.'}</p>
       <p>{es
         ? 'Un estudio GeoType es carril en vivo: la primitiva (generar + asignar con pygeotypes en numpy/scipy) es barata y pura. Una simulacion open-DARTS o una red DFN es nativa (vtk/gmsh/C++) y por tanto solo-replay: la web reproduce el artefacto, nunca simula. El manifiesto registra el veredicto con sus razones.'
         : 'A GeoType study is a live lane: the primitive (generate + assign with pygeotypes in numpy/scipy) is cheap and pure. An open-DARTS simulation or a DFN network is native (vtk/gmsh/C++) and therefore replay-only: the web replays the artifact, never simulates. The manifest records the verdict with its reasons.'}</p>
       <ul>
-        <li>{es ? 'live: numpy/scipy/pygeotypes puros, artefacto pequeno, primitiva rapida.' : 'live: pure numpy/scipy/pygeotypes, small artifact, fast primitive.'}</li>
+        <li>{es ? 'live: numpy/scipy/pygeotypes puros, artefacto pequeño, primitiva rapida.' : 'live: pure numpy/scipy/pygeotypes, small artifact, fast primitive.'}</li>
         <li>{es ? 'precompute/replay: motor nativo (open-DARTS, GeoDFN) o artefacto grande.' : 'precompute/replay: native engine (open-DARTS, GeoDFN) or large artifact.'}</li>
       </ul>
       <Callout variant="honest" title={es ? 'Medido, no declarado' : 'Measured, not declared'}>
-        {es ? 'El run_ms del gate es una MEDICION de la primitiva en vivo, no del bake offline; asi la etiqueta de carril refleja lo que el navegador realmente puede hacer, no una aspiracion.' : "The gate's run_ms is a MEASUREMENT of the live primitive, not the offline bake; so the lane label reflects what the browser can actually do, not an aspiration."}
+        {es ? 'El run_ms del gate es una MEDICION de la primitiva en vivo, no del bake offline; así la etiqueta de carril refleja lo que el navegador realmente puede hacer, no una aspiracion.' : "The gate's run_ms is a MEASUREMENT of the live primitive, not the offline bake; so the lane label reflects what the browser can actually do, not an aspiration."}
       </Callout>
     </div>
   );
@@ -188,13 +188,13 @@ function Deployment({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'El despliegue es GitHub Pages con un dominio propio (pulso.fasl-work.com, HTTPS) via GitHub Actions. En cada merge a main, la Action corre el prebuild (copy-data.mjs copia data/derived + models/deep a public/, e inlinea las fuentes del pipeline), construye la SPA con Vite y publica dist/. El enrutado es HashRouter para que las rutas profundas funcionen en el hosting estatico.'
+        ? 'El despliegue es GitHub Pages con un dominio propio (pulso.fasl-work.com, HTTPS) via GitHub Actions. En cada merge a main, la Action corre el prebuild (copy-data.mjs copia data/derived + models/deep a public/, e inlinea las fuentes del pipeline), construye la SPA con Vite y publica dist/. El enrutado es HashRouter para que las rutas profundas funcionen en el hosting estático.'
         : 'Deployment is GitHub Pages with a custom domain (pulso.fasl-work.com, HTTPS) via GitHub Actions. On each merge to main, the Action runs the prebuild (copy-data.mjs copies data/derived + models/deep into public/, and inlines the pipeline sources), builds the SPA with Vite, and publishes dist/. Routing is HashRouter so deep routes work on static hosting.'}</p>
       <p>{es
-        ? 'Los artefactos de datos y los .onnx viven en el repo (data/derived, models/deep) y se copian a public en el prebuild, de modo que el sitio estatico los sirve por CDN sin backend. El versionado es X.XX.XXX con un tag por release; el pie de pagina lee la version desde package.json, una sola fuente de verdad.'
+        ? 'Los artefactos de datos y los .onnx viven en el repo (data/derived, models/deep) y se copian a public en el prebuild, de modo que el sitio estático los sirve por CDN sin backend. El versionado es X.XX.XXX con un tag por release; el pie de página lee la version desde package.json, una sola fuente de verdad.'
         : 'The data artifacts and the .onnx files live in the repo (data/derived, models/deep) and are copied into public at prebuild, so the static site serves them over a CDN with no backend. Versioning is X.XX.XXX with a tag per release; the footer reads the version from package.json, a single source of truth.'}</p>
       <Callout variant="note" title={es ? 'Sin servidor' : 'No server'}>
-        {es ? 'Todo el producto es estatico: no hay backend que mantener, escalar ni asegurar. El costo de computo pesado se paga una vez, offline, y se comprime a artefactos que el CDN sirve.' : 'The whole product is static: there is no backend to maintain, scale, or secure. The heavy compute cost is paid once, offline, and compressed to artifacts the CDN serves.'}
+        {es ? 'Todo el producto es estático: no hay backend que mantener, escalar ni asegurar. El costo de computo pesado se paga una vez, offline, y se comprime a artefactos que el CDN sirve.' : 'The whole product is static: there is no backend to maintain, scale, or secure. The heavy compute cost is paid once, offline, and compressed to artifacts the CDN serves.'}
       </Callout>
     </div>
   );
@@ -218,7 +218,7 @@ export function Implementation() {
         <h1>{es ? 'Implementacion' : 'Implementation'}</h1>
         <p className="lede">
           {es
-            ? 'El sistema, modulo por modulo: la arquitectura offline-pesada de replay determinista, los dos contratos de datos, el pipeline por etapas, los dos entornos aislados (CPU + GPU), el backend DTW, la exportacion ONNX con gate de paridad, el gate de carril y el despliegue estatico. Sin backend.'
+            ? 'El sistema, modulo por modulo: la arquitectura offline-pesada de replay determinista, los dos contratos de datos, el pipeline por etapas, los dos entornos aislados (CPU + GPU), el backend DTW, la exportacion ONNX con gate de paridad, el gate de carril y el despliegue estático. Sin backend.'
             : 'The system, module by module: the offline-heavy deterministic-replay architecture, the two data contracts, the staged pipeline, the two isolated environments (CPU + GPU), the DTW backend, the ONNX export with a parity gate, the lane gate, and the static deployment. No backend.'}
         </p>
       </div>

@@ -21,7 +21,7 @@ Pinned in `data-pipeline/requirements.txt`:
 hdbscan>=0.8.0     # HDBSCAN density clustering (Campello 2013 / McInnes 2017)
 ```
 
-Ships C-extension wheels for the major platforms; installs into the offline `.venv-pipeline`. OFFLINE-only
+Ships C-extension wheels for the major platforms; installs into the offline `.venv-pipeline`. offline-only
 (baked into `method_comparison`), so it never touches the live lane. It is an *optional* extra: if the
 wheel is absent, `compare_clusterings` records HDBSCAN as `skipped` instead of crashing.
 

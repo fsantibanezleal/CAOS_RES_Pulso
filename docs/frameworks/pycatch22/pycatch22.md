@@ -21,7 +21,7 @@ substitute for a SOTA engine: catch22's exact definitions live in the C library.
 Pinned in `data-pipeline/requirements.txt`:
 
 ```
-pycatch22>=0.4.0     # catch22 canonical TS features (Lubba 2019); OFFLINE, consume-not-vendor
+pycatch22>=0.4.0     # catch22 canonical TS features (Lubba 2019); offline, consume-not-vendor
 ```
 
 It builds a C extension from source (no PyPI wheel on Windows). On this machine the build needs the MSVC
@@ -34,7 +34,7 @@ set MSSdk=1
 python -m pip install --no-build-isolation "pycatch22>=0.4.0"
 ```
 
-On Linux/WSL a normal `pip install pycatch22` builds with gcc. OFFLINE-only (features are baked into the
+On Linux/WSL a normal `pip install pycatch22` builds with gcc. offline-only (features are baked into the
 `representations.catch22` block); never in the live lane or Pyodide. If the wheel cannot be built the
 block degrades to a recorded `skipped`, never a crash.
 
