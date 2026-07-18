@@ -18,10 +18,10 @@ the deep-work rule prescribes the maintained reference implementation, not a sub
 Pinned in `data-pipeline/requirements.txt`:
 
 ```
-umap-learn>=0.5.0     # UMAP manifold layout (McInnes 2018); OFFLINE representation
+umap-learn>=0.5.0     # UMAP manifold layout (McInnes 2018); offline representation
 ```
 
-Pure-Python (numba-accelerated); installs cleanly into `.venv-pipeline` with no C toolchain. OFFLINE-only
+Pure-Python (numba-accelerated); installs cleanly into `.venv-pipeline` with no C toolchain. offline-only
 (the layout is baked into the `representations` block), so it never touches the live lane or Pyodide.
 
 ## Usage

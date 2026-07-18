@@ -57,7 +57,7 @@ function DtwGridSVG({ es }: { es: boolean }) {
 function MedoidSVG({ es }: { es: boolean }) {
   return (
     <Figure caption={es
-      ? 'PAM elige MEDOIDES (curvas miembro reales, en color) que minimizan la distancia total dentro del cluster, no centroides sinteticos. Cada GeoType es por tanto una respuesta observada, no un promedio inventado.'
+      ? 'PAM elige MEDOIDES (curvas miembro reales, en color) que minimizan la distancia total dentro del cluster, no centroides sintéticos. Cada GeoType es por tanto una respuesta observada, no un promedio inventado.'
       : 'PAM picks MEDOIDS (real member curves, coloured) that minimise the total within-cluster distance, not synthetic centroids. Each GeoType is therefore an observed response, not an invented average.'}>
       <svg viewBox="0 0 360 150" width="100%" style={{ maxWidth: 360 }} role="img"
         aria-label={es ? 'Medoides vs centroides' : 'Medoids vs centroids'}>
@@ -104,7 +104,7 @@ function InceptionSVG({ es }: { es: boolean }) {
 function DualConformalSVG({ es }: { es: boolean }) {
   return (
     <Figure caption={es
-      ? 'El conformal de doble representacion: el conjunto de prediccion es la INTERSECCION del conjunto conforme en forma (DTW) y el conforme en descriptores fisicos (RF). Una curva de la zona amarilla (forma correcta) pero fuera del azul (fisica implausible) queda excluida: es "forma correcta, fisica incorrecta".'
+      ? 'El conformal de doble representacion: el conjunto de prediccion es la INTERSECCION del conjunto conforme en forma (DTW) y el conforme en descriptores físicos (RF). Una curva de la zona amarilla (forma correcta) pero fuera del azul (física implausible) queda excluida: es "forma correcta, física incorrecta".'
       : 'The dual-representation conformal set is the INTERSECTION of the shape-conformal set (DTW) and the descriptor-conformal set (RF). A curve in the yellow zone (right shape) but outside the blue (implausible physics) is excluded: it is "right shape, wrong physics".'}>
       <svg viewBox="0 0 360 180" width="100%" style={{ maxWidth: 360 }} role="img"
         aria-label={es ? 'Conformal de doble representacion' : 'Dual-representation conformal'}>
@@ -127,19 +127,19 @@ function Preprocessing({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'Toda la escalera opera sobre la FORMA de la respuesta de presion, no sobre su amplitud absoluta. El primer paso convierte cada transiente crudo en una firma comparable. La presion adimensional de fondo se remuestrea a una grilla log-uniforme de tiempo (los ensayos abarcan varias decadas de tiempo, y la fisica de interes vive en el eje logaritmico), y sobre esa grilla se toma la derivada de Bourdet con una ventana de suavizado de L ciclos-log.'
+        ? 'Toda la escalera opera sobre la FORMA de la respuesta de presion, no sobre su amplitud absoluta. El primer paso convierte cada transiente crudo en una firma comparable. La presion adimensional de fondo se remuestrea a una grilla log-uniforme de tiempo (los ensayos abarcan varias decadas de tiempo, y la física de interes vive en el eje logaritmico), y sobre esa grilla se toma la derivada de Bourdet con una ventana de suavizado de L ciclos-log.'
         : 'The entire ladder operates on the SHAPE of the pressure response, not its absolute amplitude. The first step turns each raw transient into a comparable signature. The dimensionless wellbore pressure is resampled onto a log-uniform time grid (tests span several decades of time, and the physics of interest lives on the log axis), and on that grid the Bourdet derivative is taken with a smoothing window of L log-cycles.'}</p>
       <Equation tex="p'_{wD}(t_D) = \frac{d\,p_{wD}}{d\ln t_D}, \qquad \hat p'_i = \frac{\Delta p_L / \Delta x_L + \Delta p_R / \Delta x_R}{\;\;}\Big/\!\left(\tfrac{1}{\Delta x_L}+\tfrac{1}{\Delta x_R}\right)"
         caption={es ? 'Ec. La derivada de Bourdet con la ventana de dos lados de L ciclos-log (izquierda/derecha), que suaviza el ruido sin borrar el valle de doble porosidad.' : 'Eq. The Bourdet derivative with the two-sided L-log-cycle window (left/right), which smooths noise without erasing the dual-porosity valley.'} />
       <p>{es
-        ? 'La derivada suavizada se normaliza a media cero y varianza uno (z-score). Este paso es lo que hace que un pozo de alta permeabilidad y uno de baja permeabilidad con la MISMA fisica de fractura caigan en el mismo GeoType: la normalizacion elimina la escala vertical y deja solo el patron de regimenes.'
+        ? 'La derivada suavizada se normaliza a media cero y varianza uno (z-score). Este paso es lo que hace que un pozo de alta permeabilidad y uno de baja permeabilidad con la MISMA física de fractura caigan en el mismo GeoType: la normalizacion elimina la escala vertical y deja solo el patron de regímenes.'
         : 'The smoothed derivative is normalised to zero mean and unit variance (z-score). This step is what makes a high-permeability well and a low-permeability well with the SAME fracture physics fall into the same GeoType: normalisation removes the vertical scale and leaves only the regime pattern.'}</p>
       <Equation tex="\tilde x_i = \frac{p'_{wD}(t_{D,i}) - \mu}{\sigma}, \qquad \mu = \frac{1}{n}\sum_i p'_{wD}(t_{D,i}), \quad \sigma^2 = \frac{1}{n}\sum_i \big(p'_{wD}(t_{D,i})-\mu\big)^2"
         caption={es ? 'Ec. La normalizacion z-score sobre los n puntos de la grilla; el vector resultante es la firma que alimenta a DTW y a los modelos.' : 'Eq. The z-score normalisation over the n grid points; the resulting vector is the signature fed to DTW and the models.'} />
       <PreprocSVG es={es} />
       <p>{es
-        ? 'Este preproceso es exactamente el que corre EN VIVO en el navegador (numpy/TS puro) cuando el usuario ajusta una curva sintetica, y el mismo que corrio OFFLINE al hornear cada caso; por eso la asignacion en vivo es identica a la comprometida.'
-        : 'This preprocessing is exactly what runs LIVE in the browser (pure numpy/TS) when the user tunes a synthetic curve, and the same that ran OFFLINE when each case was baked; that is why the live assignment matches the committed one.'}</p>
+        ? 'Este preproceso es exactamente el que corre EN VIVO en el navegador (numpy/TS puro) cuando el usuario ajusta una curva sintética, y el mismo que corrio offline al hornear cada caso; por eso la asignacion en vivo es identica a la comprometida.'
+        : 'This preprocessing is exactly what runs LIVE in the browser (pure numpy/TS) when the user tunes a synthetic curve, and the same that ran offline when each case was baked; that is why the live assignment matches the committed one.'}</p>
       <Callout variant="honest" title={es ? 'Suavizado, no invencion' : 'Smoothing, not invention'}>
         {es ? 'La ventana L suaviza la derivada de datos ruidosos; una L demasiado grande borra el valle de doble porosidad y una demasiado chica lo llena de ruido. Se elige por caso y se documenta, y la curva cruda siempre esta disponible en el explorador de ensamble.' : 'The window L smooths the derivative of noisy data; too large an L erases the dual-porosity valley and too small floods it with noise. It is chosen per case and documented, and the raw curve is always available in the ensemble explorer.'}
       </Callout>
@@ -152,12 +152,12 @@ function Distances({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'Dos transientes con la MISMA sucesion de regimenes pero desfasados en el tiempo (por distinta permeabilidad o radio) deben considerarse similares. La distancia euclidiana punto a punto los penaliza por el desfase; el Dynamic Time Warping (DTW) los alinea bajo un emparejamiento monotono antes de medir, absorbiendo la escala de tiempo.'
+        ? 'Dos transientes con la MISMA sucesion de regímenes pero desfasados en el tiempo (por distinta permeabilidad o radio) deben considerarse similares. La distancia euclidiana punto a punto los penaliza por el desfase; el Dynamic Time Warping (DTW) los alinea bajo un emparejamiento monotono antes de medir, absorbiendo la escala de tiempo.'
         : 'Two transients with the SAME sequence of regimes but shifted in time (by different permeability or radius) must be considered similar. Point-wise Euclidean distance penalises them for the shift; Dynamic Time Warping (DTW) aligns them under a monotonic matching before measuring, absorbing the time scale.'}</p>
       <Equation tex="D_{\mathrm{DTW}}(a,b) = \min_{\pi \in \Pi_w} \sum_{(i,j)\in\pi} \big(a_i - b_j\big)^2"
-        caption={es ? 'Ec. La distancia DTW: el minimo sobre todos los caminos de alineacion monotonos pi dentro de la banda de ancho w.' : 'Eq. The DTW distance: the minimum over all monotonic alignment paths pi inside the band of width w.'} />
+        caption={es ? 'Ec. La distancia DTW: el mínimo sobre todos los caminos de alineacion monotonos pi dentro de la banda de ancho w.' : 'Eq. The DTW distance: the minimum over all monotonic alignment paths pi inside the band of width w.'} />
       <p>{es
-        ? <>El minimo se calcula por programacion dinamica con la recurrencia de costo acumulado, restringida a la banda de Sakoe-Chiba <Cite id="sakoe1978" paren /> que prohibe alineaciones degeneradas (un punto emparejado con muchos):</>
+        ? <>El mínimo se calcula por programacion dinamica con la recurrencia de costo acumulado, restringida a la banda de Sakoe-Chiba <Cite id="sakoe1978" paren /> que prohibe alineaciones degeneradas (un punto emparejado con muchos):</>
         : <>The minimum is computed by dynamic programming with the accumulated-cost recurrence, restricted to the Sakoe-Chiba band <Cite id="sakoe1978" paren /> that forbids degenerate alignments (one point matched to many):</>}</p>
       <Equation tex="\gamma(i,j) = (a_i-b_j)^2 + \min\{\gamma(i-1,j),\,\gamma(i,j-1),\,\gamma(i-1,j-1)\}, \quad |i-j| \le w"
         caption={es ? 'Ec. La recurrencia de DTW con la restriccion de banda |i-j| <= w. El backend offline es la implementacion C de dtaidistance via pygeotypes; el navegador reimplementa la misma recurrencia en TypeScript.' : 'Eq. The DTW recurrence with the band constraint |i-j| <= w. The offline backend is the C implementation in dtaidistance via pygeotypes; the browser reimplements the same recurrence in TypeScript.'} />
@@ -166,7 +166,7 @@ function Distances({ es }: { es: boolean }) {
         ? 'Sobre el conjunto de entrenamiento se calcula la matriz de distancias completa NxN, que es el objeto que consume el clustering. Para el benchmark de corpus completo (miles de curvas) se reutiliza la matriz precomputada del corpus 4TU en lugar de recalcular NxN.'
         : 'Over the training set the full NxN distance matrix is computed, which is the object the clustering consumes. For the full-corpus benchmark (thousands of curves) the corpus 4TU precomputed matrix is reused instead of recomputing NxN.'}</p>
       <Callout variant="honest" title={es ? 'Por que no euclidiana' : 'Why not Euclidean'}>
-        {es ? 'La comparacion de metodos (pestana Acuerdo de metodos en la App) incluye una linea base de k-medoids euclidiana y de correlacion precisamente para mostrar cuando la alineacion DTW gana su costo y cuando no: no se asume, se mide.' : 'The method comparison (Method agreement tab in the App) includes a Euclidean and a correlation k-medoids baseline precisely to show when the DTW alignment earns its cost and when it does not: it is not assumed, it is measured.'}
+        {es ? 'La comparación de métodos (pestana Acuerdo de métodos en la App) incluye una linea base de k-medoids euclidiana y de correlación precisamente para mostrar cuando la alineacion DTW gana su costo y cuando no: no se asume, se mide.' : 'The method comparison (Method agreement tab in the App) includes a Euclidean and a correlation k-medoids baseline precisely to show when the DTW alignment earns its cost and when it does not: it is not assumed, it is measured.'}
       </Callout>
       <Refs ids={['sakoe1978', 'kaufman1990']} label="Refs" />
     </div>
@@ -177,18 +177,18 @@ function Catalogue({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'El catalogo de GeoTypes se descubre por Partitioning Around Medoids (PAM) sobre la matriz DTW. PAM elige K medoides (curvas miembro reales) que minimizan la distancia total dentro del cluster; a diferencia de k-means, el prototipo de cada GeoType es una respuesta OBSERVADA, no un promedio sintetico que podria no corresponder a ninguna fisica real.'
+        ? 'El catalogo de GeoTypes se descubre por Partitioning Around Medoids (PAM) sobre la matriz DTW. PAM elige K medoides (curvas miembro reales) que minimizan la distancia total dentro del cluster; a diferencia de k-means, el prototipo de cada GeoType es una respuesta OBSERVADA, no un promedio sintético que podria no corresponder a ninguna física real.'
         : 'The GeoType catalogue is discovered by Partitioning Around Medoids (PAM) over the DTW matrix. PAM picks K medoids (real member curves) that minimise the total within-cluster distance; unlike k-means, each GeoType prototype is an OBSERVED response, not a synthetic average that might correspond to no real physics.'}</p>
       <Equation tex="\{m_1,\dots,m_K\} = \arg\min_{\{m_g\}} \sum_{i=1}^{n} \min_{g} D_{\mathrm{DTW}}(x_i, m_g)"
-        caption={es ? 'Ec. El objetivo de PAM k-medoids: elegir K medoides que minimizan la distancia DTW total de cada curva a su medoide mas cercano. Se resuelve con reinicios (n_init escala con el tamano: 10 para <=800 curvas, menos para el benchmark).' : 'Eq. The PAM k-medoids objective: pick K medoids minimising the total DTW distance of each curve to its nearest medoid. Solved with restarts (n_init scales with size: 10 for <=800 curves, fewer for the benchmark).'} />
+        caption={es ? 'Ec. El objetivo de PAM k-medoids: elegir K medoides que minimizan la distancia DTW total de cada curva a su medoide mas cercano. Se resuelve con reinicios (n_init escala con el tamaño: 10 para <=800 curvas, menos para el benchmark).' : 'Eq. The PAM k-medoids objective: pick K medoids minimising the total DTW distance of each curve to its nearest medoid. Solved with restarts (n_init scales with size: 10 for <=800 curves, fewer for the benchmark).'} />
       <p>{es
-        ? <>El numero de GeoTypes K no se fija a mano: se barre un rango y se elige por el coeficiente de silueta <Cite id="kaufman1990" paren />, que mide cuan compacto y separado esta cada cluster en la geometria DTW.</>
+        ? <>El número de GeoTypes K no se fija a mano: se barre un rango y se elige por el coeficiente de silueta <Cite id="kaufman1990" paren />, que mide cuan compacto y separado esta cada cluster en la geometría DTW.</>
         : <>The number of GeoTypes K is not fixed by hand: a range is swept and K is chosen by the silhouette coefficient <Cite id="kaufman1990" paren />, which measures how compact and separated each cluster is in the DTW geometry.</>}</p>
       <Equation tex="s(i) = \frac{b(i) - a(i)}{\max\{a(i),\,b(i)\}}, \qquad s = \frac{1}{n}\sum_i s(i)"
         caption={es ? 'Ec. La silueta: a(i) es la distancia media de la curva i a su propio cluster, b(i) la del cluster vecino mas cercano. El K con mayor silueta media s es el elegido.' : 'Eq. The silhouette: a(i) is the mean distance of curve i to its own cluster, b(i) to the nearest neighbouring cluster. The K with the highest mean silhouette s is chosen.'} />
       <MedoidSVG es={es} />
       <p>{es
-        ? 'La pestana Predictibilidad-vs-K (Atribucion+) muestra la silueta Y la exactitud del bosque aleatorio a lo largo de K, para verificar que el K elegido no es solo geometricamente compacto sino tambien ATRIBUIBLE a descriptores fisicos.'
+        ? 'La pestana Predictibilidad-vs-K (Atribucion+) muestra la silueta Y la exactitud del bosque aleatorio a lo largo de K, para verificar que el K elegido no es solo geometricamente compacto sino también ATRIBUIBLE a descriptores físicos.'
         : 'The Predictability-vs-K tab (Attribution+) shows the silhouette AND the random-forest accuracy across K, to verify that the chosen K is not only geometrically compact but also ATTRIBUTABLE to physical descriptors.'}</p>
       <Callout variant="honest" title={es ? 'K se descubre, no se impone' : 'K is discovered, not imposed'}>
         {es ? 'Casos control degenerados (una sola respuesta dominante) producen K=1 o siluetas bajas, y se etiquetan como tales; no se fuerza un K "bonito" para aparentar estructura.' : 'Degenerate control cases (a single dominant response) yield K=1 or low silhouettes, and are labelled as such; a "nice" K is never forced to fake structure.'}
@@ -202,17 +202,17 @@ function ClusteringComparison({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'El catalogo DTW k-medoids es la referencia; la escalera lo mide honestamente contra las alternativas SOTA sobre los MISMOS datos. Cada metodo se evalua por silueta (calidad en geometria DTW) y por Adjusted Rand Index (ARI, acuerdo corregido por azar con las etiquetas de referencia).'
+        ? 'El catalogo DTW k-medoids es la referencia; la escalera lo mide honestamente contra las alternativas SOTA sobre los MISMOS datos. Cada método se evalua por silueta (calidad en geometría DTW) y por Adjusted Rand Index (ARI, acuerdo corregido por azar con las etiquetas de referencia).'
         : 'The DTW k-medoids catalogue is the reference; the ladder measures it honestly against the SOTA alternatives on the SAME data. Each method is scored by silhouette (quality in DTW geometry) and by Adjusted Rand Index (ARI, chance-corrected agreement with the reference labels).'}</p>
       <p>{es
-        ? <>Las alternativas: soft-DTW k-means con baricentros diferenciables <Cite id="cuturi2017" paren />, k-Shape por correlacion cruzada normalizada sin DTW <Cite id="paparrizos2015" paren />, clustering espectral sobre una afinidad DTW gaussiana <Cite id="vonluxburg2007" paren />, y HDBSCAN por densidad con ruido y K libre <Cite id="campello2013" paren />.</>
+        ? <>Las alternativas: soft-DTW k-means con baricentros diferenciables <Cite id="cuturi2017" paren />, k-Shape por correlación cruzada normalizada sin DTW <Cite id="paparrizos2015" paren />, clustering espectral sobre una afinidad DTW gaussiana <Cite id="vonluxburg2007" paren />, y HDBSCAN por densidad con ruido y K libre <Cite id="campello2013" paren />.</>
         : <>The alternatives: soft-DTW k-means with differentiable barycentres <Cite id="cuturi2017" paren />, k-Shape by normalised cross-correlation with no DTW <Cite id="paparrizos2015" paren />, spectral clustering on a Gaussian DTW affinity <Cite id="vonluxburg2007" paren />, and HDBSCAN density clustering with noise and free K <Cite id="campello2013" paren />.</>}</p>
       <Equation tex="\mathrm{soft\text{-}DTW}_\gamma(a,b) = -\gamma \log \sum_{\pi \in \Pi} \exp\!\Big(-\tfrac{1}{\gamma}\textstyle\sum_{(i,j)\in\pi}(a_i-b_j)^2\Big)"
-        caption={es ? 'Ec. soft-DTW reemplaza el min de DTW por un soft-min diferenciable (gamma=1.0), lo que permite optimizar un baricentro sintetico como prototipo, la contraparte de centroide del medoide.' : 'Eq. soft-DTW replaces the DTW min with a differentiable soft-min (gamma=1.0), enabling optimisation of a synthetic barycentre prototype, the centroid counterpart of the medoid.'} />
+        caption={es ? 'Ec. soft-DTW reemplaza el min de DTW por un soft-min diferenciable (gamma=1.0), lo que permite optimizar un baricentro sintético como prototipo, la contraparte de centroide del medoide.' : 'Eq. soft-DTW replaces the DTW min with a differentiable soft-min (gamma=1.0), enabling optimisation of a synthetic barycentre prototype, the centroid counterpart of the medoid.'} />
       <Equation tex="\mathrm{ARI} = \frac{\sum_{ij}\binom{n_{ij}}{2} - \big[\sum_i\binom{a_i}{2}\sum_j\binom{b_j}{2}\big]/\binom{n}{2}}{\tfrac12\big[\sum_i\binom{a_i}{2}+\sum_j\binom{b_j}{2}\big] - \big[\sum_i\binom{a_i}{2}\sum_j\binom{b_j}{2}\big]/\binom{n}{2}}"
-        caption={es ? 'Ec. El Adjusted Rand Index entre una particion alternativa y la referencia DTW: 1 = identica, ~0 = azar. Es el numero honesto de titular en la pestana Acuerdo de metodos.' : 'Eq. The Adjusted Rand Index between an alternative partition and the DTW reference: 1 = identical, ~0 = chance. It is the honest headline number in the Method agreement tab.'} />
-      <Callout variant="honest" title={es ? 'Ningun metodo gana en todo' : 'No single method wins everywhere'}>
-        {es ? 'Resultado horneado real: en REAL_A/BENCH_A/BENCH_C, 6 de 7 metodos coinciden con DTW (ARI>0.5) y HDBSCAN recupera K por si solo en C; pero en BENCH_B (dataset de backbone) solo el espectral coincide. Se reporta, no se esconde.' : 'Real baked result: on REAL_A/BENCH_A/BENCH_C, 6 of 7 methods agree with DTW (ARI>0.5) and HDBSCAN independently recovers K on C; but on BENCH_B (backbone dataset) only spectral agrees. This is reported, not hidden.'}
+        caption={es ? 'Ec. El Adjusted Rand Index entre una particion alternativa y la referencia DTW: 1 = identica, ~0 = azar. Es el número honesto de titular en la pestana Acuerdo de métodos.' : 'Eq. The Adjusted Rand Index between an alternative partition and the DTW reference: 1 = identical, ~0 = chance. It is the honest headline number in the Method agreement tab.'} />
+      <Callout variant="honest" title={es ? 'Ningun método gana en todo' : 'No single method wins everywhere'}>
+        {es ? 'Resultado precalculado real: en REAL_A/BENCH_A/BENCH_C, 6 de 7 métodos coinciden con DTW (ARI>0.5) y HDBSCAN recupera K por si solo en C; pero en BENCH_B (dataset de backbone) solo el espectral coincide. Se reporta, no se esconde.' : 'Real baked result: on REAL_A/BENCH_A/BENCH_C, 6 of 7 methods agree with DTW (ARI>0.5) and HDBSCAN independently recovers K on C; but on BENCH_B (backbone dataset) only spectral agrees. This is reported, not hidden.'}
       </Callout>
       <Refs ids={['cuturi2017', 'paparrizos2015', 'vonluxburg2007', 'campello2013']} label="Refs" />
     </div>
@@ -223,7 +223,7 @@ function Representations({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'Mas alla de la geometria de distancias, el ensamble se dispone y describe con representaciones complementarias, todas alineadas curva-a-curva con los miembros comprometidos. El MDS clasico embebe la matriz DTW en 2D/3D preservando distancias; UMAP y t-SNE dan disposiciones de variedad (manifold) que a veces revelan estructura que el MDS lineal comprime.'
+        ? 'Mas alla de la geometría de distancias, el ensamble se dispone y describe con representaciones complementarias, todas alineadas curva-a-curva con los miembros comprometidos. El MDS clásico embebe la matriz DTW en 2D/3D preservando distancias; UMAP y t-SNE dan disposiciones de variedad (manifold) que a veces revelan estructura que el MDS lineal comprime.'
         : 'Beyond the distance geometry, the ensemble is laid out and described with complementary representations, all aligned curve-for-curve with the committed members. Classical MDS embeds the DTW matrix in 2D/3D preserving distances; UMAP and t-SNE give manifold layouts that sometimes reveal structure the linear MDS compresses.'}</p>
       <Equation tex="\text{stress} = \sqrt{\frac{\sum_{i<j}\big(\lVert y_i - y_j\rVert - D_{\mathrm{DTW}}(x_i,x_j)\big)^2}{\sum_{i<j} D_{\mathrm{DTW}}(x_i,x_j)^2}}"
         caption={es ? 'Ec. El stress de SMACOF que MDS minimiza: la discrepancia entre las distancias euclidianas en el embedding y las distancias DTW originales.' : 'Eq. The SMACOF stress that MDS minimises: the discrepancy between the Euclidean distances in the embedding and the original DTW distances.'} />
@@ -233,7 +233,7 @@ function Representations({ es }: { es: boolean }) {
       <Equation tex="X_c = U\,\Sigma\,V^{\top}, \qquad \text{modes} = V^{\top}_{1:m}, \quad \text{scores} = U_{:,1:m}\,\Sigma_{1:m}"
         caption={es ? 'Ec. El PCA funcional por SVD de la matriz de curvas centrada X_c: las filas de V^T son los modos (eigen-formas sobre la grilla log-tiempo), y U*Sigma son las puntuaciones por miembro (m=4 modos comprometidos).' : 'Eq. Functional PCA by SVD of the centred curve matrix X_c: the rows of V^T are the modes (eigen-shapes on the log-time grid), and U*Sigma are the per-member scores (m=4 committed modes).'} />
       <Callout variant="honest" title={es ? 'Distancias UMAP no son metricas' : 'UMAP distances are not metric'}>
-        {es ? 'En un grafico UMAP las distancias entre clusters son cualitativas, no una regla; el MDS-DTW sigue siendo la disposicion fiel a la metrica. Se ofrecen ambos y se dice cual es cual.' : 'In a UMAP plot the distances between clusters are qualitative, not a ruler; the DTW-MDS remains the metric-faithful layout. Both are offered and which is which is stated.'}
+        {es ? 'En un gráfico UMAP las distancias entre clusters son cualitativas, no una regla; el MDS-DTW sigue siendo la disposicion fiel a la metrica. Se ofrecen ambos y se dice cual es cual.' : 'In a UMAP plot the distances between clusters are qualitative, not a ruler; the DTW-MDS remains the metric-faithful layout. Both are offered and which is which is stated.'}
       </Callout>
       <Refs ids={['mcinnes2018', 'vandermaaten2008', 'ramsay2005', 'lubba2019']} label="Refs" />
     </div>
@@ -244,7 +244,7 @@ function Diagnostics({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'La capa de diagnostico clasica corre EN VIVO en el navegador (TypeScript puro, sin artefacto horneado) sobre la curva que el usuario ajusta. Detecta y marca los regimenes de flujo en la derivada de Bourdet log-log por su pendiente caracteristica, y ajusta modelos analiticos que RECUPERAN los parametros directamente de la curva.'
+        ? 'La capa de diagnostico clásica corre EN VIVO en el navegador (TypeScript puro, sin artefacto precalculado) sobre la curva que el usuario ajusta. Detecta y marca los regímenes de flujo en la derivada de Bourdet log-log por su pendiente caracteristica, y ajusta modelos analiticos que RECUPERAN los parámetros directamente de la curva.'
         : 'The classical diagnostic layer runs LIVE in the browser (pure TypeScript, no baked artifact) on the curve the user tunes. It auto-detects and marks the flow regimes on the log-log Bourdet derivative by their characteristic slope, and fits analytic models that RECOVER the parameters straight from the curve.'}</p>
       <p>{es
         ? <>Las pendientes canonicas <Cite id="bourdet1989" paren />: flujo radial = plateau en 0.5 (pendiente 0), flujo lineal = 1/2, bilineal = 1/4, limite = pendiente unitaria. El valle de doble porosidad se detecta por VALOR (la derivada bien por debajo de 0.5), no por pendiente, porque sus flancos son empinados.</>
@@ -277,7 +277,7 @@ function LearnedClassifiers({ es }: { es: boolean }) {
       <Equation tex="\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d_k}}\right) V"
         caption={es ? 'Ec. La auto-atencion escalada del encoder PatchTST: cada parche atiende a todos los parches, capturando dependencias de largo alcance en la forma del transiente.' : 'Eq. The scaled self-attention of the PatchTST encoder: each patch attends to all patches, capturing long-range dependencies in the transient shape.'} />
       <Equation tex="\hat y = \mathrm{softmax}\big(W\,\bar h + b\big), \qquad \bar h = \tfrac{1}{T}\textstyle\sum_t h_t \;\;(\text{InceptionTime, GAP})"
-        caption={es ? 'Ec. La cabeza de clasificacion: softmax sobre el pooling promedio global (InceptionTime) o el aplanado de parches (PatchTST). El softmax se aplica en la exportacion, de modo que el navegador lee probabilidades directamente.' : 'Eq. The classification head: softmax over the global average pool (InceptionTime) or the flattened patches (PatchTST). Softmax is applied at export, so the browser reads probabilities directly.'} />
+        caption={es ? 'Ec. La cabeza de clasificación: softmax sobre el pooling promedio global (InceptionTime) o el aplanado de parches (PatchTST). El softmax se aplica en la exportacion, de modo que el navegador lee probabilidades directamente.' : 'Eq. The classification head: softmax over the global average pool (InceptionTime) or the flattened patches (PatchTST). Softmax is applied at export, so the browser reads probabilities directly.'} />
       <Callout variant="honest" title={es ? 'Herramientas, no tabla de metricas' : 'Tools, not a metrics table'}>
         {es ? 'Los modelos aprendidos aparecen como HERRAMIENTAS en vivo (clasifica esta curva), no como una tabla de metricas; la exactitud held-out se muestra junto a la prediccion, y la paridad ONNX-torch se verifica antes de comprometer cada modelo.' : 'The learned models appear as live TOOLS (classify this curve), not a metrics table; the held-out accuracy is shown next to the prediction, and the ONNX-torch parity is verified before each model is committed.'}
       </Callout>
@@ -290,17 +290,17 @@ function LearnedRetrieval({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'El segundo par de modelos aprendidos no clasifica sino que detecta anomalias y recupera vecinos. Un autoencoder convolucional profundo comprime la curva a un latente y la reconstruye; el ERROR de reconstruccion es una senal honesta de fuera-de-distribucion: una curva distinta al catalogo de entrenamiento reconstruye mal.'
+        ? 'El segundo par de modelos aprendidos no clasifica sino que detecta anomalias y recupera vecinos. Un autoencoder convolucional profundo comprime la curva a un latente y la reconstruye; el ERROR de reconstrucción es una señal honesta de fuera-de-distribución: una curva distinta al catalogo de entrenamiento reconstruye mal.'
         : 'The second pair of learned models does not classify but detects anomalies and retrieves neighbours. A deep convolutional autoencoder compresses the curve to a latent and reconstructs it; the reconstruction ERROR is an honest out-of-distribution signal: a curve unlike the training catalogue reconstructs poorly.'}</p>
       <Equation tex="z = \mathrm{enc}(x), \quad \hat x = \mathrm{dec}(z), \qquad \mathcal{E}(x) = \tfrac{1}{N}\lVert x - \hat x\rVert_2^2"
-        caption={es ? 'Ec. El autoencoder: el error cuadratico medio de reconstruccion E(x) es el puntaje de anomalia; el latente z (dim 8) es una incrustacion 2D-proyectable del comportamiento.' : 'Eq. The autoencoder: the mean-squared reconstruction error E(x) is the anomaly score; the latent z (dim 8) is a 2D-projectable embedding of behaviour.'} />
+        caption={es ? 'Ec. El autoencoder: el error cuadratico medio de reconstrucción E(x) es el puntaje de anomalia; el latente z (dim 8) es una incrustacion 2D-proyectable del comportamiento.' : 'Eq. The autoencoder: the mean-squared reconstruction error E(x) is the anomaly score; the latent z (dim 8) is a 2D-projectable embedding of behaviour.'} />
       <p>{es
         ? <>El encoder estilo TS2Vec <Cite id="yue2022" paren /> es una red de convoluciones dilatadas entrenada contrastivamente: dos vistas enmascaradas de cada curva deben acercarse (positivas) frente a todas las demas (negativas), con la perdida NT-Xent <Cite id="chen2020" paren />. Da una incrustacion L2-normalizada para recuperacion por vecino mas cercano contra la nube de entrenamiento.</>
         : <>The TS2Vec-style encoder <Cite id="yue2022" paren /> is a dilated-convolution network trained contrastively: two masked views of each curve must be pulled together (positives) against all others (negatives), with the NT-Xent loss <Cite id="chen2020" paren />. It gives an L2-normalised embedding for nearest-neighbour retrieval against the training cloud.</>}</p>
       <Equation tex="\mathcal{L}_{\text{NT-Xent}} = -\log \frac{\exp(\mathrm{sim}(z_i, z_i^+)/\tau)}{\sum_{k\neq i}\exp(\mathrm{sim}(z_i, z_k)/\tau)}, \qquad \tau = 0.2"
         caption={es ? 'Ec. La perdida contrastiva NT-Xent: acerca las dos vistas enmascaradas de la misma curva y aleja las de otras, con temperatura tau=0.2. En inferencia el encoder es una pasada determinista, exportable a ONNX.' : 'Eq. The NT-Xent contrastive loss: pulls the two masked views of the same curve together and pushes others apart, with temperature tau=0.2. At inference the encoder is a deterministic forward pass, ONNX-exportable.'} />
       <Callout variant="honest" title={es ? 'La anomalia no es una etiqueta' : 'Anomaly is not a label'}>
-        {es ? 'Un error de reconstruccion alto senala que la curva no se parece a nada del catalogo, no que sea "mala"; se combina con la bandera fuera-de-catalogo del conformal para una decision robusta, y ninguno de los dos se presenta como verdad absoluta.' : 'A high reconstruction error signals that the curve resembles nothing in the catalogue, not that it is "bad"; it combines with the conformal out-of-catalogue flag for a robust decision, and neither is presented as absolute truth.'}
+        {es ? 'Un error de reconstrucción alto señala que la curva no se parece a nada del catalogo, no que sea "mala"; se combina con la bandera fuera-de-catalogo del conformal para una decision robusta, y ninguno de los dos se presenta como verdad absoluta.' : 'A high reconstruction error signals that the curve resembles nothing in the catalogue, not that it is "bad"; it combines with the conformal out-of-catalogue flag for a robust decision, and neither is presented as absolute truth.'}
       </Callout>
       <Refs ids={['yue2022', 'chen2020']} label="Refs" />
     </div>
@@ -316,13 +316,13 @@ function Conformal({ es }: { es: boolean }) {
       <Equation tex="p_g(x) = \frac{1 + \#\{\, i : s_i^{(g)} \ge D_{\mathrm{DTW}}(x, m_g) \,\}}{1 + n_g}, \qquad \Gamma^{\alpha}(x) = \{\, g : p_g(x) > \alpha \,\}"
         caption={es ? 'Ec. El p-valor conformal de la curva x para el GeoType g y el conjunto de prediccion al nivel 1-alpha. Un conjunto vacio es una bandera honesta de fuera-de-catalogo.' : 'Eq. The conformal p-value of curve x for GeoType g and the prediction set at level 1-alpha. An empty set is an honest out-of-catalogue flag.'} />
       <p>{es
-        ? <>La cobertura marginal esta garantizada por intercambiabilidad <Cite id="vovk2005" paren /><Cite id="angelopoulos2023" paren />: el conjunto contiene el GeoType verdadero con probabilidad al menos 1-alpha. Esta es la capa NOVEL clasica de Pulso, y corre en vivo en el navegador.</>
+        ? <>La cobertura marginal esta garantizada por intercambiabilidad <Cite id="vovk2005" paren /><Cite id="angelopoulos2023" paren />: el conjunto contiene el GeoType verdadero con probabilidad al menos 1-alpha. Esta es la capa NOVEL clásica de Pulso, y corre en vivo en el navegador.</>
         : <>Marginal coverage is guaranteed by exchangeability <Cite id="vovk2005" paren /><Cite id="angelopoulos2023" paren />: the set contains the true GeoType with probability at least 1-alpha. This is Pulso\'s classical NOVEL layer, and it runs live in the browser.</>}</p>
       <p>{es
-        ? 'Mas alla de SOTA, la asignacion de doble representacion hace conformal conjuntamente sobre DOS espacios: la forma (distancia DTW) Y los descriptores fisicos (implausibilidad del bosque aleatorio). El conjunto es la interseccion por clase, de modo que una curva de forma correcta pero fisica implausible queda marcada, algo que el conformal de un solo puntaje no puede.'
+        ? 'Mas alla de SOTA, la asignacion de doble representacion hace conformal conjuntamente sobre DOS espacios: la forma (distancia DTW) Y los descriptores físicos (implausibilidad del bosque aleatorio). El conjunto es la interseccion por clase, de modo que una curva de forma correcta pero física implausible queda marcada, algo que el conformal de un solo puntaje no puede.'
         : 'Beyond SOTA, the dual-representation assignment conformalizes jointly over TWO spaces: the shape (DTW distance) AND the physical descriptors (random-forest implausibility). The set is the per-class intersection, so a right-shape but implausible-physics curve is flagged, which single-score conformal cannot do.'}</p>
       <Equation tex="\Gamma^{\alpha}_{\text{dual}}(x) = \{\, g : p^{\text{shape}}_g(x) > \alpha \;\wedge\; p^{\text{desc}}_g(x) > \alpha \,\}"
-        caption={es ? 'Ec. El conjunto conformal de doble representacion: la conjuncion por clase de los p-valores de forma y de descriptores. Resultado horneado: captura 7/100 (REAL_A) y 55/763 (BENCH_A) curvas forma-correcta-fisica-incorrecta.' : 'Eq. The dual-representation conformal set: the per-class conjunction of the shape and descriptor p-values. Baked result: it catches 7/100 (REAL_A) and 55/763 (BENCH_A) right-shape-wrong-physics curves.'} />
+        caption={es ? 'Ec. El conjunto conformal de doble representacion: la conjuncion por clase de los p-valores de forma y de descriptores. Resultado precalculado: captura 7/100 (REAL_A) y 55/763 (BENCH_A) curvas forma-correcta-física-incorrecta.' : 'Eq. The dual-representation conformal set: the per-class conjunction of the shape and descriptor p-values. Baked result: it catches 7/100 (REAL_A) and 55/763 (BENCH_A) right-shape-wrong-physics curves.'} />
       <DualConformalSVG es={es} />
       <Callout variant="honest" title={es ? 'Cobertura vs conjuntos ajustados' : 'Coverage vs tighter sets'}>
         {es ? 'La conjuncion intercambia un poco de cobertura por conjuntos mas ajustados; ambas cifras (forma-sola vs dual) se muestran lado a lado, y si los descriptores son degenerados la capa dual se reduce honestamente a forma-sola.' : 'The conjunction trades a little coverage for tighter sets; both figures (shape-only vs dual) are shown side by side, and if the descriptors are degenerate the dual layer honestly falls back to shape-only.'}
@@ -336,7 +336,7 @@ function Attribution({ es }: { es: boolean }) {
   return (
     <div>
       <p>{es
-        ? 'La atribucion responde por que: mapea las etiquetas GeoType a los descriptores fisicos de la red de fractura (intensidad, apertura, conectividad, fraccion en el componente mayor) con un bosque aleatorio + SHAP, con un gate de exactitud honesto que RETIENE las importancias cuando el bosque no puede predecir las etiquetas.'
+        ? 'La atribucion responde por que: mapea las etiquetas GeoType a los descriptores físicos de la red de fractura (intensidad, apertura, conectividad, fraccion en el componente mayor) con un bosque aleatorio + SHAP, con un gate de exactitud honesto que RETIENE las importancias cuando el bosque no puede predecir las etiquetas.'
         : 'Attribution answers why: it maps the GeoType labels to the physical fracture-network descriptors (intensity, aperture, connectivity, fraction in the largest component) with a random forest + SHAP, with an honest accuracy gate that WITHHOLDS the importances when the forest cannot predict the labels.'}</p>
       <Equation tex="\phi_j = \sum_{S \subseteq F\setminus\{j\}} \frac{|S|!\,(|F|-|S|-1)!}{|F|!}\big[f(S\cup\{j\}) - f(S)\big]"
         caption={es ? 'Ec. El valor de Shapley phi_j del descriptor j: su contribucion marginal promediada sobre todos los subconjuntos, calculado eficientemente por TreeSHAP sobre el bosque.' : 'Eq. The Shapley value phi_j of descriptor j: its marginal contribution averaged over all subsets, computed efficiently by TreeSHAP over the forest.'} />
@@ -373,11 +373,11 @@ export function Methodology() {
         <h1>{es ? 'Metodologia' : 'Methodology'}</h1>
         <p className="lede">
           {es
-            ? 'La escalera de metodos, familia por familia: del preproceso y la distancia DTW al catalogo k-medoids, las alternativas SOTA de clustering, las representaciones, los diagnosticos en vivo, el nivel aprendido (GPU a ONNX) y la asignacion conformal con atribucion. Cada familia con su baseline clasico o SOTA y, donde es una capacidad del producto, una capa novel mas alla de SOTA.'
+            ? 'La escalera de métodos, familia por familia: del preproceso y la distancia DTW al catalogo k-medoids, las alternativas SOTA de clustering, las representaciones, los diagnosticos en vivo, el nivel aprendido (GPU a ONNX) y la asignacion conformal con atribucion. Cada familia con su baseline clásico o SOTA y, donde es una capacidad del producto, una capa novel mas alla de SOTA.'
             : 'The method ladder, family by family: from preprocessing and the DTW distance to the k-medoids catalogue, the SOTA clustering alternatives, the representations, the live diagnostics, the learned tier (GPU to ONNX), and conformal assignment with attribution. Each family carries a classical or SOTA baseline and, where it is a product capability, a novel-beyond-SOTA layer.'}
         </p>
       </div>
-      <Tabs tabs={tabs} ariaLabel={es ? 'Familias de metodos' : 'Method families'} />
+      <Tabs tabs={tabs} ariaLabel={es ? 'Familias de métodos' : 'Method families'} />
     </div>
   );
 }
