@@ -12,7 +12,7 @@ Three models on the GeoType curves:
 | `ContrastiveEncoder` | conv encoder + projection, triplet loss | an L2-normalized embedding where same-GeoType curves are close | embedding scatter + nearest-neighbour retrieval |
 
 **Install.** `pip install --index-url https://download.pytorch.org/whl/cpu torch` (CPU wheel;
-`.venv-pipeline` only — torch is NEVER shipped to the browser). Pinned in
+`.venv-pipeline` only — torch is never shipped to the browser). Pinned in
 `data-pipeline/requirements.txt` (torch 2.12.1). Also `onnx`, `onnxscript` (the torch≥2.9 exporter),
 `onnxruntime` (parity check).
 

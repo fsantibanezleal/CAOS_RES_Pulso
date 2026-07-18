@@ -28,7 +28,7 @@ tslearn>=0.9.0     # soft-DTW k-means (Cuturi-Blondel 2017) + k-Shape (Paparrizo
 ```
 
 Pure-Python + numpy/scipy/scikit-learn/numba wheels; installs into the offline `.venv-pipeline`. It is an
-OFFLINE-only dependency (the comparison is baked, never run in the browser), so it never touches the live
+offline-only dependency (the comparison is baked, never run in the browser), so it never touches the live
 lane or the Pyodide bundle.
 
 ## Usage
@@ -44,7 +44,7 @@ labels_kshape = KShape(n_clusters=k, max_iter=20, random_state=seed).fit_predict
 
 ## Applying it here
 
-Called from `flowdnalab/methods/clustering.py::compare_clusterings`, which runs on the SAME preprocessed
+Called from `flowdnalab/methods/clustering.py::compare_clusterings`, which runs on the same preprocessed
 curves as the reference catalogue and reports each method's k, silhouette (precomputed DTW), and Adjusted
 Rand Index vs the DTW k-medoids labels. It runs only for cases with `compare_methods=True` (a
 representative subset: WR01, REAL_A, BENCH_A/B/C) and on a seeded <=600 subsample for large corpora, so

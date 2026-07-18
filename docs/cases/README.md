@@ -5,7 +5,7 @@ catalogue with conformal assignment + attribution), a **dfn** ensemble (GeoDFN n
 fracture descriptors), a **darts** anchor (one open-DARTS drawdown validated vs the analytical
 solution), or a **dfm** study (a GeoType study on open-DARTS DFM transients simulated over a GeoDFN
 ensemble — the graduation of the `dfn` cases from geometry to simulated physics).
-`registry.list_categories()` groups them; the **App shows ONE selected case**;
+`registry.list_categories()` groups them; the **App shows one selected case**;
 **Experiments/Benchmark show cross-case summaries by category** (never mixed into the App).
 
 ## Categories
@@ -13,16 +13,16 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 | Category | Kind | What it exercises |
 |---|---|---|
 | dual-porosity: broad ensemble | study | the full (ω, λ) continuum; the baseline catalogue |
-| dual-porosity: valley depth (omega) | study | λ pinned; GeoTypes must separate by valley DEPTH; attribution must name `log10_omega` |
-| dual-porosity: valley timing (lambda) | study | ω pinned; separation by valley TIMING; attribution must name `log10_lam` |
+| dual-porosity: valley depth (omega) | study | λ pinned; GeoTypes must separate by valley depth; attribution must name `log10_omega` |
+| dual-porosity: valley timing (lambda) | study | ω pinned; separation by valley timing; attribution must name `log10_lam` |
 | mixture: homogeneous vs dual-porosity | study | family separation (no-valley vs valley); `is_homogeneous` drives attribution |
 | robustness: measurement noise | study | 6% multiplicative noise; same families must survive |
-| control: degenerate single behaviour | study | ONE true behaviour: silhouette must collapse, the RF gate must withhold importances, the run must not crash |
+| control: degenerate single behaviour | study | one true behaviour: silhouette must collapse, the RF gate must withhold importances, the run must not crash |
 | geodfn: sparse network ensemble | dfn | sub-percolation networks: low connectivity/backbone/spanning |
 | geodfn: dense network ensemble | dfn | connected networks: high largest-cluster fraction, backbone, spanning |
 | open-darts: homogeneous drawdown | darts | the SOTA simulator reproduces infinite-acting radial flow (derivative plateau 0.5) |
-| open-darts DFM: GeoTypes on simulated transients | dfm | GeoType study on simulated DFM physics at SCALE (200 GeoDFN networks/case); intensity sweep across sparse/mid/dense (DFM03/DFM01/DFM02, P21 ~0.03/0.05/0.07) + a wide aperture sweep (2e-4 to 4e-3 m); MRST fidelity gate; attribution over real descriptors + `log_frac_aper` |
-| real field: pumping tests (AquiferTypes) | field | REAL welltestpy field drawdown (Horkheimer Insel + Lauswiesen); the shape-diagnostic methodology transfers to aquifers; attribution over radial distance / rate / site (honest null on these homogeneous sites) |
+| open-darts DFM: GeoTypes on simulated transients | dfm | GeoType study on simulated DFM physics at scale (200 GeoDFN networks/case); intensity sweep across sparse/mid/dense (DFM03/DFM01/DFM02, P21 ~0.03/0.05/0.07) + a wide aperture sweep (2e-4 to 4e-3 m); MRST fidelity gate; attribution over real descriptors + `log_frac_aper` |
+| real field: pumping tests (AquiferTypes) | field | real welltestpy field drawdown (Horkheimer Insel + Lauswiesen); the shape-diagnostic methodology transfers to aquifers; attribution over radial distance / rate / site (honest null on these homogeneous sites) |
 
 ## Coverage matrix (what each case proves)
 
@@ -50,53 +50,53 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 | BENCH_B | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3600 curves) |
 | BENCH_C | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3800 curves) |
 
-## FULL-CORPUS BENCHMARK — the whole 4TU corpus (2026-07-07)
+## Full-corpus benchmark — the whole 4TU corpus (2026-07-07)
 
-The `benchmark` cases (BENCH_A/B/C) cluster the ENTIRE ~4768-curve 4TU corpus per dataset, reusing the
+The `benchmark` cases (BENCH_A/B/C) cluster the entire ~4768-curve 4TU corpus per dataset, reusing the
 corpus's own **precomputed DTW matrix** (`Dataset_X_DTW.npy`, ~90 MB, vault-only) so it does not
-recompute 4768^2 DTW (which would take hours). This is the honest FULL-corpus counterpart to the
+recompute 4768^2 DTW (which would take hours). This is the honest full-corpus counterpart to the
 400-subsample App `real` cases: the subsample + K choice inflate the App silhouette (0.58-0.86), while
 the full-corpus numbers are the paper's regime (K=4, silhouette ~0.37-0.46).
 
 - Reuse: the precomputed DTW is sliced to the CONTRACT-1-kept curves so the matrix and curves stay
   aligned. The committed CONTRACT-3 artifact CAPS the members to a stratified subsample (`MAX_MEMBERS`)
   + the DTW matrix to `MAX_DTW_N`, so a full-corpus case stays under the ~2 MB byte budget while
-  `stats.n_members` reports the FULL population.
+  `stats.n_members` reports the full population.
 - Honesty: ~20% of curves per dataset are dropped as late-start/early-end outliers whose absolute
   t_D range does not overlap the bulk (otherwise the common-grid resample has no shared window). The
   dropped count is reported in the provenance flag. Datasets B and C need this filter; A barely.
 - These feed the Benchmark PAGE (P5): full-corpus silhouette/K/attribution + the cross-dataset
   retention (the Sankey, P3) computed from the aligned A/B/C labels.
 
-## REAL FIELD DATA — welltestpy aquifer pumping tests (2026-07-04)
+## Real field data — welltestpy aquifer pumping tests (2026-07-04)
 
-The `field` cases run REAL transient pumping-test drawdown from two aquifer field sites
+The `field` cases run real transient pumping-test drawdown from two aquifer field sites
 (Horkheimer Insel, Heilbronn; Lauswiesen, Tuebingen) via the GeoStat-Framework welltestpy campaigns
 (MIT, Zenodo 4139374, vault-only). Each (pumping test, observation well) pair is a drawdown s(t) at a
-known radial distance r + pumping rate Q; the RAW drawdown is differentiated (Bourdet first
-derivative) and clustered by SHAPE into "AquiferTypes" with the SAME DTW k-medoids + conformal +
+known radial distance r + pumping rate Q; the raw drawdown is differentiated (Bourdet first
+derivative) and clustered by shape into "AquiferTypes" with the same DTW k-medoids + conformal +
 attribution pipeline. This demonstrates the diagnostic-plot methodology **generalizes beyond fractured
 reservoirs to real aquifer field data**. (Domain honesty: aquifers are a different physical system;
 only the shape diagnostic transfers, and T/S are unknown so clustering is on shape alone.)
 
 **Findings (honest):**
-- Both sites are predominantly ONE infinite-acting-radial (Theis) AquiferType: the Horkheim
+- Both sites are predominantly one infinite-acting-radial (Theis) AquiferType: the Horkheim
   derivatives share a bulk pairwise shape-correlation ~0.87. These are well-characterized,
   quasi-homogeneous aquifers, so the shape catalogue is dominated by the radial response.
-- The catalogue correctly ISOLATES outlier observation wells (e.g. Horkheim's `p45`) as distinct
+- The catalogue correctly isolates outlier observation wells (e.g. Horkheim's `p45`) as distinct
   AquiferTypes (a boundary / heterogeneity signature).
-- **Honest null on `FIELD_combined`**: pooled across both aquifers, the AquiferType is NOT predictable
+- **Honest null on `FIELD_combined`**: pooled across both aquifers, the AquiferType is not predictable
   from radial distance, pumping rate or site (RF accuracy gate ~0.50, importances withheld). The two
   aquifers are hydraulically similar in their transient diagnostic signature. The methodology
-  transfers AND honestly reports "no strong controlling factor here" rather than manufacturing one.
+  transfers and honestly reports "no strong controlling factor here" rather than manufacturing one.
 
-## REAL DATA — the paper's own 4TU corpus (2026-07-03)
+## Real data — the paper's own 4TU corpus (2026-07-03)
 
 The `real` cases run the **source paper's actual pressure-transient curves** (4TU DOI
 10.4121/8291d285, Datasets A/B/C = three matrix-fracture permeability configs) through the exact
 same pygeotypes pipeline. Each dataset ships ~4768 dimensionless first-derivative curves (t_D,
 p_D') + 5000 real DFN-descriptor rows; we take a seeded 400-curve subsample per case (the
-full-corpus run is the offline Benchmark). Because the corpus IS already the Bourdet first
+full-corpus run is the offline Benchmark). Because the corpus is already the Bourdet first
 derivative, preprocessing uses `derivative_order=0`.
 
 | Case | Config | K | Silhouette | Coverage | RF acc | Top descriptor(s) |
@@ -134,9 +134,9 @@ rather than faking agreement, exactly as designed. It is a real finding, not a d
 open-DARTS DFM matches MRST for mid/dense fracture intensities and honestly diverges in the
 sparse/matrix-dominated limit where the two simulators' assumptions differ most.
 
-**1. p' vs p''.** The Freites-2023 recipe clusters the SECOND derivative p'' (offset removal on
+**1. p' vs p''.** The Freites-2023 recipe clusters the second derivative p'' (offset removal on
 measured data). On these analytic ensembles p'' at 96-point grids destroyed the class structure
-(silhouette ~0.17, RF gate failing), while the FIRST Bourdet derivative preserved it. Both remain
+(silhouette ~0.17, RF gate failing), while the first Bourdet derivative preserved it. Both remain
 supported (`EnsembleSpec.derivative_order`); the analytic cases pin `derivative_order=1`, and the
 p''-vs-p' comparison is an explicit Benchmark axis for the real-data phase (where the offset problem
 p'' exists for actually matters).
@@ -154,10 +154,10 @@ study cases (seed 42) gives a clean sensitivity ranking of what DTW+PAM can attr
 | CTRL | one regime | 0.14 | **FAIL** (by design) | none |
 
 Valley **timing** (a phase feature) and **family** (valley vs no-valley) are cleanly recovered;
-valley **depth** (a pure amplitude feature) is NOT, even with amplitude-preserving `norm=max` — DTW
+valley **depth** (a pure amplitude feature) is not, even with amplitude-preserving `norm=max` — DTW
 is a shape-*alignment* metric, less sensitive to amplitude than to phase/topology. WR02 is kept as
 the honest hard case: the RF accuracy gate correctly withholds a false attribution rather than
-reporting depth-noise as a finding. This is exactly why the attribution stage HAS a gate.
+reporting depth-noise as a finding. This is exactly why the attribution stage has a gate.
 
 **3. Encoding honesty.** Homogeneous curves have no (ω, λ); encoding those as an out-of-range
 sentinel made `log10_lam` a perfect proxy for `is_homogeneous` and stole the attribution. Fixed by

@@ -38,7 +38,7 @@ python -m venv .venv-train
 .venv-train/Scripts/python.exe -m pip install -e .          # the pulso pipeline package (for datasets)
 ```
 
-`torch` is installed from the CUDA index (the wheel URL is platform-specific, so it is NOT pinned in
+`torch` is installed from the CUDA index (the wheel URL is platform-specific, so it is not pinned in
 `requirements-train.txt`); the exporter + data deps (`onnx`, `onnxscript`, `scikit-learn`, `pandas`,
 `pyarrow`) install from PyPI. `.venv-train` is gitignored; only `requirements-train.txt` + the setup
 scripts are committed.

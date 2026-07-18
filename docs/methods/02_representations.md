@@ -4,7 +4,7 @@
 pressure-transient ensemble. This group adds three more, so the same committed ensemble can be laid out
 and described in complementary ways: does a manifold method reveal structure MDS compresses? What are the
 dominant modes of variation of the derivative response? Which interpretable features actually separate the
-flow-behaviour clusters? All are computed offline on the SAME committed members as CONTRACT-3, so every
+flow-behaviour clusters? All are computed offline on the same committed members as CONTRACT-3, so every
 2D layout aligns row-for-row with the member curves and the viz needs no recomputation.
 
 ## The four representations
@@ -43,7 +43,7 @@ degrade to a recorded `null` / `skipped`; the viz falls back gracefully.
 
 ## Where it runs
 
-OFFLINE only. The App **Representations** tab reads the baked block, switches the 2D layout live (no
+Offline only. The App **Representations** tab reads the baked block, switches the 2D layout live (no
 recomputation), draws the functional-PCA modes, and shows the catch22 cluster table. Bilingual, light +
 dark.
 

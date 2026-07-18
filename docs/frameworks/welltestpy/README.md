@@ -1,7 +1,7 @@
 # welltestpy — real field pumping-test campaigns (the field-data lane)
 
 **What / why.** [welltestpy](https://github.com/GeoStat-Framework/welltestpy) (MIT, GeoStat-Framework)
-is the loader for FlowDNA's REAL field-data lane: transient pumping-test drawdown from two aquifer
+is the loader for FlowDNA's real field-data lane: transient pumping-test drawdown from two aquifer
 field sites, used to show the GeoType shape-diagnostic methodology **generalizes beyond fractured
 reservoirs to real aquifer field data**. It provides the `Campaign` / `PumpingTest` / `Observation`
 data model and reads the `.cmp` campaign files.
@@ -23,7 +23,7 @@ the 4TU corpus). The repo commits only the derived study trace (decimated), neve
 (site, pumping test, observation well), extracts the usable transient drawdown s(t) (>= 10 finite
 t>0 samples, r > 0.1 m, real drawdown span; long series decimated to a log grid), and builds the
 descriptor table `[log_r, log_Q, site, well_depth, screen_size, aquifer_depth]`. `_precompute_field`
-runs it through the SAME study pipeline as the 4TU real lane, except the curves are RAW drawdown so
+runs it through the same study pipeline as the 4TU real lane, except the curves are raw drawdown so
 preprocessing uses the Bourdet first derivative (`derivative_order=1`). ~44 usable curves across both
 sites -> AquiferType catalogue + conformal + attribution.
 

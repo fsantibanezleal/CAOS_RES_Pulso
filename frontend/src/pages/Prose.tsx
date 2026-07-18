@@ -15,13 +15,13 @@ import type { CaseIndex, CaseManifest } from '../lib/contract.types';
 // ---------------------------------------------------------------------------------------------------
 function PipelineSVG({ es }: { es: boolean }) {
   const L = es
-    ? ['Ensamble DFN', 'Transiente p_wD(t_D)', 'Derivada de Bourdet', 'Matriz DTW', 'Catalogo k-medoids', 'Asignacion conformal']
+    ? ['Ensamble DFN', 'Transiente p_wD(t_D)', 'Derivada de Bourdet', 'Matriz DTW', 'Catálogo k-medoids', 'Asignación conformal']
     : ['DFN ensemble', 'Transient p_wD(t_D)', 'Bourdet derivative', 'DTW matrix', 'k-medoids catalogue', 'Conformal assignment'];
   const w = 760, h = 150, bw = 116, gap = (w - L.length * bw) / (L.length - 1 || 1), y = 40, bh = 62;
   return (
     <Figure caption={es
-      ? 'Figura 1. El pipeline de extremo a extremo: de un ensamble de redes de fractura a una asignacion conformal con garantia de cobertura, todo gobernado por la FORMA del transiente de presion.'
-      : 'Figure 1. The end-to-end pipeline: from a fracture-network ensemble to a coverage-guaranteed conformal assignment, all governed by the SHAPE of the pressure transient.'}>
+      ? 'Figura 1. El pipeline de extremo a extremo: de un ensamble de redes de fractura a una asignación conformal con garantía de cobertura, todo gobernado por la forma del transiente de presión.'
+      : 'Figure 1. The end-to-end pipeline: from a fracture-network ensemble to a coverage-guaranteed conformal assignment, all governed by the shape of the pressure transient.'}>
       <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img"
         aria-label={es ? 'Diagrama del pipeline de Pulso' : 'Pulso pipeline diagram'} style={{ maxWidth: 760 }}>
         {L.map((label, i) => {
@@ -46,7 +46,7 @@ function PipelineSVG({ es }: { es: boolean }) {
           </marker>
         </defs>
         <text x={w / 2} y={h - 8} textAnchor="middle" fontSize={10} fill="currentColor" opacity={0.6}>
-          {es ? 'offline (bake) --- live (navegador): generacion + DTW + conformal + ONNX'
+          {es ? 'offline (bake) --- live (navegador): generación + DTW + conformal + ONNX'
             : 'offline (bake) --- live (browser): generation + DTW + conformal + ONNX'}
         </text>
       </svg>
@@ -59,11 +59,11 @@ export function Introduction() {
   return (
     <div className="page-body prose">
       <div className="page-head">
-        <h1>{es ? 'Introduccion' : 'Introduction'}</h1>
+        <h1>{es ? 'Introducción' : 'Introduction'}</h1>
         <p className="lede">
           {es
-            ? <>Pulso es un banco de trabajo para descubrir, catalogar y asignar los comportamientos de flujo recurrentes que se esconden en la FORMA de un transiente de presion. No es un ajustador de un solo modelo ni un reemplazo del simulador: dado un ensamble de respuestas de presion, agrupa sus derivadas de Bourdet en un catalogo de GeoTypes con <InlineMath tex="k" /> medoides y asigna curvas nuevas con una garantia de cobertura conformal.</>
-            : <>Pulso is a workbench for discovering, cataloguing, and assigning the recurring flow behaviours hidden in the SHAPE of a pressure transient. It is not a single-model fitter and not a simulator replacement: given an ensemble of pressure responses, it clusters their Bourdet derivatives into a catalogue of GeoTypes with <InlineMath tex="k" /> medoids and assigns new curves with a conformal coverage guarantee.</>}
+            ? <>Pulso es un banco de trabajo para descubrir, catalogar y asignar los comportamientos de flujo recurrentes que se esconden en la forma de un transiente de presión. No es un ajustador de un solo modelo ni un reemplazo del simulador: dado un ensamble de respuestas de presión, agrupa sus derivadas de Bourdet en un catálogo de GeoTypes con <InlineMath tex="k" /> medoides y asigna curvas nuevas con una garantía de cobertura conformal.</>
+            : <>Pulso is a workbench for discovering, cataloguing, and assigning the recurring flow behaviours hidden in the shape of a pressure transient. It is not a single-model fitter and not a simulator replacement: given an ensemble of pressure responses, it clusters their Bourdet derivatives into a catalogue of GeoTypes with <InlineMath tex="k" /> medoids and assigns new curves with a conformal coverage guarantee.</>}
         </p>
       </div>
 
@@ -73,27 +73,27 @@ export function Introduction() {
         <h2>{es ? '1. El problema industrial' : '1. The industrial problem'}</h2>
         <p>
           {es
-            ? 'En un yacimiento o acuifero fracturado, la respuesta de presion de un pozo a la produccion o inyeccion lleva la firma de la red de fracturas que lo rodea. Un ensayo de presion transitoria (pressure-transient test) registra la presion adimensional de fondo de pozo a lo largo del tiempo, y su interpretacion clásica busca rectas y regímenes de flujo. El problema aparece a ESCALA DE ENSAMBLE: cuando se generan cientos de redes discretas de fractura (DFN) estadisticamente equivalentes, sus transientes no son todos distintos, sino que se agrupan en un pequeño número de comportamientos de flujo recurrentes.'
-            : "In a fractured reservoir or aquifer, a well's pressure response to production or injection carries the signature of the fracture network around it. A pressure-transient test records the dimensionless wellbore pressure over time, and its classical interpretation hunts for straight lines and flow regimes. The problem appears at ENSEMBLE SCALE: when hundreds of statistically-equivalent discrete fracture networks (DFNs) are generated, their transients are not all distinct but instead cluster into a small number of recurring flow behaviours."}
+            ? 'En un yacimiento o acuífero fracturado, la respuesta de presión de un pozo a la producción o inyección lleva la firma de la red de fracturas que lo rodea. Un ensayo de presión transitoria (pressure-transient test) registra la presión adimensional de fondo de pozo a lo largo del tiempo, y su interpretación clásica busca rectas y regímenes de flujo. El problema aparece a escala de ensamble: cuando se generan cientos de redes discretas de fractura (DFN) estadísticamente equivalentes, sus transientes no son todos distintos, sino que se agrupan en un pequeño número de comportamientos de flujo recurrentes.'
+            : "In a fractured reservoir or aquifer, a well's pressure response to production or injection carries the signature of the fracture network around it. A pressure-transient test records the dimensionless wellbore pressure over time, and its classical interpretation hunts for straight lines and flow regimes. The problem appears at ensemble scale: when hundreds of statistically-equivalent discrete fracture networks (DFNs) are generated, their transients are not all distinct but instead cluster into a small number of recurring flow behaviours."}
         </p>
         <p>
           {es
-            ? 'Pulso trata ese hecho como el objeto de estudio: no ajusta un pozo aislado, sino que descubre el vocabulario de comportamientos de un ensamble completo (real, simulado o analitico) y lo vuelve una herramienta operativa: un catalogo consultable con asignacion cuantificada.'
+            ? 'Pulso trata ese hecho como el objeto de estudio: no ajusta un pozo aislado, sino que descubre el vocabulario de comportamientos de un ensamble completo (real, simulado o analítico) y lo vuelve una herramienta operativa: un catálogo consultable con asignación cuantificada.'
             : 'Pulso treats that fact as the object of study: it does not fit an isolated well but discovers the vocabulary of behaviours of a whole ensemble (real, simulated, or analytic) and turns it into an operational tool: a queryable catalogue with quantified assignment.'}
         </p>
         <Refs ids={['kameltarghi2026', 'gringarten2008', 'lei2017']} label="Refs" />
       </section>
 
       <section>
-        <h2>{es ? '2. La física: la derivada diagnostica' : '2. The physics: the diagnostic derivative'}</h2>
+        <h2>{es ? '2. La física: la derivada diagnóstica' : '2. The physics: the diagnostic derivative'}</h2>
         <p>
           {es
-            ? <>La huella interpretativa no es la presion sino su DERIVADA logaritmica, la derivada de Bourdet <Cite id="bourdet1989" paren />. En una grafica log-log revela el régimen de flujo: el flujo radial produce un plateau en 0.5; una fractura de doble porosidad <Cite id="warren1963" paren /> produce un valle de transicion por debajo de 0.5; los limites producen una pendiente unitaria tardia. La forma de esa derivada, no su amplitud, es lo que Pulso agrupa.</>
-            : <>The interpretive fingerprint is not the pressure but its logarithmic DERIVATIVE, the Bourdet derivative <Cite id="bourdet1989" paren />. On a log-log plot it reveals the flow regime: radial flow gives a 0.5 plateau; a dual-porosity fracture system <Cite id="warren1963" paren /> gives a transition valley below 0.5; boundaries give a late unit slope. The shape of that derivative, not its amplitude, is what Pulso clusters.</>}
+            ? <>La huella interpretativa no es la presión sino su derivada logarítmica, la derivada de Bourdet <Cite id="bourdet1989" paren />. En una gráfica log-log revela el régimen de flujo: el flujo radial produce una meseta en 0.5; una fractura de doble porosidad <Cite id="warren1963" paren /> produce un valle de transición por debajo de 0.5; los límites producen una pendiente unitaria tardía. La forma de esa derivada, no su amplitud, es lo que Pulso agrupa.</>
+            : <>The interpretive fingerprint is not the pressure but its logarithmic derivative, the Bourdet derivative <Cite id="bourdet1989" paren />. On a log-log plot it reveals the flow regime: radial flow gives a 0.5 plateau; a dual-porosity fracture system <Cite id="warren1963" paren /> gives a transition valley below 0.5; boundaries give a late unit slope. The shape of that derivative, not its amplitude, is what Pulso clusters.</>}
         </p>
         <Equation tex="p'_{wD}(t_D) = \frac{d\,p_{wD}}{d\ln t_D} = t_D\,\frac{d\,p_{wD}}{d t_D}"
           caption={es
-            ? 'Ec. 1. La derivada de Bourdet: la derivada de la presion respecto al logaritmo del tiempo adimensional. El plateau radial en 0.5 y el valle de doble porosidad son sus rasgos diagnosticos.'
+            ? 'Ec. 1. La derivada de Bourdet: la derivada de la presión respecto al logaritmo del tiempo adimensional. La meseta radial en 0.5 y el valle de doble porosidad son sus rasgos diagnósticos.'
             : 'Eq. 1. The Bourdet derivative: the derivative of pressure with respect to the log of dimensionless time. The 0.5 radial plateau and the dual-porosity valley are its diagnostic features.'} />
         <Refs ids={['bourdet1989', 'warren1963', 'gringarten2008']} label="Refs" />
       </section>
@@ -102,29 +102,29 @@ export function Introduction() {
         <h2>{es ? '3. La matemática gobernante' : '3. The governing math'}</h2>
         <p>
           {es
-            ? <>Las familias analiticas de Pulso se generan con el modelo de doble porosidad de Warren-Root <Cite id="warren1963" paren /> en espacio de Laplace, con almacenamiento de pozo y skin. La respuesta adimensional de fondo se obtiene invirtiendo la solucion de Laplace <InlineMath tex="\bar p_{wD}(s)" />:</>
+            ? <>Las familias analíticas de Pulso se generan con el modelo de doble porosidad de Warren-Root <Cite id="warren1963" paren /> en espacio de Laplace, con almacenamiento de pozo y skin. La respuesta adimensional de fondo se obtiene invirtiendo la solución de Laplace <InlineMath tex="\bar p_{wD}(s)" />:</>
             : <>Pulso's analytic families are generated from the Warren-Root dual-porosity model <Cite id="warren1963" paren /> in Laplace space, with wellbore storage and skin. The dimensionless wellbore response is obtained by inverting the Laplace-space solution <InlineMath tex="\bar p_{wD}(s)" />:</>}
         </p>
         <Equation tex="\bar p_{wD}(s) = \frac{K_0\!\left(\sqrt{s\,f(s)}\right)}{s\,\sqrt{s\,f(s)}\;K_1\!\left(\sqrt{s\,f(s)}\right)}, \qquad f(s) = \frac{\omega(1-\omega)s + \lambda}{(1-\omega)s + \lambda}"
           caption={es
-            ? 'Ec. 2. Presion de pozo de doble porosidad en espacio de Laplace (Warren-Root, flujo interporoso pseudo-estacionario). f(s) es la funcion de interporosidad; omega y lambda fijan la profundidad y el tiempo del valle de transicion.'
+            ? 'Ec. 2. Presión de pozo de doble porosidad en espacio de Laplace (Warren-Root, flujo interporoso pseudo-estacionario). f(s) es la función de interporosidad; omega y lambda fijan la profundidad y el tiempo del valle de transición.'
             : 'Eq. 2. Dual-porosity wellbore pressure in Laplace space (Warren-Root, pseudo-steady interporosity flow). f(s) is the interporosity function; omega and lambda set the depth and timing of the transition valley.'} />
         <Equation tex="\omega = \frac{(\phi c_t)_f}{(\phi c_t)_f + (\phi c_t)_m}, \qquad \lambda = \alpha\,\frac{k_m}{k_f}\,r_w^2"
           caption={es
-            ? 'Ec. 3. El cociente de almacenamiento omega (fraccion de la capacidad en las fracturas) y el coeficiente de flujo interporoso lambda (que controla cuando la matriz alimenta a las fracturas).'
+            ? 'Ec. 3. El cociente de almacenamiento omega (fracción de la capacidad en las fracturas) y el coeficiente de flujo interporoso lambda (que controla cuándo la matriz alimenta a las fracturas).'
             : 'Eq. 3. The storativity ratio omega (the fraction of capacity in the fractures) and the interporosity flow coefficient lambda (which controls when the matrix feeds the fractures).'} />
         <p className="measure">
-          {es ? 'Simbolos: ' : 'Symbols: '}
+          {es ? 'Símbolos: ' : 'Symbols: '}
         </p>
         <ul>
-          <li><InlineMath tex="p_{wD}" /> {es ? 'presion adimensional de fondo de pozo' : 'dimensionless wellbore pressure'}</li>
+          <li><InlineMath tex="p_{wD}" /> {es ? 'presión adimensional de fondo de pozo' : 'dimensionless wellbore pressure'}</li>
           <li><InlineMath tex="t_D" /> {es ? 'tiempo adimensional' : 'dimensionless time'}</li>
           <li><InlineMath tex="s" /> {es ? 'variable de Laplace' : 'Laplace variable'}</li>
           <li><InlineMath tex="\omega" /> {es ? 'cociente de almacenamiento fractura/total' : 'fracture/total storativity ratio'}</li>
           <li><InlineMath tex="\lambda" /> {es ? 'coeficiente de flujo interporoso' : 'interporosity flow coefficient'}</li>
-          <li><InlineMath tex="f(s)" /> {es ? 'funcion de interporosidad' : 'interporosity function'}</li>
+          <li><InlineMath tex="f(s)" /> {es ? 'función de interporosidad' : 'interporosity function'}</li>
           <li><InlineMath tex="K_0, K_1" /> {es ? 'funciones de Bessel modificadas de segunda especie' : 'modified Bessel functions of the second kind'}</li>
-          <li><InlineMath tex="S" /> {es ? 'skin (daño/estimulacion de pozo)' : 'skin (wellbore damage/stimulation)'}</li>
+          <li><InlineMath tex="S" /> {es ? 'skin (daño/estimulación de pozo)' : 'skin (wellbore damage/stimulation)'}</li>
           <li><InlineMath tex="C_D" /> {es ? 'coeficiente de almacenamiento de pozo adimensional' : 'dimensionless wellbore storage coefficient'}</li>
           <li><InlineMath tex="k_f, k_m" /> {es ? 'permeabilidad de fractura y de matriz' : 'fracture and matrix permeability'}</li>
           <li><InlineMath tex="r_w" /> {es ? 'radio de pozo' : 'wellbore radius'}</li>
@@ -135,15 +135,15 @@ export function Introduction() {
       <section>
         <h2>{es ? '4. El pipeline de extremo a extremo' : '4. The end-to-end pipeline'}</h2>
         <p>
-          {es ? 'De la geología a una asignacion con garantia, en pasos deterministas y reproducibles:' : 'From geology to a guaranteed assignment, in deterministic, reproducible steps:'}
+          {es ? 'De la geología a una asignación con garantía, en pasos deterministas y reproducibles:' : 'From geology to a guaranteed assignment, in deterministic, reproducible steps:'}
         </p>
         <ol>
-          <li>{es ? 'Generar ensambles de redes discretas de fractura (GeoDFN) o tomar datos reales (corpus 4TU, campanas de bombeo de campo) o familias analiticas.' : 'Generate discrete-fracture-network ensembles (GeoDFN), or take real data (the 4TU corpus, field pumping campaigns), or analytic families.'}</li>
-          <li>{es ? 'Obtener el transiente: simular la física con open-DARTS ' : 'Obtain the transient: simulate the physics with open-DARTS '}<Cite id="khait2018" paren />{es ? ', o evaluar la solucion analitica de doble porosidad.' : ', or evaluate the analytic dual-porosity solution.'}</li>
+          <li>{es ? 'Generar ensambles de redes discretas de fractura (GeoDFN) o tomar datos reales (corpus 4TU, campañas de bombeo de campo) o familias analíticas.' : 'Generate discrete-fracture-network ensembles (GeoDFN), or take real data (the 4TU corpus, field pumping campaigns), or analytic families.'}</li>
+          <li>{es ? 'Obtener el transiente: simular la física con open-DARTS ' : 'Obtain the transient: simulate the physics with open-DARTS '}<Cite id="khait2018" paren />{es ? ', o evaluar la solución analítica de doble porosidad.' : ', or evaluate the analytic dual-porosity solution.'}</li>
           <li>{es ? 'Preprocesar: remuestrear a una grilla log-tiempo, tomar la derivada de Bourdet, normalizar (z-score).' : 'Preprocess: resample onto a log-time grid, take the Bourdet derivative, normalize (z-score).'}</li>
-          <li>{es ? 'Construir la matriz de distancias DTW con banda de Sakoe-Chiba ' : 'Build the DTW distance matrix with a Sakoe-Chiba band '}<Cite id="sakoe1978" paren />{es ? ' (alineacion invariante a escala de tiempo).' : ' (time-scale-invariant alignment).'}</li>
-          <li>{es ? 'Descubrir el catalogo: k-medoids PAM sobre la matriz DTW ' : 'Discover the catalogue: PAM k-medoids over the DTW matrix '}<Cite id="kaufman1990" paren />{es ? ', con K elegido por silueta. Cada GeoType es una curva miembro real (medoide).' : ', with K chosen by silhouette. Each GeoType is a real member curve (medoid).'}</li>
-          <li>{es ? 'Asignar con conformal condicional por clase (Mondrian) ' : 'Assign with class-conditional (Mondrian) conformal prediction '}<Cite id="vovk2005" paren />{es ? ': p-valores, conjunto de prediccion y bandera fuera-de-catalogo.' : ': p-values, a prediction set, and an out-of-catalogue flag.'}</li>
+          <li>{es ? 'Construir la matriz de distancias DTW con banda de Sakoe-Chiba ' : 'Build the DTW distance matrix with a Sakoe-Chiba band '}<Cite id="sakoe1978" paren />{es ? ' (alineación invariante a escala de tiempo).' : ' (time-scale-invariant alignment).'}</li>
+          <li>{es ? 'Descubrir el catálogo: k-medoids PAM sobre la matriz DTW ' : 'Discover the catalogue: PAM k-medoids over the DTW matrix '}<Cite id="kaufman1990" paren />{es ? ', con K elegido por silueta. Cada GeoType es una curva miembro real (medoide).' : ', with K chosen by silhouette. Each GeoType is a real member curve (medoid).'}</li>
+          <li>{es ? 'Asignar con conformal condicional por clase (Mondrian) ' : 'Assign with class-conditional (Mondrian) conformal prediction '}<Cite id="vovk2005" paren />{es ? ': p-valores, conjunto de predicción y bandera fuera-de-catálogo.' : ': p-values, a prediction set, and an out-of-catalogue flag.'}</li>
           <li>{es ? 'Atribuir: bosque aleatorio + SHAP hacia los descriptores físicos, con gate de exactitud honesto.' : 'Attribute: random forest + SHAP onto the physical descriptors, with an honest accuracy gate.'}</li>
         </ol>
         <Refs ids={['sakoe1978', 'kaufman1990', 'vovk2005', 'khait2018']} label="Refs" />
@@ -153,13 +153,13 @@ export function Introduction() {
         <h2>{es ? '5. Exacto vs ilustrativo (alcance honesto)' : '5. Exact vs illustrative (honest scope)'}</h2>
         <p>
           {es
-            ? 'El procesamiento pesado (la matriz DTW completa, PAM, el entrenamiento GPU de los modelos aprendidos) corre offline y se compromete como artefactos deterministas. El navegador corre EN VIVO las piezas ligeras: genera una curva analitica, calcula su distancia DTW a los medoides, la asigna conformemente y ejecuta los modelos aprendidos via onnxruntime-web.'
-            : 'The heavy processing (the full DTW matrix, PAM, the GPU training of the learned models) runs offline and is committed as deterministic artifacts. The browser runs the light pieces LIVE: it generates an analytic curve, computes its DTW distance to the medoids, assigns it conformally, and runs the learned models via onnxruntime-web.'}
+            ? 'El procesamiento pesado (la matriz DTW completa, PAM, el entrenamiento GPU de los modelos aprendidos) se ejecuta offline y se compromete como artefactos deterministas. El navegador ejecuta en vivo las piezas ligeras: genera una curva analítica, calcula su distancia DTW a los medoides, la asigna conformemente y ejecuta los modelos aprendidos vía onnxruntime-web.'
+            : 'The heavy processing (the full DTW matrix, PAM, the GPU training of the learned models) runs offline and is committed as deterministic artifacts. The browser runs the light pieces live: it generates an analytic curve, computes its DTW distance to the medoids, assigns it conformally, and runs the learned models via onnxruntime-web.'}
         </p>
-        <Callout variant="honest" title={es ? 'Ningun método gana en todo' : 'No single method wins everywhere'}>
+        <Callout variant="honest" title={es ? 'Ningún método gana en todo' : 'No single method wins everywhere'}>
           {es
-            ? 'El catalogo se DESCUBRE por caso; su K y su forma dependen del ensamble. Los gráficos muestran datos comprometidos reales, la sintética esta etiquetada como tal, y las metricas no se inflan: donde un método falla o la atribucion no es fiable, se dice explicitamente.'
-            : 'The catalogue is DISCOVERED per case; its K and shape depend on the ensemble. The charts show real committed data, synthetic is labelled as such, and metrics are not inflated: where a method fails or attribution is not reliable, it is stated explicitly.'}
+            ? 'El catálogo se descubre por caso; su K y su forma dependen del ensamble. Los gráficos muestran datos comprometidos reales, la sintética está etiquetada como tal, y las métricas no se inflan: donde un método falla o la atribución no es fiable, se dice explícitamente.'
+            : 'The catalogue is discovered per case; its K and shape depend on the ensemble. The charts show real committed data, synthetic is labelled as such, and metrics are not inflated: where a method fails or attribution is not reliable, it is stated explicitly.'}
         </Callout>
         <Refs ids={['kameltarghi2026', 'angelopoulos2023']} label="Refs" />
       </section>
