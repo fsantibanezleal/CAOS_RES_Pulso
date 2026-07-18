@@ -8,7 +8,7 @@ data model and reads the `.cmp` campaign files.
 
 **Data + license.** `GeoStat-Examples/welltestpy-field-site-analysis` (MIT, Zenodo **4139374** v1.0.1,
 8.5 MB): `horkheim.cmp` (Horkheimer Insel, Heilbronn) + `lauswiesen.cmp` (Lauswiesen, Tuebingen).
-MIT: an OFFLINE dependency, vault-only (`$FLOWDNA_VAULT/field/`), never vendored into the repo (like
+MIT: an offline dependency, vault-only (`$FLOWDNA_VAULT/field/`), never vendored into the repo (like
 the 4TU corpus). The repo commits only the derived study trace (decimated), never the raw `.cmp`.
 
 **API path (verified 2026-07-04).**

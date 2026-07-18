@@ -1,4 +1,4 @@
-// Method agreement (P2a): the SOTA clustering alternatives run OFFLINE on this exact ensemble, scored
+// Method agreement (P2a): the SOTA clustering alternatives run offline on this exact ensemble, scored
 // against the reference DTW k-medoids catalogue by silhouette (cluster quality in DTW geometry) and
 // Adjusted Rand Index (chance-corrected agreement with the reference labels). It reads the baked
 // `method_comparison` block, so it reacts to the case selector like every other App view. No live compute.

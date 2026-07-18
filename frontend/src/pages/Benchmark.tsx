@@ -127,12 +127,12 @@ function LiveBenchmark({ es }: { es: boolean }) {
     return () => { alive = false; };
   }, []);
 
-  if (state === 'loading') return <p className="muted">{es ? 'corriendo la inferencia en vivo en el navegador (learned + clasico sobre el held-out)...' : 'running the live in-browser inference (learned + classical over the held-out set)...'}</p>;
+  if (state === 'loading') return <p className="muted">{es ? 'corriendo la inferencia en vivo en el navegador (learned + clásico sobre el held-out)...' : 'running the live in-browser inference (learned + classical over the held-out set)...'}</p>;
   if (state === 'nodata' || !res) return <p className="muted">{es ? 'el conjunto de benchmark no esta disponible.' : 'the benchmark set is not available.'}</p>;
   return (
     <div>
       <p>{es
-        ? 'Panel EN VIVO: cada una de las curvas held-out se clasifica en el navegador con los dos modelos aprendidos (InceptionTime, PatchTST via onnxruntime-web) Y con la linea base clasica DTW-al-medoide-mas-cercano, sobre las MISMAS curvas. La exactitud y la matriz de confusion se calculan aqui, ahora, no se leen de una tabla.'
+        ? 'Panel EN VIVO: cada una de las curvas held-out se clasifica en el navegador con los dos modelos aprendidos (InceptionTime, PatchTST via onnxruntime-web) Y con la linea base clásica DTW-al-medoide-mas-cercano, sobre las MISMAS curvas. La exactitud y la matriz de confusion se calculan aquí, ahora, no se leen de una tabla.'
         : 'LIVE panel: each held-out curve is classified in the browser by the two learned models (InceptionTime, PatchTST via onnxruntime-web) AND by the classical DTW-nearest-medoid baseline, on the SAME curves. The accuracy and confusion matrix are computed here, now, not read from a table.'}</p>
       <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', margin: '.6rem 0' }}>
         <span className="readout" style={{ color: '#4f9cf9' }}>InceptionTime: {(res.acc.incep * 100).toFixed(1)}%</span>
@@ -142,7 +142,7 @@ function LiveBenchmark({ es }: { es: boolean }) {
       </div>
       <p className="muted" style={{ fontSize: '.82em', marginTop: 0 }}>
         {es
-          ? 'Nota honesta: las etiquetas verdaderas SON la asignacion DTW k-medoids (el catalogo de referencia), asi que el clasico acierta 100% por construccion. La cifra informativa es el ACUERDO de los modelos aprendidos con ese catalogo (~90%): reproducen la referencia sin recalcular la matriz DTW.'
+          ? 'Nota honesta: las etiquetas verdaderas SON la asignacion DTW k-medoids (el catalogo de referencia), así que el clásico acierta 100% por construccion. La cifra informativa es el ACUERDO de los modelos aprendidos con ese catalogo (~90%): reproducen la referencia sin recalcular la matriz DTW.'
           : 'Honest note: the true labels ARE the DTW k-medoids assignment (the reference catalogue), so the classical scores 100% by construction. The informative figure is the learned models\' AGREEMENT with that catalogue (~90%): they reproduce the reference without recomputing the DTW matrix.'}
       </p>
       <h4 style={{ margin: '.8rem 0 .3rem' }}>{es ? 'Matriz de confusion (InceptionTime)' : 'Confusion matrix (InceptionTime)'}</h4>
@@ -151,7 +151,7 @@ function LiveBenchmark({ es }: { es: boolean }) {
       <p className="muted" style={{ fontSize: '.85em', marginTop: 0 }}>{es ? 'La exactitud de InceptionTime al anadir ruido gaussiano creciente a las curvas held-out: una degradacion honesta, no un 100% plano.' : 'InceptionTime accuracy as increasing Gaussian noise is added to the held-out curves: an honest degradation, not a flat 100%.'}</p>
       <RobustnessChart noise={res.robustness.noise} acc={res.robustness.acc} />
       <Callout variant="honest" title={es ? `Dominio del held-out: ${res.domain}` : `Held-out domain: ${res.domain}`}>
-        {es ? 'Los modelos aprendidos se entrenan sobre arquetipos sinteticos de Warren-Root/homogeneos; este benchmark en vivo corre sobre su propio held-out sintetico. Un benchmark aprendido entrenado sobre el corpus REAL 4TU es un item de roadmap explicito, no se finge.' : 'The learned models are trained on synthetic Warren-Root/homogeneous archetypes; this live benchmark runs on their own synthetic held-out set. A learned benchmark trained on the REAL 4TU corpus is an explicit roadmap item, not faked.'}
+        {es ? 'Los modelos aprendidos se entrenan sobre arquetipos sintéticos de Warren-Root/homogeneos; este benchmark en vivo corre sobre su propio held-out sintético. Un benchmark aprendido entrenado sobre el corpus REAL 4TU es un item de roadmap explicito, no se finge.' : 'The learned models are trained on synthetic Warren-Root/homogeneous archetypes; this live benchmark runs on their own synthetic held-out set. A learned benchmark trained on the REAL 4TU corpus is an explicit roadmap item, not faked.'}
       </Callout>
       <Refs ids={['ismailfawaz2020', 'nie2023']} label="Refs" />
     </div>
@@ -177,7 +177,7 @@ function RealCorporaAgreement({ es }: { es: boolean }) {
       {cases.length === 0 ? <p className="muted">{es ? 'cargando...' : 'loading...'}</p> : (
         <div className="scroll-x">
           <table>
-            <thead><tr><th>{es ? 'metodo' : 'method'}</th>{cases.map(([id]) => <th key={id}>{id}</th>)}</tr></thead>
+            <thead><tr><th>{es ? 'método' : 'method'}</th>{cases.map(([id]) => <th key={id}>{id}</th>)}</tr></thead>
             <tbody>
               {(cases[0][1]!.methods.map((m) => m.name)).map((name) => (
                 <tr key={name}>
@@ -194,7 +194,7 @@ function RealCorporaAgreement({ es }: { es: boolean }) {
         </div>
       )}
       <Callout variant="honest" title={es ? 'BENCH_B: solo el espectral coincide' : 'BENCH_B: only spectral agrees'}>
-        {es ? 'El acuerdo en columna BENCH_B es bajo para casi todos los metodos: la estructura ahi es fragil, y se muestra tal cual.' : 'The agreement in the BENCH_B column is low for almost all methods: the structure there is fragile, and it is shown as-is.'}
+        {es ? 'El acuerdo en columna BENCH_B es bajo para casi todos los métodos: la estructura ahi es fragil, y se muestra tal cual.' : 'The agreement in the BENCH_B column is low for almost all methods: the structure there is fragile, and it is shown as-is.'}
       </Callout>
       <Refs ids={['cuturi2017', 'paparrizos2015', 'vonluxburg2007', 'campello2013']} label="Refs" />
     </div>
@@ -204,20 +204,20 @@ function RealCorporaAgreement({ es }: { es: boolean }) {
 function Provenance({ es }: { es: boolean }) {
   return (
     <div>
-      <p>{es ? 'La procedencia de cada numero de esta pagina, para que nada sea una caja negra:' : 'The provenance of every number on this page, so nothing is a black box:'}</p>
+      <p>{es ? 'La procedencia de cada número de esta página, para que nada sea una caja negra:' : 'The provenance of every number on this page, so nothing is a black box:'}</p>
       <div className="scroll-x">
         <table>
-          <thead><tr><th>{es ? 'numero' : 'number'}</th><th>{es ? 'fuente' : 'source'}</th><th>{es ? 'en vivo?' : 'live?'}</th></tr></thead>
+          <thead><tr><th>{es ? 'número' : 'number'}</th><th>{es ? 'fuente' : 'source'}</th><th>{es ? 'en vivo?' : 'live?'}</th></tr></thead>
           <tbody>
-            <tr><td>{es ? 'exactitud learned + clasico' : 'learned + classical accuracy'}</td><td className="tag">reference.json benchmark (held-out) + ONNX/DTW</td><td><span className="badge ok">{es ? 'en vivo' : 'live'}</span></td></tr>
+            <tr><td>{es ? 'exactitud learned + clásico' : 'learned + classical accuracy'}</td><td className="tag">reference.json benchmark (held-out) + ONNX/DTW</td><td><span className="badge ok">{es ? 'en vivo' : 'live'}</span></td></tr>
             <tr><td>{es ? 'matriz de confusion + recall' : 'confusion matrix + recall'}</td><td className="tag">{es ? 'computada en el navegador' : 'computed in the browser'}</td><td><span className="badge ok">{es ? 'en vivo' : 'live'}</span></td></tr>
-            <tr><td>{es ? 'acuerdo de metodos (corpus reales)' : 'method agreement (real corpora)'}</td><td className="tag">trace method_comparison (ARI)</td><td><span className="badge">{es ? 'comprometido' : 'committed'}</span></td></tr>
+            <tr><td>{es ? 'acuerdo de métodos (corpus reales)' : 'method agreement (real corpora)'}</td><td className="tag">trace method_comparison (ARI)</td><td><span className="badge">{es ? 'comprometido' : 'committed'}</span></td></tr>
             <tr><td>{es ? 'metricas held-out de los modelos' : 'model held-out metrics'}</td><td className="tag">reference.json metrics (torch)</td><td><span className="badge">{es ? 'comprometido' : 'committed'}</span></td></tr>
           </tbody>
         </table>
       </div>
       <Callout variant="honest" title={es ? 'Nada escrito a mano' : 'Nothing typed by hand'}>
-        {es ? 'Cada cifra proviene de un artefacto comprometido o se computa en vivo en el navegador; ninguna se escribe a mano en el codigo de la pagina.' : 'Every figure comes from a committed artifact or is computed live in the browser; none is typed by hand in the page code.'}
+        {es ? 'Cada cifra proviene de un artefacto comprometido o se computa en vivo en el navegador; ninguna se escribe a mano en el código de la página.' : 'Every figure comes from a committed artifact or is computed live in the browser; none is typed by hand in the page code.'}
       </Callout>
       <Refs ids={['kameltarghi2026']} label="Refs" />
     </div>
@@ -227,7 +227,7 @@ function Provenance({ es }: { es: boolean }) {
 export function Benchmark() {
   const es = useShellLang() === 'es';
   const tabs = useMemo(() => [
-    { id: 'live', label: es ? '1. Learned vs clasico (en vivo)' : '1. Learned vs classical (live)', content: <LiveBenchmark es={es} /> },
+    { id: 'live', label: es ? '1. Learned vs clásico (en vivo)' : '1. Learned vs classical (live)', content: <LiveBenchmark es={es} /> },
     { id: 'real', label: es ? '2. Acuerdo en corpus reales' : '2. Real-corpora agreement', content: <RealCorporaAgreement es={es} /> },
     { id: 'prov', label: es ? '3. Procedencia' : '3. Provenance', content: <Provenance es={es} /> },
   ], [es]);
@@ -237,7 +237,7 @@ export function Benchmark() {
         <h1>{es ? 'Benchmark' : 'Benchmark'}</h1>
         <p className="lede">
           {es
-            ? 'La comparacion honesta: los modelos aprendidos frente a la linea base clasica sobre el MISMO conjunto held-out, con la inferencia corriendo en vivo en el navegador; el acuerdo de metodos sobre los corpus reales desde artefactos comprometidos; y la procedencia de cada numero. Los numeros provienen de artefactos o se computan en vivo, nunca escritos a mano.'
+            ? 'La comparación honesta: los modelos aprendidos frente a la linea base clásica sobre el MISMO conjunto held-out, con la inferencia corriendo en vivo en el navegador; el acuerdo de métodos sobre los corpus reales desde artefactos comprometidos; y la procedencia de cada número. Los números provienen de artefactos o se computan en vivo, nunca escritos a mano.'
             : 'The honest comparison: the learned models against the classical baseline on the SAME held-out set, with inference running live in the browser; the method agreement over the real corpora from committed artifacts; and the provenance of every number. Numbers come from artifacts or are computed live, never typed by hand.'}
         </p>
       </div>

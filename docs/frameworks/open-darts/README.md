@@ -9,7 +9,7 @@ the same TU Delft group as the source paper. Alternatives assessed in the SOTA d
 an optional cross-check), dfnWorks (Docker, the future 3-D path), MRST (MATLAB, dataset
 provenance only).
 
-**License posture.** GPL-3: open-DARTS is an OFFLINE engine dependency of the precompute lane —
+**License posture.** GPL-3: open-DARTS is an offline engine dependency of the precompute lane —
 never vendored into this repo, never shipped to the web artifact. Pipeline outputs (data) are not
 derivative code; the FlowDNA repo stays non-GPL.
 

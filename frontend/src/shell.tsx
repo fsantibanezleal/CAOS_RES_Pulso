@@ -49,7 +49,7 @@ export const shellConfig: ShellConfig = {
     },
     disclaimer: {
       en: 'Offline-baked numbers, learned models live in-browser; no single method wins everywhere',
-      es: 'Numeros pre-calculados offline, modelos aprendidos en vivo; ningun metodo gana en todo',
+      es: 'Numeros pre-calculados offline, modelos aprendidos en vivo; ningun método gana en todo',
     },
   },
 };

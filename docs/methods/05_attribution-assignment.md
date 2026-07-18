@@ -3,7 +3,7 @@
 **What this group answers.** Two questions beyond the base RF+SHAP attribution and the class-conditional
 (Mondrian) split-conformal assigner: *how deep is the label structure* (is it attributable across K, and
 which physical knob moves a curve across GeoType boundaries?), and *can we make the assignment safer* by
-fusing shape and physics into one coverage-controlled decision. All computed OFFLINE on the rich-method
+fusing shape and physics into one coverage-controlled decision. All computed offline on the rich-method
 cases and committed to the trace `attribution_plus` block.
 
 ## What already existed (the base)
