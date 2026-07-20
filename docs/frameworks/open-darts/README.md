@@ -11,7 +11,7 @@ provenance only).
 
 **License posture.** GPL-3: open-DARTS is an offline engine dependency of the precompute lane —
 never vendored into this repo, never shipped to the web artifact. Pipeline outputs (data) are not
-derivative code; the FlowDNA repo stays non-GPL.
+derivative code; the Pulso repo stays non-GPL.
 
 **Install status (verified 2026-07-03).** `pip install open-darts` → open-darts 1.5.0 +
 open-darts-flash 0.12.2 installed into `.venv-pipeline` on Windows/Python 3.12; `import darts`

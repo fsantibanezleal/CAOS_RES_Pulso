@@ -174,7 +174,7 @@ export const es: Dict = {
   intro: {
     title: '¿Tienen los reservorios un ADN geológico?',
     lead:
-      'Un reservorio fracturado responde a una prueba de presión con una curva cuya forma codifica la geometría de su red de fracturas. FlowDNA convierte esas respuestas de transitorios de presión en un catálogo de GeoTypes, comportamientos de flujo recurrentes descubiertos por aprendizaje no supervisado, e identifica qué propiedades de fractura controlan cada comportamiento, para acotar la incertidumbre geológica temprano y guiar la adquisición de datos.',
+      'Un reservorio fracturado responde a una prueba de presión con una curva cuya forma codifica la geometría de su red de fracturas. Pulso convierte esas respuestas de transitorios de presión en un catálogo de GeoTypes, comportamientos de flujo recurrentes descubiertos por aprendizaje no supervisado, e identifica qué propiedades de fractura controlan cada comportamiento, para acotar la incertidumbre geológica temprano y guiar la adquisición de datos.',
     s1h: 'La pregunta',
     s1: 'Dos reservorios con redes de fractura distintas pueden producir respuestas de presión visiblemente diferentes; dos con redes similares producen respuestas similares. Si la forma de la respuesta refleja el sistema físico subyacente, ¿puede el aprendizaje automático leer la geología de vuelta, sin etiquetas?',
     s2h: 'El enfoque',
@@ -183,7 +183,7 @@ export const es: Dict = {
     s3: 'Nada en el método es específico de reservorios. Cualquier señal de respuesta cuya forma refleje el sistema físico subyacente, pruebas de bombeo en hidrogeología, pruebas de respuesta térmica, pruebas de pozo geotermales, puede catalogarse de la misma manera.',
     sourceh: 'Fuente',
     source:
-      'FlowDNA reproduce y extiende a Kamel Targhi, Rongier, Bruna, Daniilidis y Geiger, "Unsupervised learning for geologically consistent fluid flow analysis in fractured reservoirs", Computational Geosciences 30:57 (2026), acceso abierto.',
+      'Pulso reproduce y extiende a Kamel Targhi, Rongier, Bruna, Daniilidis y Geiger, "Unsupervised learning for geologically consistent fluid flow analysis in fractured reservoirs", Computational Geosciences 30:57 (2026), acceso abierto.',
   },
   method: {
     title: 'Metodología',
@@ -274,7 +274,7 @@ export const es: Dict = {
     trainingCurves: 'curvas de entrenamiento', loading: 'computando…',
   },
   arch: {
-    title: 'Cómo se construyó FlowDNA',
+    title: 'Cómo se construyó Pulso',
     close: 'Cerrar',
     t1: 'La app',
     t2: 'Los tres carriles',

@@ -2,7 +2,7 @@
 
 **What / why.** The learned tier (1D-CNN, autoencoder, contrastive encoder) is trained offline with
 PyTorch and exported to ONNX; **onnxruntime-web** runs those ONNX models **live in the browser**
-(WebAssembly, no server) as the user tunes the curve. This is what makes FlowDNA a web that tests
+(WebAssembly, no server) as the user tunes the curve. This is what makes Pulso a web that tests
 the precomputed hard tools, not just displays them.
 
 **Install.** `npm install onnxruntime-web` (frontend). The WASM binary is bundled + path-resolved by
@@ -10,7 +10,7 @@ vite's ESM integration — do not override `ort.env.wasm.wasmPaths` (that breaks
 resolution and 404s a variant). Single-thread (`ort.env.wasm.numThreads = 1`) avoids the
 cross-origin-isolation (COOP/COEP) requirement, so it runs on plain GitHub Pages with no headers.
 
-**How FlowDNA uses it.** `frontend/src/engine/onnx.ts`:
+**How Pulso uses it.** `frontend/src/engine/onnx.ts`:
 - `loadDeep()` fetches `reference.json` + creates three `InferenceSession`s (`geotype_cnn.onnx`,
   `curve_ae.onnx`, `curve_embed.onnx`) with the `wasm` execution provider.
 - `classifyCNN(curve)` → class probabilities; `autoencode(curve)` → `{latent, reconError}`;

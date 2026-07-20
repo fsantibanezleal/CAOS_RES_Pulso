@@ -1,10 +1,10 @@
-# FlowDNA — the geological DNA of fractured reservoirs
+# Pulso — the geological DNA of fractured reservoirs
 
-[![CI](https://img.shields.io/github/actions/workflow/status/fsantibanezleal/CAOS_RES_FlowDNA/ci.yml?branch=main&label=CI)](https://github.com/fsantibanezleal/CAOS_RES_FlowDNA/actions)
-[![License](https://img.shields.io/github/license/fsantibanezleal/CAOS_RES_FlowDNA)](LICENSE)
-[![Version](https://img.shields.io/github/v/tag/fsantibanezleal/CAOS_RES_FlowDNA?label=version&sort=semver)](https://github.com/fsantibanezleal/CAOS_RES_FlowDNA/tags)
+[![CI](https://img.shields.io/github/actions/workflow/status/fsantibanezleal/CAOS_RES_Pulso/ci.yml?branch=main&label=CI)](https://github.com/fsantibanezleal/CAOS_RES_Pulso/actions)
+[![License](https://img.shields.io/github/license/fsantibanezleal/CAOS_RES_Pulso)](LICENSE)
+[![Version](https://img.shields.io/github/v/tag/fsantibanezleal/CAOS_RES_Pulso?label=version&sort=semver)](https://github.com/fsantibanezleal/CAOS_RES_Pulso/tags)
 
-**FlowDNA** asks whether fractured reservoirs have a *geological DNA*: recurring fluid-flow behaviours
+**Pulso** asks whether fractured reservoirs have a *geological DNA*: recurring fluid-flow behaviours
 hidden in the shape of their pressure-transient responses. It builds a catalogue of **GeoTypes** —
 flow-behaviour classes discovered by unsupervised learning over geologically consistent discrete
 fracture network (DFN) ensembles — and an attribution layer that identifies **which fracture-network
@@ -45,7 +45,7 @@ GeoDFN ensembles ──► pressure-transient simulation ──► Bourdet deriv
   audited artifacts.
 
 This repo is an instantiation of the CAOS product-repo archetype (ADR-0057): frozen base, rework
-only in the core (models, visualization, content). Status: **v0.03.000 — real data integrated**:
+only in the core (models, visualization, content). Status: **v0.24.001 — six-page app live with real data**:
 the staged pipeline runs the real core end-to-end (pygeotypes + GeoDFN) over **11 committed cases**
 — 6 analytic Warren-Root/mixture studies, **3 real studies on the paper's own 4TU corpus**
 (Datasets A/B/C), and 2 GeoDFN network ensembles — all with honest metrics (silhouette, K table,
@@ -53,8 +53,7 @@ empirical conformal coverage, OOD rate, gated attribution). The real transients 
 than the analytic ones (silhouette up to 0.86) and REAL_C's top attribution `log_I` partially
 reproduces the paper's fracture-intensity finding. open-DARTS 1.5.0 is installed and the
 transient-on-DFN lane is the next phase (DFN artifacts carry `transient_simulation: pending` — no
-fake curves). The web app is still the contract-exercising replay skeleton; the full ADR-0016
-six-page shell is next.
+fake curves). The full ADR-0016 six-page shell ships in the web app.
 
 ## Data & licenses
 
