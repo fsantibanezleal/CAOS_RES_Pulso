@@ -172,7 +172,7 @@ export const en = {
   intro: {
     title: 'Do reservoirs have a geological DNA?',
     lead:
-      'A fractured reservoir answers a pressure test with a curve whose shape encodes the geometry of its fracture network. FlowDNA turns those pressure-transient responses into a catalogue of GeoTypes (recurring flow behaviours discovered by unsupervised learning) and identifies which fracture properties control each behaviour, to constrain geological uncertainty early and guide data acquisition.',
+      'A fractured reservoir answers a pressure test with a curve whose shape encodes the geometry of its fracture network. Pulso turns those pressure-transient responses into a catalogue of GeoTypes (recurring flow behaviours discovered by unsupervised learning) and identifies which fracture properties control each behaviour, to constrain geological uncertainty early and guide data acquisition.',
     s1h: 'The question',
     s1: 'Two reservoirs with different fracture networks can produce visibly different pressure responses; two with similar networks produce similar ones. If the shape of the response reflects the underlying physical system, can machine learning read the geology back out of it, without labels?',
     s2h: 'The approach',
@@ -181,7 +181,7 @@ export const en = {
     s3: 'Nothing in the method is specific to reservoirs. Any response signal whose shape reflects the underlying physical system (hydrogeology pumping tests, thermal response tests, geothermal well tests) can be catalogued the same way.',
     sourceh: 'Source',
     source:
-      'FlowDNA reproduces and extends Kamel Targhi, Rongier, Bruna, Daniilidis & Geiger, "Unsupervised learning for geologically consistent fluid flow analysis in fractured reservoirs", Computational Geosciences 30:57 (2026), open access.',
+      'Pulso reproduces and extends Kamel Targhi, Rongier, Bruna, Daniilidis & Geiger, "Unsupervised learning for geologically consistent fluid flow analysis in fractured reservoirs", Computational Geosciences 30:57 (2026), open access.',
   },
   method: {
     title: 'Methodology',
@@ -272,7 +272,7 @@ export const en = {
     trainingCurves: 'training curves', loading: 'computing…',
   },
   arch: {
-    title: 'How FlowDNA was built',
+    title: 'How Pulso was built',
     close: 'Close',
     t1: 'The app',
     t2: 'The three lanes',
