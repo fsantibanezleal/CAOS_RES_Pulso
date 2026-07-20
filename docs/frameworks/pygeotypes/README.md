@@ -1,11 +1,11 @@
 # pygeotypes — the shape-catalogue engine
 
 **What / why.** `pygeotypes` (repo [CAOS_GeoTypes](https://github.com/fsantibanezleal/CAOS_GeoTypes),
-Apache-2.0) is the research-chosen core for everything shape-related in FlowDNA: Bourdet
+Apache-2.0) is the research-chosen core for everything shape-related in Pulso: Bourdet
 derivative + p'' preprocessing, Sakoe-Chiba banded DTW, PAM k-medoids on precomputed distance
 matrices, the persistent `Catalogue` artifact, **class-conditional split-conformal assignment**
-(p-values, prediction sets, out-of-catalogue flag — FlowDNA's novel-beyond-SOTA layer) and the
-gated RF + TreeSHAP attribution. It was created for FlowDNA because no maintained, permissively
+(p-values, prediction sets, out-of-catalogue flag — Pulso's novel-beyond-SOTA layer) and the
+gated RF + TreeSHAP attribution. It was created for Pulso because no maintained, permissively
 licensed, Pyodide-safe package couples those pieces (scikit-learn-extra unmaintained; the Rust
 `kmedoids` is GPL-3; tslearn/aeon require numba). Decision dossier:
 `_CAOS_MANAGE/wip/flowdna/engine-decision-2026-07-03.md`.
@@ -18,9 +18,9 @@ pip install -e ../CAOS_GeoTypes                # runtime venv (core only)
 # note: PyPI dist+import name is pygeotypes (bare geotypes is taken by an unrelated package)
 ```
 
-**How FlowDNA uses it (all lanes).**
+**How Pulso uses it (all lanes).**
 
-| FlowDNA stage | pygeotypes API |
+| Pulso stage | pygeotypes API |
 |---|---|
 | `feature_extraction` | `preprocess.prepare_curves` (log grid → Bourdet/p'' → z-score) |
 | `train` | `distance.dtw_matrix` (dtaidistance backend offline) · `cluster.select_k` + `pam_kmedoids` · `catalogue.build_catalogue` · `assign.ConformalAssigner.fit` · `attribute.attribute_geotypes` |

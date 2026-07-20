@@ -1,6 +1,6 @@
 # Cases — the category taxonomy + coverage matrix
 
-A FlowDNA case is a **study** (an ensemble of pressure-transient responses turned into a GeoType
+A Pulso case is a **study** (an ensemble of pressure-transient responses turned into a GeoType
 catalogue with conformal assignment + attribution), a **dfn** ensemble (GeoDFN network generation +
 fracture descriptors), a **darts** anchor (one open-DARTS drawdown validated vs the analytical
 solution), or a **dfm** study (a GeoType study on open-DARTS DFM transients simulated over a GeoDFN

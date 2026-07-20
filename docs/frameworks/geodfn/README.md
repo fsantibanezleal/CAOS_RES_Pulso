@@ -1,17 +1,17 @@
 # GeoDFN — geologically consistent DFN generation (the paper authors' engine)
 
 **What / why.** [GeoDFN](https://github.com/kamelelahe/GeoDFN) (MIT, `pip install GeoDFN`) is the
-2-D stochastic discrete-fracture-network generator by the FlowDNA source-paper group (Kamel Targhi
+2-D stochastic discrete-fracture-network generator by the Pulso source-paper group (Kamel Targhi
 et al., TU Delft; companion paper DOI 10.1144/geoenergy2025-028). "Geologically consistent" is its
 point: stress-shadow **buffer zones**, a spatial **seed fracture** per set, Von-Mises orientations,
 Log-Normal truncated lengths, power-law spatial clustering, and stress-aware (Barton-Bandis /
-sub-linear) **apertures**. The paper's 4,850-network corpus was generated with it; FlowDNA uses the
+sub-linear) **apertures**. The paper's 4,850-network corpus was generated with it; Pulso uses the
 same engine rather than a hand-rolled Poisson generator.
 
 **Install.** `pip install GeoDFN==2.0.0` (Python ≥3.11; pulls matplotlib + streamlit for its own UI).
 Offline lane only — never imported by the live lane (enforced by the gate's LIVE_WHEELS).
 
-**How FlowDNA calls it.** `data-pipeline/flowdnalab/dfn/geodfn_adapter.py`:
+**How Pulso calls it.** `data-pipeline/flowdnalab/dfn/geodfn_adapter.py`:
 
 ```python
 np.random.seed(seed)                       # GeoDFN 2.0.0 draws from numpy's GLOBAL legacy RNG

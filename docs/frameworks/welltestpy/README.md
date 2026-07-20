@@ -1,7 +1,7 @@
 # welltestpy — real field pumping-test campaigns (the field-data lane)
 
 **What / why.** [welltestpy](https://github.com/GeoStat-Framework/welltestpy) (MIT, GeoStat-Framework)
-is the loader for FlowDNA's real field-data lane: transient pumping-test drawdown from two aquifer
+is the loader for Pulso's real field-data lane: transient pumping-test drawdown from two aquifer
 field sites, used to show the GeoType shape-diagnostic methodology **generalizes beyond fractured
 reservoirs to real aquifer field data**. It provides the `Campaign` / `PumpingTest` / `Observation`
 data model and reads the `.cmp` campaign files.

@@ -16,7 +16,7 @@ Three models on the GeoType curves:
 `data-pipeline/requirements.txt` (torch 2.12.1). Also `onnx`, `onnxscript` (the torch≥2.9 exporter),
 `onnxruntime` (parity check).
 
-**How FlowDNA uses it.** `data-pipeline/flowdnalab/deep/`:
+**How Pulso uses it.** `data-pipeline/flowdnalab/deep/`:
 - `datasets.py` builds a labeled training set from discrete Warren-Root/homogeneous behaviour
   archetypes (genuinely separable GeoTypes) → DTW k-medoids labels.
 - `models.py` the three architectures + thin export wrappers (softmax for the CNN; latent +
