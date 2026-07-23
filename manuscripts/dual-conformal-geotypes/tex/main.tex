@@ -9,63 +9,60 @@
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 \usepackage{orcidlink}
+\graphicspath{{../figures/}}
 
 \begin{document}
 
-\title{Dual-Representation Mondrian Conformal Assignment of Pressure-Transient
-GeoTypes: A Reproduction and Extension for Fractured-Reservoir Flow}
+\title{Dual-Representation Mondrian Conformal Assignment of Pressure-Transient GeoTypes:
+An Independent Reproduction and Extension for Fractured-Reservoir Flow}
 
 \author{%
   Felipe Santib\'a\~nez-Leal~\orcidlink{0000-0002-0150-3246},~\IEEEmembership{Independent Researcher}%
-  \thanks{F.\ Santib\'a\~nez-Leal is with the CAOS open-research programme,
-    Santiago, Chile (e-mail: \texttt{fsantibanezleal@ug.uchile.cl};
-    ORCID: 0000-0002-0150-3246).}%
-  \thanks{Preprint, 2026. Code, committed derived artifacts, and the interactive
-    workbench are released under MIT at
-    \url{https://github.com/fsantibanezleal/CAOS_RES_Pulso}; the reusable shape
-    machinery is the Apache-2.0 package \texttt{pygeotypes}
-    (\url{https://github.com/fsantibanezleal/CAOS_GeoTypes}). No GPL workflow code
-    or raw licensed data is redistributed.}%
+  \thanks{F.\ Santib\'a\~nez-Leal is with the CAOS open-research programme, Santiago, Chile
+    (e-mail: \texttt{fsantibanezleal@ug.uchile.cl}; ORCID: 0000-0002-0150-3246).}%
+  \thanks{Preprint, 2026, version 2 (comprehensive). Code, committed derived artifacts, and the
+    workbench are released under MIT at \url{https://github.com/fsantibanezleal/CAOS_RES_Pulso};
+    the reusable shape machinery is the Apache-2.0 package \texttt{pygeotypes}
+    (\url{https://github.com/fsantibanezleal/CAOS_GeoTypes}). No GPL workflow code or raw
+    licensed data is redistributed.}%
 }
 
-\markboth{Preprint, 2026 --- CAOS open-research programme}{Santib\'a\~nez-Leal:
+\markboth{Preprint, 2026 (v2) --- CAOS open-research programme}{Santib\'a\~nez-Leal:
 Dual-Representation Mondrian Conformal Assignment of Pressure-Transient GeoTypes}
 
 \IEEEtitleabstractindextext{%
 \begin{abstract}
-Fractured reservoirs exhibit recurring fluid-flow behaviours hidden in the shape of
-their pressure-transient responses. A recent study clusters geologically consistent
-discrete-fracture-network (DFN) ensembles into flow-behaviour classes and attributes
-each class to fracture-network properties. We first reproduce that pipeline, DFN
-pressure transients, Bourdet-derivative features, dynamic-time-warping (DTW)
-$k$-medoids clustering into a GeoType catalogue, and random-forest / TreeSHAP
-attribution, on the original open 4TU corpus and on analytic dual-porosity families,
-recovering clean clusters (silhouette up to $0.86$ on the real transients, higher than
-on the analytic families) and the finding that fracture intensity ($\log I$) is the
-top attributed control. We then extend it in two ways. First, we make the assignment
-\emph{coverage-controlled}, which the base random-forest attribution is not, with a
-class-conditional (Mondrian) split-conformal assigner on a DTW nonconformity score
-that emits per-class $p$-values, a prediction set, and an out-of-catalogue flag
-(empirical coverage $0.85$--$0.87$ at target, out-of-catalogue rate $0.03$--$0.15$,
-mean set size $1.5$--$1.7$). Second, and the methodological contribution, we introduce
-a \emph{dual-representation Mondrian conformal} assigner that conformalizes jointly
-across two nonconformity scores, the DTW shape distance and a physics-descriptor
-implausibility from the attribution forest, and accepts a GeoType only in the
-per-class conjunction of the two prediction sets. This excludes curves that are
-shape-close to the wrong physics, which single-score conformal accepts: on the
-rich-method cases the dual conjunction tightens the mean set size below one and flags
-right-shape-wrong-physics curves at an honest cost of coverage (e.g.\ $0.85\to0.73$,
-$0.87\to0.75$). The shape machinery is signal-agnostic and is exercised on
-hydrogeology pumping-test field data as well as reservoir transients. The
-contribution is a faithful reproduction plus a coverage-controlled assignment that
-fuses shape space and physics-descriptor space, with every number backed by a
-committed deterministic artifact.
+Fractured reservoirs exhibit recurring fluid-flow behaviours hidden in the shape of their
+pressure-transient responses. A recent study clusters geologically consistent
+discrete-fracture-network (DFN) ensembles into flow-behaviour classes and attributes each class
+to fracture-network properties. We first independently reproduce that pipeline, DFN pressure
+transients, Bourdet-derivative features, dynamic-time-warping (DTW) $k$-medoids clustering into a
+GeoType catalogue, and random-forest / TreeSHAP attribution, from permissively licensed
+components on the original open 4TU corpus and on analytic dual-porosity families. The
+reproduction recovers clean clusters, with the real transients clustering more cleanly
+(silhouette up to $0.86$) than the analytic families ($0.15$--$0.27$), and it recovers the
+finding that fracture intensity ($\log I$) is the top attributed control. We then extend the
+pipeline in two ways. First, we make the assignment \emph{coverage-controlled}, which the base
+random-forest attribution is not, with a class-conditional (Mondrian) split-conformal assigner on
+a DTW nonconformity score that emits per-class $p$-values, a prediction set, and an
+out-of-catalogue flag (empirical coverage $0.85$--$0.94$ at target across the rich-method cases).
+Second, and the methodological contribution, we introduce a \emph{dual-representation Mondrian
+conformal} assigner that conformalizes jointly across two nonconformity scores, the DTW shape
+distance and a physics-descriptor implausibility from the attribution forest, and accepts a
+GeoType only in the per-class conjunction of the two prediction sets. This excludes curves that
+are shape-close to the wrong physics, which single-score conformal accepts: across five
+rich-method cases the dual conjunction trades marginal coverage (e.g.\ $0.85\!\to\!0.73$,
+$0.94\!\to\!0.87$) for tighter, physics-consistent sets. The shape machinery is signal-agnostic
+and is exercised on real hydrogeology pumping-test field data as well as reservoir transients. The
+contribution is a faithful, independent reproduction plus a coverage-controlled assignment that
+fuses shape space and physics-descriptor space, with every number backed by a committed
+deterministic artifact.
 \end{abstract}
 
 \begin{IEEEkeywords}
-fractured reservoirs, pressure-transient analysis, discrete fracture networks,
-dynamic time warping, k-medoids, conformal prediction, Mondrian, random forests,
-SHAP, reproducibility, geothermal, hydrogeology.
+fractured reservoirs, pressure-transient analysis, discrete fracture networks, dynamic time
+warping, k-medoids, conformal prediction, Mondrian, random forests, SHAP, reproducibility,
+geothermal, hydrogeology.
 \end{IEEEkeywords}}
 
 \maketitle
@@ -76,65 +73,80 @@ SHAP, reproducibility, geothermal, hydrogeology.
 \section{Introduction}
 % =====================================================================
 
-\IEEEPARstart{T}{he} pressure-transient response of a well is a fingerprint of the
-reservoir's flow structure: its shape, and the shape of its Bourdet
-derivative~\cite{bourdet1989}, distinguishes homogeneous from dual-porosity behaviour
-and localizes the interporosity transition~\cite{warren1963}. In fractured reservoirs
-the mapping from geology to transient is many-to-one and uncertain, so a natural
-question is whether the space of transients organizes into a small catalogue of
-recurring flow behaviours, a ``geological DNA'', and if so, which fracture-network
-properties control membership. A recent study answers both by clustering geologically
-consistent discrete-fracture-network (DFN) ensembles into flow-behaviour classes and
+\IEEEPARstart{T}{he} pressure-transient response of a well is a fingerprint of the reservoir's
+flow structure: its shape, and the shape of its Bourdet derivative~\cite{bourdet1989},
+distinguishes homogeneous from dual-porosity behaviour and localizes the interporosity
+transition~\cite{warren1963}. In fractured reservoirs the mapping from geology to transient is
+many-to-one and uncertain, so a natural question is whether the space of transients organizes into
+a small catalogue of recurring flow behaviours, a ``geological DNA'', and if so, which
+fracture-network properties control membership. A recent study answers both by clustering
+geologically consistent discrete-fracture-network (DFN) ensembles into flow-behaviour classes and
 attributing them~\cite{kameltarghi2026}.
 
-This paper reproduces that pipeline and extends it with a coverage-controlled
-assignment. Reproduction matters here for two reasons: the original workflow depends
-on a GPL-licensed code base we deliberately do not vendor, and a clustering-plus-attribution
-result is only trustworthy if an independent re-implementation on the same open data
-recovers it. We re-implement the shape machinery from permissively licensed components
-(DTW~\cite{sakoe1978}, $k$-medoids, silhouette selection~\cite{rousseeuw1987}, random
-forests~\cite{breiman2001}, TreeSHAP~\cite{lundberg2020}) as the open package
-\texttt{pygeotypes}, run it on the original 4TU corpus~\cite{data4tu} and on analytic
-dual-porosity families, and confirm the clusters and the top attributed control.
-
-The extension addresses a gap in how such catalogues are \emph{used}. Random-forest
-attribution ranks controls but gives no guarantee on a new curve's class, and a curve
-can be shape-close to the wrong physics. We therefore add conformal
-prediction~\cite{vovk2005,angelopoulos2023}: first a class-conditional (Mondrian)
-split-conformal assigner on the shape distance, then a dual-representation variant that
-conformalizes jointly over shape and physics-descriptor scores. Our contributions are:
-(i) an independent, permissively licensed reproduction of the DFN-transient GeoType
-pipeline that recovers its clusters and fracture-intensity attribution; (ii) a
-coverage-controlled Mondrian conformal GeoType assigner; (iii) a dual-representation
-Mondrian conformal assigner that excludes right-shape-wrong-physics curves, with the
-coverage/tightness trade-off reported honestly.
+This paper reproduces that pipeline and extends it with a coverage-controlled assignment.
+Reproduction matters here for two reasons: the original workflow depends on a GPL-licensed code
+base we deliberately do not vendor, and a clustering-plus-attribution result is only trustworthy
+if an independent re-implementation on the same open data recovers it. We re-implement the shape
+machinery from permissively licensed components, DTW~\cite{sakoe1978}, $k$-medoids, silhouette
+selection~\cite{rousseeuw1987}, random forests~\cite{breiman2001}, and TreeSHAP~\cite{lundberg2020},
+as the open package \texttt{pygeotypes}, run it on the original 4TU corpus~\cite{data4tu} and on
+analytic dual-porosity families, and confirm the clusters and the top attributed control. The
+extension addresses a gap in how such catalogues are \emph{used}: random-forest attribution ranks
+controls but gives no guarantee on a new curve's class, and a curve can be shape-close to the wrong
+physics. We therefore add conformal prediction~\cite{vovk2005,angelopoulos2023}, first a
+class-conditional (Mondrian) split-conformal assigner on the shape distance, then a
+dual-representation variant that conformalizes jointly over shape and physics-descriptor scores.
+Our contributions are: (i) an independent, permissively licensed reproduction of the DFN-transient
+GeoType pipeline that recovers its clusters and fracture-intensity attribution; (ii) a
+coverage-controlled Mondrian conformal GeoType assigner; (iii) a dual-representation Mondrian
+conformal assigner that excludes right-shape-wrong-physics curves, with the coverage/tightness
+trade-off reported honestly.
 
 % =====================================================================
 \section{Reproduced pipeline}
 \label{sec:pipeline}
 % =====================================================================
 
-A GeoType catalogue is built in four stages. \emph{Transients and features.} Each DFN
-ensemble (or analytic study) yields pressure transients; from each we compute the
-log-time pressure and its Bourdet derivative~\cite{bourdet1989}, and for analytic
-dual-porosity references the Warren--Root response~\cite{warren1963} is evaluated by
-Stehfest numerical Laplace inversion~\cite{stehfest1970}. \emph{Clustering.} Curves are
-compared by dynamic time warping~\cite{sakoe1978} and grouped by $k$-medoids; the
-catalogue size $K$ is chosen by a silhouette sweep~\cite{rousseeuw1987}, and each
-GeoType is represented by its medoid curve and a membership. \emph{Attribution.} A
-random forest~\cite{breiman2001} predicts the GeoType from physical descriptors of the
-network, accuracy-gated (attribution is withheld when the forest cannot predict the
-labels), and TreeSHAP~\cite{lundberg2020} ranks the controlling descriptors.
-\emph{Assignment.} A new curve is classified against the baked medoids.
+A GeoType catalogue is built in four stages. \emph{Transients and features.} Each DFN ensemble (or
+analytic study) yields pressure transients; from each we compute the log-time pressure and its
+Bourdet derivative~\cite{bourdet1989}, and for analytic dual-porosity references the Warren--Root
+response~\cite{warren1963} is evaluated by Stehfest numerical Laplace inversion~\cite{stehfest1970}.
+\emph{Clustering.} Curves are compared by dynamic time warping~\cite{sakoe1978} and grouped by
+$k$-medoids; the catalogue size $K$ is chosen by a silhouette sweep~\cite{rousseeuw1987}, and each
+GeoType is represented by its medoid curve and a membership (Fig.~\ref{fig:catalogue}).
+\emph{Attribution.} A random forest~\cite{breiman2001} predicts the GeoType from physical
+descriptors, accuracy-gated (attribution is withheld when the forest cannot predict the labels),
+and TreeSHAP~\cite{lundberg2020} ranks the controlling descriptors. \emph{Assignment.} A new curve
+is classified against the baked medoids.
 
-On the original open corpus the reproduction recovers the reported structure: the real
-4TU transients cluster more cleanly than the analytic families (silhouette up to
-$0.86$ versus $\approx 0.5$--$0.6$ analytic), and fracture intensity ($\log I$) is the
-top attributed control (largest mean absolute SHAP), partially reproducing the paper's
-fracture-intensity finding. On the analytic families the interporosity flow coefficient
-$\log_{10}\lambda$ dominates the assignment sensitivity, exactly as the physics
-predicts, since $\lambda$ sets the transition timing that separates the dual-porosity
-behaviours.
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig-catalogue.pdf}
+\caption{A reproduced GeoType catalogue (case BENCH\_C): the member Bourdet-derivative curves
+coloured by GeoType, with the two medoids in bold. Read from the committed \texttt{trace.json}.}
+\label{fig:catalogue}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig-silhouette.pdf}
+\caption{Clustering quality (silhouette) per case, grouped by family. The real 4TU transients
+cluster more cleanly (up to $0.86$) than the analytic Warren--Root families ($0.15$--$0.27$), with
+the DFN/DFM and hydrogeology cases in between. Read from the committed \texttt{trace.json} files.}
+\label{fig:silhouette}
+\end{figure}
+
+On the original open corpus the reproduction recovers the reported structure
+(Fig.~\ref{fig:silhouette}): the real 4TU transients cluster more cleanly than the analytic
+families, and across the labelled cases fracture intensity ($\log I$) is the top attributed
+control (largest mean absolute SHAP), partially reproducing the paper's fracture-intensity finding.
+On the analytic families the interporosity flow coefficient $\log_{10}\lambda$ dominates the
+assignment sensitivity, exactly as the physics predicts, since $\lambda$ sets the transition timing
+that separates the dual-porosity behaviours. The same permissively licensed pipeline, exercised over
+twenty-one committed cases (analytic Warren--Root and mixture studies, real 4TU datasets, DFN/DFM
+network ensembles, and hydrogeology field sites; Appendix~\ref{ap:cases}), is a complete method
+ladder: classical pressure-transient analysis, DTW $k$-medoids clustering, silhouette-selected
+catalogue size, random-forest / TreeSHAP attribution, and the conformal assignment below.
 
 % =====================================================================
 \section{Coverage-controlled assignment}
@@ -143,152 +155,141 @@ behaviours.
 
 \subsection{Mondrian split-conformal on the shape score}
 
-Random-forest attribution ranks controls but offers no guarantee that a new curve is
-assigned to the right GeoType. We add a class-conditional (Mondrian) split-conformal
-assigner~\cite{vovk2005,angelopoulos2023}. The nonconformity score of a curve $x$ for
-GeoType $g$ is its DTW distance to the medoid, $s_\text{shape}(x,g)$. Calibrated
-per class on a disjoint slice, it yields a $p$-value $p_\text{shape}(x,g)$ and a
-prediction set $\{g : p_\text{shape}(x,g) > \alpha\}$; a curve matching no class is
-flagged out-of-catalogue. Across the rich-method cases the empirical marginal coverage
-is $0.85$--$0.87$ at the target level, the out-of-catalogue rate is $0.03$--$0.15$, and
-the mean set size is $1.5$--$1.7$: a coverage guarantee the base attribution cannot give.
+Random-forest attribution ranks controls but offers no guarantee that a new curve is assigned to
+the right GeoType. We add a class-conditional (Mondrian) split-conformal
+assigner~\cite{vovk2005,angelopoulos2023}. The nonconformity score of a curve $x$ for GeoType $g$
+is its DTW distance to the medoid, $s_\text{shape}(x,g)$. Calibrated per class on a disjoint slice,
+it yields a $p$-value $p_\text{shape}(x,g)$ and a prediction set
+$\{g:p_\text{shape}(x,g)>\alpha\}$; a curve matching no class is flagged out-of-catalogue. Across
+the rich-method cases the empirical marginal coverage is $0.85$--$0.94$ at the target level, with an
+out-of-catalogue rate of $0.03$--$0.17$: a coverage guarantee the base attribution cannot give.
 
 \subsection{Dual-representation Mondrian conformal (contribution)}
 
-A single score cannot express that a curve may be shape-close to the wrong physics: a
-transient that matches a medoid by DTW shape yet whose physical descriptors are
-atypical for that GeoType. We conformalize jointly across two representations. In
-addition to the shape score, define a descriptor score
+A single score cannot express that a curve may be shape-close to the wrong physics: a transient
+that matches a medoid by DTW shape yet whose physical descriptors are atypical for that GeoType. We
+conformalize jointly across two representations. In addition to the shape score, define a descriptor
+score
 \begin{equation}
-s_\text{desc}(x,g) = 1 - \mathrm{RF}\big(g \mid \text{descriptors}(x)\big),
+s_\text{desc}(x,g)=1-\mathrm{RF}\big(g\mid\text{descriptors}(x)\big),
 \end{equation}
-the implausibility of $x$'s physical descriptors under GeoType $g$ from the attribution
-forest. Both are Mondrian-calibrated, giving $p_\text{shape}$ and $p_\text{desc}$, and
-the dual prediction set is the per-class conjunction
+the implausibility of $x$'s physical descriptors under GeoType $g$ from the attribution forest.
+Both are Mondrian-calibrated, giving $p_\text{shape}$ and $p_\text{desc}$, and the dual prediction
+set is the per-class conjunction
 \begin{equation}
-\Gamma^\alpha(x) = \big\{\, g : p_\text{shape}(x,g) > \alpha \ \wedge\
-p_\text{desc}(x,g) > \alpha \,\big\}.
+\Gamma^\alpha(x)=\big\{\,g:p_\text{shape}(x,g)>\alpha\ \wedge\ p_\text{desc}(x,g)>\alpha\,\big\}.
 \label{eq:dual}
 \end{equation}
-A GeoType is accepted only if the curve is both shape-consistent and
-descriptor-consistent; a shape match with implausible physics is excluded. This is
-beyond single-score conformal and beyond random-forest/SHAP attribution, which has no
-coverage control: a coverage-controlled assignment that fuses shape space and
-physics-descriptor space.
+A GeoType is accepted only if the curve is both shape-consistent and descriptor-consistent; a shape
+match with implausible physics is excluded. This is beyond single-score conformal and beyond
+random-forest/SHAP attribution, which has no coverage control: a coverage-controlled assignment that
+fuses shape space and physics-descriptor space.
 
-Table~\ref{tab:dual} reports the honest trade-off on two rich-method cases. The dual
-conjunction tightens the mean set size below one and flags right-shape-wrong-physics
-curves that shape-only conformal accepts, at the cost of some marginal coverage
-($0.85\to0.73$, $0.87\to0.75$). When descriptors are absent or degenerate (some real
-cases), the dual layer degrades gracefully to shape-only and reports that it did.
+Fig.~\ref{fig:dual} reports the honest trade-off across five rich-method cases. The dual conjunction
+tightens the mean set size and flags right-shape-wrong-physics curves that shape-only conformal
+accepts, at the cost of some marginal coverage (for example $0.85\!\to\!0.73$ on BENCH\_A and
+$0.94\!\to\!0.87$ on REAL\_A). When descriptors are absent or degenerate (some real cases), the dual
+layer degrades gracefully to shape-only and reports that it did.
 
-\begin{table}[!t]
-\caption{Dual-representation vs.\ shape-only Mondrian conformal. The dual conjunction
-trades marginal coverage for tighter, physics-consistent sets and excludes
-right-shape-wrong-physics curves.}
-\label{tab:dual}
+\begin{figure}[!t]
 \centering
-\begin{tabular}{lrr}
-\toprule
-Case & shape-only coverage & dual coverage (mean set) \\
-\midrule
-Rich-method A & 0.85 & 0.73 \; (0.78) \\
-Rich-method B & 0.87 & 0.75 \; (0.89) \\
-\bottomrule
-\end{tabular}
-\end{table}
+\includegraphics[width=\columnwidth]{fig-dual-conformal.pdf}
+\caption{Dual-representation vs shape-only Mondrian conformal across five rich-method cases. The
+dual conjunction trades marginal coverage (left) for tighter, physics-consistent prediction sets
+(right), excluding curves that are shape-close to the wrong physics. Read from the
+\texttt{attribution\_plus.dual\_conformal} block of each \texttt{trace.json}.}
+\label{fig:dual}
+\end{figure}
 
 % =====================================================================
 \section{Generalization and honest scope}
 % =====================================================================
 
-The shape machinery is signal-agnostic: any response signal whose shape reflects the
-underlying physical system, hydrogeology pumping tests, geothermal and thermal-response
-tests, can be catalogued and conformally assigned by the same code. We exercise it on
-real hydrogeology pumping-test field data (the Horkheim and Lauswiesen sites) alongside
-the reservoir transients, all through one pipeline.
+The shape machinery is signal-agnostic: any response signal whose shape reflects the underlying
+physical system, hydrogeology pumping tests, geothermal and thermal-response tests, can be
+catalogued and conformally assigned by the same code. We exercise it on real hydrogeology
+pumping-test field data (the Horkheim and Lauswiesen sites) alongside the reservoir transients, all
+through one pipeline (Appendix~\ref{ap:cases}).
 
-Scope is reported plainly. This is a reproduction plus extension of a published
-pipeline, not a wholly new method for the base clustering and attribution, which are
-credited to the reproduced work. The DFN pressure-transient simulation on the full
-open-source flow engine is an offline dependency whose end-to-end integration is a
-later phase; the results here rest on the paper's own committed corpus, analytic
-dual-porosity families, and DFN ensembles, and the artifacts that lack a simulated
-transient carry an explicit pending flag rather than a fabricated curve. The
-dual-conformal coverage is a genuine trade: it buys physics-consistency and tighter
-sets at the price of marginal coverage, and both sides are shown. Every number is a
-committed, seed-deterministic artifact.
+Scope is reported plainly. This is a reproduction plus extension of a published pipeline, not a
+wholly new method for the base clustering and attribution, which are credited to the reproduced
+work. The DFN pressure-transient simulation on the full open-source flow engine is an offline
+dependency whose end-to-end integration is a later phase; the results here rest on the paper's own
+committed corpus, analytic dual-porosity families, DFN ensembles, and field data, and the artifacts
+that lack a simulated transient carry an explicit pending flag rather than a fabricated curve. The
+dual-conformal coverage is a genuine trade: it buys physics-consistency and tighter sets at the
+price of marginal coverage, and both sides are shown. Every number is a committed, seed-deterministic
+artifact.
 
 % =====================================================================
 \section{Conclusion}
 % =====================================================================
 
-We independently reproduced, from permissively licensed components, a DFN-transient
-GeoType pipeline for fractured-reservoir flow, recovering its clusters (silhouette up
-to $0.86$) and its fracture-intensity attribution, and extended it with a
-coverage-controlled Mondrian conformal assigner and, as the methodological
-contribution, a dual-representation Mondrian conformal assigner that fuses shape and
-physics-descriptor evidence to exclude right-shape-wrong-physics assignments. The
-result is a reproducible, coverage-controlled way to place a new pressure transient in
-a catalogue of flow behaviours and to say, with a guarantee, when it belongs to none.
+We independently reproduced, from permissively licensed components, a DFN-transient GeoType pipeline
+for fractured-reservoir flow, recovering its clusters (silhouette up to $0.86$, real transients
+cleaner than analytic) and its fracture-intensity attribution, and extended it with a
+coverage-controlled Mondrian conformal assigner and, as the methodological contribution, a
+dual-representation Mondrian conformal assigner that fuses shape and physics-descriptor evidence to
+exclude right-shape-wrong-physics assignments. The result is a reproducible, coverage-controlled way
+to place a new pressure transient in a catalogue of flow behaviours and to say, with a guarantee,
+when it belongs to none.
 
 % =====================================================================
 \section*{Data and code availability}
 % =====================================================================
 
 Code, the committed derived artifacts, and the workbench are at
-\url{https://github.com/fsantibanezleal/CAOS_RES_Pulso} (MIT); the reusable shape
-machinery is \texttt{pygeotypes} (Apache-2.0). The reference corpus is the open 4TU
-dataset of the reproduced study~\cite{data4tu} (GPL-3.0, kept in a local vault, never
-committed); GPL workflow code is not vendored. Only compact derived artifacts are
-committed.
+\url{https://github.com/fsantibanezleal/CAOS_RES_Pulso} (MIT); the reusable shape machinery is
+\texttt{pygeotypes} (Apache-2.0). The reference corpus is the open 4TU dataset of the reproduced
+study~\cite{data4tu} (GPL-3.0, kept in a local vault, never committed); GPL workflow code is not
+vendored. Only compact derived artifacts are committed. The figures are regenerated deterministically
+from the committed traces by \texttt{manuscripts/dual-conformal-geotypes/figures/make\_figs.py}.
+
+\appendices
+\section{Per-case results}
+\label{ap:cases}
+The pipeline was run over twenty-one committed cases. Representative silhouette, out-of-catalogue
+rate, and (where the dual layer runs) the shape-only and dual coverage are: REAL\_A $0.72$ /
+$0.85\!\to\!0.87$ dual; REAL\_B $0.86$; REAL\_C $0.58$; BENCH\_A $0.57$ / $0.85\!\to\!0.73$;
+BENCH\_B $0.48$ / $0.87\!\to\!0.75$; BENCH\_C $0.62$ / $0.86\!\to\!0.80$; DFM01 $0.62$; DFM03 $0.65$;
+FIELD\_horkheim $0.63$; FIELD\_lauswiesen $0.42$; WR01 $0.15$ / $0.80\!\to\!0.73$; the analytic WR
+and mixture families $0.15$--$0.27$. The full per-case table (silhouette, $K$, coverage,
+out-of-catalogue rate, mean set size, dual comparison, and attribution) is committed in each case's
+\texttt{trace.json}.
 
 % =====================================================================
 \begin{thebibliography}{99}
-\itemsep 0pt
+\itemsep 1pt
 
-\bibitem{kameltarghi2026} E.~Kamel Targhi, G.~Rongier, P.-O. Bruna, A.~Daniilidis,
-and S.~Geiger, ``Unsupervised learning for geologically consistent fluid flow analysis
-in fractured reservoirs,'' \emph{Comput. Geosci.}, vol.~30, 57, 2026,
-doi:10.1007/s10596-026-10459-w.
-
-\bibitem{warren1963} J.~E. Warren and P.~J. Root, ``The behavior of naturally
-fractured reservoirs,'' \emph{SPE J.}, vol.~3, no.~3, pp.~245--255, 1963,
-doi:10.2118/426-PA.
-
-\bibitem{bourdet1989} D.~Bourdet, J.~A. Ayoub, and Y.~M. Pirard, ``Use of pressure
-derivative in well-test interpretation,'' \emph{SPE Formation Eval.}, vol.~4, no.~2,
-pp.~293--302, 1989, doi:10.2118/12777-PA.
-
-\bibitem{stehfest1970} H.~Stehfest, ``Algorithm 368: Numerical inversion of Laplace
-transforms,'' \emph{Commun. ACM}, vol.~13, no.~1, pp.~47--49, 1970,
-doi:10.1145/361953.361969.
-
-\bibitem{sakoe1978} H.~Sakoe and S.~Chiba, ``Dynamic programming algorithm
-optimization for spoken word recognition,'' \emph{IEEE Trans. Acoust., Speech, Signal
-Process.}, vol.~26, no.~1, pp.~43--49, 1978, doi:10.1109/TASSP.1978.1163055.
-
-\bibitem{rousseeuw1987} P.~J. Rousseeuw, ``Silhouettes: A graphical aid to the
-interpretation and validation of cluster analysis,'' \emph{J. Comput. Appl. Math.},
-vol.~20, pp.~53--65, 1987, doi:10.1016/0377-0427(87)90125-7.
-
-\bibitem{breiman2001} L.~Breiman, ``Random forests,'' \emph{Mach. Learn.}, vol.~45,
-no.~1, pp.~5--32, 2001, doi:10.1023/A:1010933404324.
-
-\bibitem{lundberg2020} S.~M. Lundberg \emph{et al.}, ``From local explanations to
-global understanding with explainable AI for trees,'' \emph{Nat. Mach. Intell.},
-vol.~2, pp.~56--67, 2020, doi:10.1038/s42256-019-0138-9.
-
-\bibitem{vovk2005} V.~Vovk, A.~Gammerman, and G.~Shafer, \emph{Algorithmic Learning
-in a Random World}. New York: Springer, 2005, doi:10.1007/b106715.
-
-\bibitem{angelopoulos2023} A.~N. Angelopoulos and S.~Bates, ``Conformal prediction: A
-gentle introduction,'' \emph{Found. Trends Mach. Learn.}, vol.~16, no.~4,
-pp.~494--591, 2023, doi:10.1561/2200000101.
-
-\bibitem{data4tu} E.~Kamel Targhi \emph{et al.}, ``GeoDFN networks and pressure
-transients for geologically consistent fluid flow analysis (dataset),'' 4TU.ResearchData,
-2026, doi:10.4121/8291d285-025d-4724-988d-fc747a578c0a.
+\bibitem{kameltarghi2026} E.~Kamel Targhi, G.~Rongier, P.-O. Bruna, A.~Daniilidis, and S.~Geiger,
+``Unsupervised learning for geologically consistent fluid flow analysis in fractured reservoirs,''
+\emph{Comput. Geosci.}, vol.~30, 57, 2026, doi:10.1007/s10596-026-10459-w.
+\bibitem{warren1963} J.~E. Warren and P.~J. Root, ``The behavior of naturally fractured reservoirs,''
+\emph{SPE J.}, vol.~3, no.~3, pp.~245--255, 1963, doi:10.2118/426-PA.
+\bibitem{bourdet1989} D.~Bourdet, J.~A. Ayoub, and Y.~M. Pirard, ``Use of pressure derivative in
+well-test interpretation,'' \emph{SPE Formation Eval.}, vol.~4, no.~2, pp.~293--302, 1989,
+doi:10.2118/12777-PA.
+\bibitem{stehfest1970} H.~Stehfest, ``Algorithm 368: Numerical inversion of Laplace transforms,''
+\emph{Commun. ACM}, vol.~13, no.~1, pp.~47--49, 1970, doi:10.1145/361953.361969.
+\bibitem{sakoe1978} H.~Sakoe and S.~Chiba, ``Dynamic programming algorithm optimization for spoken
+word recognition,'' \emph{IEEE Trans. Acoust., Speech, Signal Process.}, vol.~26, no.~1,
+pp.~43--49, 1978, doi:10.1109/TASSP.1978.1163055.
+\bibitem{rousseeuw1987} P.~J. Rousseeuw, ``Silhouettes: A graphical aid to the interpretation and
+validation of cluster analysis,'' \emph{J. Comput. Appl. Math.}, vol.~20, pp.~53--65, 1987,
+doi:10.1016/0377-0427(87)90125-7.
+\bibitem{breiman2001} L.~Breiman, ``Random forests,'' \emph{Mach. Learn.}, vol.~45, no.~1,
+pp.~5--32, 2001, doi:10.1023/A:1010933404324.
+\bibitem{lundberg2020} S.~M. Lundberg \emph{et al.}, ``From local explanations to global
+understanding with explainable AI for trees,'' \emph{Nat. Mach. Intell.}, vol.~2, pp.~56--67,
+2020, doi:10.1038/s42256-019-0138-9.
+\bibitem{vovk2005} V.~Vovk, A.~Gammerman, and G.~Shafer, \emph{Algorithmic Learning in a Random
+World}. New York: Springer, 2005, doi:10.1007/b106715.
+\bibitem{angelopoulos2023} A.~N. Angelopoulos and S.~Bates, ``Conformal prediction: A gentle
+introduction,'' \emph{Found. Trends Mach. Learn.}, vol.~16, no.~4, pp.~494--591, 2023,
+doi:10.1561/2200000101.
+\bibitem{data4tu} E.~Kamel Targhi \emph{et al.}, ``GeoDFN networks and pressure transients for
+geologically consistent fluid flow analysis (dataset),'' 4TU.ResearchData, 2026,
+doi:10.4121/8291d285-025d-4724-988d-fc747a578c0a.
 
 \end{thebibliography}
 
