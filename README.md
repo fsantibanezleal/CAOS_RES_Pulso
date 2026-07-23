@@ -3,6 +3,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/fsantibanezleal/CAOS_RES_Pulso/ci.yml?branch=main&label=CI)](https://github.com/fsantibanezleal/CAOS_RES_Pulso/actions)
 [![License](https://img.shields.io/github/license/fsantibanezleal/CAOS_RES_Pulso)](LICENSE)
 [![Version](https://img.shields.io/github/v/tag/fsantibanezleal/CAOS_RES_Pulso?label=version&sort=semver)](https://github.com/fsantibanezleal/CAOS_RES_Pulso/tags)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21509056-blue)](https://doi.org/10.5281/zenodo.21509056)
 
 **Pulso** asks whether fractured reservoirs have a *geological DNA*: recurring fluid-flow behaviours
 hidden in the shape of their pressure-transient responses. It builds a catalogue of **GeoTypes** —
