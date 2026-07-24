@@ -20,14 +20,14 @@ An Independent Reproduction and Extension for Fractured-Reservoir Flow}
   Felipe Santib\'a\~nez-Leal~\orcidlink{0000-0002-0150-3246},~\IEEEmembership{Independent Researcher}%
   \thanks{F.\ Santib\'a\~nez-Leal is with the CAOS open-research programme, Santiago, Chile
     (e-mail: \texttt{fsantibanezleal@ug.uchile.cl}; ORCID: 0000-0002-0150-3246).}%
-  \thanks{Preprint, 2026, version 2 (comprehensive). Code, committed derived artifacts, and the
+  \thanks{Preprint, 2026, version 2.1 (revised). Code, committed derived artifacts, and the
     workbench are released under MIT at \url{https://github.com/fsantibanezleal/CAOS_RES_Pulso};
     the reusable shape machinery is the Apache-2.0 package \texttt{pygeotypes}
     (\url{https://github.com/fsantibanezleal/CAOS_GeoTypes}). No GPL workflow code or raw
     licensed data is redistributed.}%
 }
 
-\markboth{Preprint, 2026 (v2) --- CAOS open-research programme}{Santib\'a\~nez-Leal:
+\markboth{Preprint, 2026 (v2.1) --- CAOS open-research programme}{Santib\'a\~nez-Leal:
 Dual-Representation Mondrian Conformal Assignment of Pressure-Transient GeoTypes}
 
 \IEEEtitleabstractindextext{%
@@ -41,13 +41,13 @@ GeoType catalogue, and random-forest / TreeSHAP attribution, from permissively l
 components on the original open 4TU corpus and on analytic dual-porosity families. The
 reproduction recovers clean clusters, with the real transients clustering more cleanly
 (silhouette up to $0.86$) than the analytic families ($0.15$--$0.27$), and it recovers the
-finding that fracture intensity ($\log I$) is the top attributed control. We then extend the
+finding that fracture intensity ($\log I$) is a leading attributed control (top on the benchmark cases). We then extend the
 pipeline in two ways. First, we make the assignment \emph{coverage-controlled}, which the base
 random-forest attribution is not, with a class-conditional (Mondrian) split-conformal assigner on
 a DTW nonconformity score that emits per-class $p$-values, a prediction set, and an
-out-of-catalogue flag (empirical coverage $0.85$--$0.94$ at target across the rich-method cases).
-Second, and the methodological contribution, we introduce a \emph{dual-representation Mondrian
-conformal} assigner that conformalizes jointly across two nonconformity scores, the DTW shape
+out-of-catalogue flag (empirical coverage $0.80$--$0.94$, straddling the $0.85$ target, across the rich-method cases).
+Second, we apply a two-score (multi-view) \emph{dual-representation Mondrian
+conformal} intersection that conformalizes jointly across two nonconformity scores, the DTW shape
 distance and a physics-descriptor implausibility from the attribution forest, and accepts a
 GeoType only in the per-class conjunction of the two prediction sets. This excludes curves that
 are shape-close to the wrong physics, which single-score conformal accepts: across five
@@ -138,8 +138,10 @@ the DFN/DFM and hydrogeology cases in between. Read from the committed \texttt{t
 
 On the original open corpus the reproduction recovers the reported structure
 (Fig.~\ref{fig:silhouette}): the real 4TU transients cluster more cleanly than the analytic
-families, and across the labelled cases fracture intensity ($\log I$) is the top attributed
-control (largest mean absolute SHAP), partially reproducing the paper's fracture-intensity finding.
+families, and on the 4TU-benchmark cases fracture intensity ($\log I$, absorbing its $\rho\!>\!0.9$
+correlates) is the top attributed control (largest mean absolute SHAP), while on the real-4TU and
+analytic cases other descriptors (aperture, permeability, $\lambda$) lead, partially reproducing the
+paper's fracture-intensity finding.
 On the analytic families the interporosity flow coefficient $\log_{10}\lambda$ dominates the
 assignment sensitivity, exactly as the physics predicts, since $\lambda$ sets the transition timing
 that separates the dual-porosity behaviours. The same permissively licensed pipeline, exercised over
@@ -161,10 +163,10 @@ assigner~\cite{vovk2005,angelopoulos2023}. The nonconformity score of a curve $x
 is its DTW distance to the medoid, $s_\text{shape}(x,g)$. Calibrated per class on a disjoint slice,
 it yields a $p$-value $p_\text{shape}(x,g)$ and a prediction set
 $\{g:p_\text{shape}(x,g)>\alpha\}$; a curve matching no class is flagged out-of-catalogue. Across
-the rich-method cases the empirical marginal coverage is $0.85$--$0.94$ at the target level, with an
+the rich-method cases the empirical marginal coverage is $0.80$--$0.94$, straddling the target level, with an
 out-of-catalogue rate of $0.03$--$0.17$: a coverage guarantee the base attribution cannot give.
 
-\subsection{Dual-representation Mondrian conformal (contribution)}
+\subsection{Dual-representation Mondrian conformal assignment}
 
 A single score cannot express that a curve may be shape-close to the wrong physics: a transient
 that matches a medoid by DTW shape yet whose physical descriptors are atypical for that GeoType. We
@@ -181,9 +183,13 @@ set is the per-class conjunction
 \label{eq:dual}
 \end{equation}
 A GeoType is accepted only if the curve is both shape-consistent and descriptor-consistent; a shape
-match with implausible physics is excluded. This is beyond single-score conformal and beyond
-random-forest/SHAP attribution, which has no coverage control: a coverage-controlled assignment that
-fuses shape space and physics-descriptor space.
+match with implausible physics is excluded. Intersecting independently calibrated conformal sets
+across representations is an established multi-view/multi-score construction~\cite{garciaceja2024mv,xu2025alpha};
+our contribution is its \emph{application}, fusing a DTW shape score with a random-forest
+descriptor-implausibility score for pressure-transient GeoType assignment, and the honestly reported
+coverage/tightness trade-off. Because the per-class conjunction is a Bonferroni-style combination, its
+marginal coverage is only guaranteed at $1-2\alpha$ and in practice falls below the single-score
+$1-\alpha$, which is precisely the coverage cost we report.
 
 Fig.~\ref{fig:dual} reports the honest trade-off across five rich-method cases. The dual conjunction
 tightens the mean set size and flags right-shape-wrong-physics curves that shape-only conformal
@@ -250,9 +256,9 @@ from the committed traces by \texttt{manuscripts/dual-conformal-geotypes/figures
 \label{ap:cases}
 The pipeline was run over twenty-one committed cases. Representative silhouette, out-of-catalogue
 rate, and (where the dual layer runs) the shape-only and dual coverage are: REAL\_A $0.72$ /
-$0.85\!\to\!0.87$ dual; REAL\_B $0.86$; REAL\_C $0.58$; BENCH\_A $0.57$ / $0.85\!\to\!0.73$;
+$0.94\!\to\!0.87$ dual; REAL\_B $0.86$; REAL\_C $0.58$; BENCH\_A $0.57$ / $0.85\!\to\!0.73$;
 BENCH\_B $0.48$ / $0.87\!\to\!0.75$; BENCH\_C $0.62$ / $0.86\!\to\!0.80$; DFM01 $0.62$; DFM03 $0.65$;
-FIELD\_horkheim $0.63$; FIELD\_lauswiesen $0.42$; WR01 $0.15$ / $0.80\!\to\!0.73$; the analytic WR
+FIELD\_horkheim $0.62$; FIELD\_lauswiesen $0.42$; WR01 $0.15$ / $0.80\!\to\!0.73$; the analytic WR
 and mixture families $0.15$--$0.27$. The full per-case table (silhouette, $K$, coverage,
 out-of-catalogue rate, mean set size, dual comparison, and attribution) is committed in each case's
 \texttt{trace.json}.
@@ -287,8 +293,13 @@ World}. New York: Springer, 2005, doi:10.1007/b106715.
 \bibitem{angelopoulos2023} A.~N. Angelopoulos and S.~Bates, ``Conformal prediction: A gentle
 introduction,'' \emph{Found. Trends Mach. Learn.}, vol.~16, no.~4, pp.~494--591, 2023,
 doi:10.1561/2200000101.
-\bibitem{data4tu} E.~Kamel Targhi \emph{et al.}, ``GeoDFN networks and pressure transients for
-geologically consistent fluid flow analysis (dataset),'' 4TU.ResearchData, 2026,
+\bibitem{garciaceja2024mv} E.~Garcia-Ceja, ``Multi-view conformal learning for heterogeneous
+sensor fusion,'' 2024. arXiv:2402.12307.
+\bibitem{xu2025alpha} C.~Xu, Y.~Yu, and H.~Ren, ``Aggregating conformal prediction sets via
+$\alpha$-allocation,'' 2025. arXiv:2511.12065.
+\bibitem{data4tu} E.~Kamel Targhi \emph{et al.}, ``Data and code supporting: Unsupervised learning
+workflow for clustering pressure transient responses in fractured reservoirs (dataset),''
+4TU.ResearchData, 2026,
 doi:10.4121/8291d285-025d-4724-988d-fc747a578c0a.
 
 \end{thebibliography}
