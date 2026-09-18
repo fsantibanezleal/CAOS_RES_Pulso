@@ -31,9 +31,9 @@
 % Page-1 header block (conventions/manuscript-header-standard.md). The four document
 % macros are set by the publishing tool when the version DOI is reserved.
 \newcommand{\doctype}{Preprint}
-\newcommand{\docversion}{v2.2}
+\newcommand{\docversion}{v2.3}
 \newcommand{\docdate}{18 September 2026}
-\newcommand{\versiondoi}{10.5281/zenodo.22822864}
+\newcommand{\versiondoi}{10.5281/zenodo.22825211}
 \newcommand{\conceptdoi}{10.5281/zenodo.21509056}
 \newcommand{\docrepo}{github.com/fsantibanezleal/CAOS\_RES\_Pulso}
 \newcommand{\headerblock}{%
@@ -90,8 +90,8 @@ conformal} intersection that conformalizes jointly across two nonconformity scor
 distance and a physics-descriptor implausibility from the attribution forest, and accepts a
 GeoType only in the per-class conjunction of the two prediction sets. This excludes curves that
 are shape-close to the wrong physics, which single-score conformal accepts: across five
-rich-method cases the dual conjunction trades marginal coverage (e.g.\ $0.85\!\to\!0.73$,
-$0.94\!\to\!0.87$) for tighter, physics-consistent sets. The shape machinery is signal-agnostic
+rich-method cases the dual conjunction trades marginal coverage (e.g.\ from $0.85$ to $0.73$ and from
+$0.94$ to $0.87$) for tighter, physics-consistent sets. The shape machinery is signal-agnostic
 and is exercised on real hydrogeology pumping-test field data as well as reservoir transients. The
 contribution is a faithful, independent reproduction plus a coverage-controlled assignment that
 fuses shape space and physics-descriptor space, with every number backed by a released
@@ -238,8 +238,8 @@ cost we report.
 
 Fig.~\ref{fig:dual} shows the trade-off across five rich-method cases. The dual conjunction
 tightens the mean set size and flags right-shape-wrong-physics curves that shape-only conformal
-accepts, at the cost of some marginal coverage (for example $0.85\!\to\!0.73$ on BENCH\_A and
-$0.94\!\to\!0.87$ on REAL\_A). When descriptors are absent or degenerate (some real cases), the dual
+accepts, at the cost of some marginal coverage (for example from $0.85$ to $0.73$ on BENCH\_A and
+from $0.94$ to $0.87$ on REAL\_A). When descriptors are absent or degenerate (some real cases), the dual
 layer degrades gracefully to shape-only and reports that it did.
 
 \begin{figure}[!t]
@@ -304,9 +304,9 @@ deterministically from these traces by
 \label{ap:cases}
 The pipeline was run over twenty-one cases. Representative silhouette, out-of-catalogue
 rate, and (where the dual layer runs) the shape-only and dual coverage are: REAL\_A $0.72$ /
-$0.94\!\to\!0.87$ dual; REAL\_B $0.86$; REAL\_C $0.58$; BENCH\_A $0.57$ / $0.85\!\to\!0.73$;
-BENCH\_B $0.48$ / $0.87\!\to\!0.75$; BENCH\_C $0.62$ / $0.86\!\to\!0.80$; DFM01 $0.62$; DFM03 $0.65$;
-FIELD\_horkheim $0.62$; FIELD\_lauswiesen $0.42$; WR01 $0.15$ / $0.80\!\to\!0.73$; the analytic WR
+shape-only $0.94$, dual $0.87$; REAL\_B $0.86$; REAL\_C $0.58$; BENCH\_A $0.57$ / shape-only $0.85$, dual $0.73$;
+BENCH\_B $0.48$ / shape-only $0.87$, dual $0.75$; BENCH\_C $0.62$ / shape-only $0.86$, dual $0.80$; DFM01 $0.62$; DFM03 $0.65$;
+FIELD\_horkheim $0.62$; FIELD\_lauswiesen $0.42$; WR01 $0.15$ / shape-only $0.80$, dual $0.73$; the analytic WR
 and mixture families $0.15$--$0.27$. The full per-case table (silhouette, $K$, coverage,
 out-of-catalogue rate, mean set size, dual comparison, and attribution) is stored in each case's
 \texttt{trace.json}.
