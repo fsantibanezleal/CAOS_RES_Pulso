@@ -13,7 +13,7 @@ re-implements it. What lives here is Pulso's build tooling, invoked by path and 
 | `pipeline/manifest.py` | CONTRACT 2, the manifest of a baked case (params, seed, engine and pygeotypes versions, artifact size, lane verdict, flags, metrics) and the flat index |
 | `pipeline/export.py` | writes each artifact (the engine's study, DFN, DARTS and DFM traces) and its manifest, and measures the lane gate |
 | `pipeline/gate.py` | the lane gate (pure Python, wheels, measured live cost, trace size) |
-| `export_live_sources.py` | writes `frontend/public/pyodide/sources.json` from the installed engine for the optional Pyodide lane |
+| `export_live_sources.py` | writes `data/derived/pyodide/sources.json` from the installed engine for the optional Pyodide lane (served at `/data/pyodide/sources.json`) |
 | `requirements.txt`, `requirements-train.txt` | the pinned offline lane (`.venv-pipeline`) and the GPU training lane (`.venv-train`) |
 
 The engine's own layout (analytic ensembles, GeoDFN and open-DARTS wrappers, contracts, the clustering ladder,
