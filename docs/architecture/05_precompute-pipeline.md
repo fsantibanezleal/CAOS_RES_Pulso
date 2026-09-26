@@ -1,19 +1,19 @@
 # The staged precompute pipeline
 
-`data-pipeline/flowdnalab/pipeline.py` orchestrates the **named stages** (frozen names/signatures, rework bodies):
+`data-pipeline/pipeline/pipeline.py` (run through `data-pipeline/run.py`) orchestrates the **named stages** of the
+`fracpta` engine (frozen names/signatures) and this product's export:
 
 | Stage | Module | Does |
 |---|---|---|
-| preprocess | `stages/preprocess.py` | read raw → apply **CONTRACT 1** (validate + outlier policy) |
-| feature_extraction | `stages/feature_extraction.py` | validated params → feature rows |
-| train | `stages/train.py` | fit the model → `models/` (offline; skippable; example = numpy lstsq surrogate) |
-| infer | `stages/infer.py` | run the engine → trace (example = SIR) |
-| evaluate | `stages/evaluate.py` | held-out, leakage-safe metrics (R²/RMSE) |
-| export | `stages/export.py` | **CONTRACT 2**, compact artifact + manifest |
+| preprocess | `fracpta.stages.preprocess` | generate or ingest the curves under **CONTRACT 1** (validate + outlier policy) |
+| feature_extraction | `fracpta.stages.feature_extraction` | log-time grid, Bourdet derivative or p'', normalisation, the shape arrays |
+| train | `fracpta.stages.train` | DTW matrix, K selection, PAM catalogue, conformal calibration, RF+SHAP attribution |
+| infer | `fracpta.stages.infer` | conformal assignment of the held-out slice |
+| evaluate | `fracpta.stages.evaluate` | silhouette, empirical coverage, out-of-catalogue rate, the attribution gate |
+| export | `data-pipeline/pipeline/export.py` | **CONTRACT 2**, the artifact (the engine's trace) + this product's manifest and lane gate |
 
-Run: `python -m flowdnalab.pipeline [all|<case_id>] [--seed N]` (or `scripts/precompute.{sh,ps1}`). It writes
+Run: `python data-pipeline/run.py [all|<case_id>] [--seed N]` (or `scripts/precompute.{sh,ps1}`). It writes
 `data/derived/<case>/trace.json` + `data/derived/manifests/<case>.json` + `index.json`.
 
-To instantiate a real product: keep the stage names, replace the bodies, `infer`/`train` call the
-research-chosen SOTA engine (pinned in `data-pipeline/requirements.txt`, documented in
-[../frameworks/](../frameworks/)). No hand-rolled toy substitute for an engine the research prescribed.
+The engine is pinned in `data-pipeline/requirements.txt` (`fracpta==0.1.0`, which brings `pygeotypes`) and documented
+in [../frameworks/](../frameworks/); the study core the orchestrator calls is `fracpta.study.train_infer_evaluate`.

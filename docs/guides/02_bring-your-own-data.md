@@ -1,7 +1,7 @@
 # Guide: bring your own data
 
 The product is **applicable to NEW data**, not just the baked cases, that is what makes it a tool. The door is
-**CONTRACT 1** (`data-pipeline/flowdnalab/io/contract.py`).
+**CONTRACT 1** (`fracpta/io/contract.py`).
 
 1. Put your input in the documented standard format (see [`data/README.md`](../../data/README.md): example: a
    params CSV with `case_id,beta,gamma,N,I0[,days]`). Drop the file under `data/raw/` (git-ignored).
@@ -10,7 +10,7 @@ The product is **applicable to NEW data**, not just the baked cases, that is wha
    **flagged** if plausible-but-suspicious (e.g. `R0>20`), **accepted** otherwise. Nothing is silently coerced.
 3. The pipeline produces a compact artifact + manifest you can replay in the SPA, exactly like the built-in cases.
 4. **Live (optional):** if the [gate](../architecture/03_the-gate.md) classifies your case `live`, the frontend's
-   Pyodide lane calls `flowdnalab.live.run_trace_json({...your params...})` and renders the result in-browser, no
+   Pyodide lane calls `fracpta.live.run_trace_json({...your params...})` and renders the result in-browser, no
    server, no precompute.
 
 If your data legitimately doesn't fit, extend CONTRACT 1 (and its tests) **deliberately**, never loosen it just

@@ -1,23 +1,6 @@
-# FlowDNA: offline engine package (ADR-0057 product instantiated from template_repo_product).
-# The template's EXAMPLE engine (SIR) is a placeholder until the research-chosen SOTA engines are wired
-# (pinned in data-pipeline/requirements.txt, documented in docs/frameworks/).
-[build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "flowdnalab"
-# PEP 440 form of the display version X.XX.XXX (see CHANGELOG.md + flowdnalab.__version__).
-version = "0.25.1"
-description = "FlowDNA, GeoTypes: unsupervised catalogue of fluid-flow behaviours in fractured reservoirs (DFN + pressure transients + DTW k-medoids + RF/SHAP)."
-readme = "README.md"
-requires-python = ">=3.11"
-license = { text = "MIT" }
-authors = [{ name = "Felipe Santibáñez-Leal" }]
-dependencies = ["numpy>=1.26"]
-
-[tool.setuptools.packages.find]
-where = ["data-pipeline"]
+# Pulso declares NO package of its own (hard rule 0, conventions/no-internal-packages.md). The engine is
+# `fracpta` (PyPI), pinned in data-pipeline/requirements.txt; the build tooling under data-pipeline/pipeline/
+# is invoked by path (data-pipeline/run.py). Only tool configuration lives here.
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

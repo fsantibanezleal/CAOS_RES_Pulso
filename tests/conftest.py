@@ -1,4 +1,5 @@
-"""Make flowdnalab importable whether or not `pip install -e .` has run (belt-and-suspenders for CI/local)."""
+"""Make the path-invoked build tooling (`pipeline`) importable from the tests, exactly as data-pipeline/run.py
+does at bake time. The engine (`fracpta`) is an installed dependency."""
 import pathlib
 import sys
 

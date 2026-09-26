@@ -4,13 +4,13 @@ import json
 
 import pytest
 
-from flowdnalab import pipeline
-from flowdnalab.cases.flowdna_cases import Case
-from flowdnalab.io import real_data
-from flowdnalab.io.schema import RealDataSpec
+from pipeline import pipeline
+from pipeline.cases import Case
+from fracpta.io import real_data
+from fracpta.io.schema import RealDataSpec
 
 pytestmark = pytest.mark.skipif(not real_data.available(),
-                                reason="4TU vault corpus not available (FLOWDNA_VAULT/real-curves)")
+                                reason="4TU vault corpus not available (FRACPTA_VAULT/real-curves)")
 
 
 @pytest.fixture(autouse=True)

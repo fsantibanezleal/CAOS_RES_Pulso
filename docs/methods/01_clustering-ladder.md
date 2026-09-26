@@ -56,7 +56,7 @@ Real numbers from the committed artifacts (`method_comparison` block, contract `
 
 ## Where it runs
 
-Offline only, in `flowdnalab/methods/clustering.py::compare_clusterings`, gated by `spec.compare_methods`
+Offline only, in `fracpta/methods/clustering.py::compare_clusterings`, gated by `spec.compare_methods`
 (a representative subset of cases). It never runs in the browser; the Benchmark page reads the baked
 `method_comparison` block. Optional engines (tslearn, hdbscan) degrade to a recorded `skipped` if absent,
 never a crash.
