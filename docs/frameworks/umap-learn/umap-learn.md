@@ -36,7 +36,7 @@ Pulso clamps `n_neighbors` to `min(15, n-1)` so small committed sets do not erro
 
 ## Applying it here
 
-Called from `flowdnalab/methods/representations.py::compute_representations` on the committed member
+Called from `fracpta/methods/representations.py::compute_representations` on the committed member
 curves (the same rows as the CONTRACT-3 `members` block), so the 2D layout aligns element-for-element
 with the curves and the MDS scatter. Result lands in `representations.umap2d` (contract `pulso.study/v2`);
 the App **Representations** tab reads it and lets the user switch layouts. If `umap-learn` is absent at

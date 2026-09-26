@@ -12,25 +12,25 @@ mandatory, never let a heavy native dep leak into the live lane, never let the l
 
 | Lane | Dependencies | Implementation | Notes |
 |---|---|---|---|
-| **Offline (precompute)** | `requirements-precompute.txt` (+ `-gpu`) | `flowdnalab/stages/` (heavy SOTA engine) | bakes the committed artifacts; native libs OK (Yade/OR-Tools/…) |
-| **Live (client-side)** | `requirements.txt` (Pyodide-safe wheels) **or** web npm deps | `flowdnalab/live/` (Pyodide-safe Python) **or** `web/src/engine/` (TS) | small sims / surrogate / analytic core, runs in the browser, like SimLab's Pyodide live lane. **May be a DIFFERENT, lighter model than offline.** |
-| **API / backend** *(optional)* | `requirements-api.txt` | `api/` (FastAPI) over `flowdnalab/model/` | only on an ADR-0002 trigger; thin layer over the shared core, never a re-implementation |
+| **Offline (precompute)** | `requirements-precompute.txt` (+ `-gpu`) | the `fracpta` engine (PyPI, `fracpta.stages`) driven by `data-pipeline/pipeline/` | bakes the committed artifacts; native libs OK (Yade/OR-Tools/…) |
+| **Live (client-side)** | `requirements.txt` (Pyodide-safe wheels) **or** web npm deps | `fracpta.live` (Pyodide-safe Python) **or** `web/src/engine/` (TS) | small sims / surrogate / analytic core, runs in the browser, like SimLab's Pyodide live lane. **May be a DIFFERENT, lighter model than offline.** |
+| **API / backend** *(optional)* | `requirements-api.txt` | `api/` (FastAPI) over `fracpta.model` | only on an ADR-0002 trigger; thin layer over the shared core, never a re-implementation |
 | **Replay fallback** |, (none) | `web/src/engine/replay` loads `data/artifacts` + manifest | always present; first paint + when live unavailable |
 
-- **`flowdnalab/model/`**: the pure-Python analytic/physics core that is **shared and Pyodide-safe**, usable by the
+- **`fracpta.model`** (installed engine): the pure-Python analytic/physics core that is **shared and Pyodide-safe**, usable by the
   offline stages, the live lane, and the api. The *only* code that may run in more than one lane.
-- **`flowdnalab/stages/`**: the offline pipeline (heavy engines), never imported by the live lane.
-- **`flowdnalab/live/`**: the live-lane engine (reduced/surrogate/small), importing only `model/` + Pyodide-safe deps.
-- **`web/`**: the app; runs the live lane (Pyodide importing `flowdnalab.live`, or a TS engine in `src/engine/`) and
+- **`fracpta.stages`** (installed engine) plus **`data-pipeline/pipeline/`** (this product's cases, manifest, export, gate): the offline pipeline, never imported by the live lane.
+- **`fracpta.live`**: the live-lane engine (reduced/surrogate/small), importing only `model/` + Pyodide-safe deps.
+- **`web/`**: the app; runs the live lane (Pyodide importing `fracpta.live`, or a TS engine in `src/engine/`) and
   always falls back to **replaying** committed artifacts.
-- **`api/`** *(optional, dormant)*: a thin FastAPI layer over `flowdnalab/model/`; imports it, never re-implements.
+- **`api/`** *(optional, dormant)*: a thin FastAPI layer over `fracpta.model`; imports it, never re-implements.
 
-The lane each case actually uses is decided by `flowdnalab/core/gate.py` (pure-python ∧ runtime ∧ trace-size gate,
+The lane each case actually uses is decided by `data-pipeline/pipeline/gate.py` (pure-python ∧ runtime ∧ trace-size gate,
 ADR-0054), exactly SimLab's `classify_lane`.
 
 ## The pipeline is SEPARATED BY NAMED STAGES
 
-`flowdnalab/stages/`, each stage is a pure, deterministic, **seeded**, typed, independently-tested function with an
+`fracpta.stages` (engine) and `data-pipeline/pipeline/export.py` (product), each stage is a pure, deterministic, **seeded**, typed, independently-tested function with an
 explicit **input→output contract** to the next stage. Not a monolith.
 
 | Order | Stage module | Input | Output | Notes |
@@ -42,19 +42,19 @@ explicit **input→output contract** to the next stage. Not a monolith.
 | 5 | `evaluate.py` | predictions vs held-out | metrics (R²/MAPE/AUC, parity) | the **TEST / validation** stage (held-out, leakage-safe) |
 | 6 | `export.py` | predictions + metrics | compact standard-format **web artifact** + `manifests/<case>.json` | the **export pipeline**, the processing→web contract |
 
-`pipeline.py` orchestrates these (an ordered `STAGES` list); `python -m flowdnalab.pipeline <case>` runs them and
+`pipeline.py` orchestrates these (an ordered `STAGES` list); `python data-pipeline/run.py <case>` runs them and
 persists artifact + manifest. Add domain stages as needed (e.g. `calibrate.py`, `decimate.py`), same rules.
 
 ## The TWO data contracts (were missing everywhere)
 
-1. **Ingestion `raw → processing`**: `flowdnalab/io/contract.py`: required schema (columns, units, ranges) + an
+1. **Ingestion `raw → processing`**: `fracpta/io/contract.py`: required schema (columns, units, ranges) + an
    explicit outlier policy (reject/clip/flag). The *bring-your-own-data* gate. Doc: `docs/data-contract.md`.
 2. **Artifact `processing → web`**: `manifests/<case>.json` + the compact artifact schema; the web has a TS type
    mirroring it (`web/src/contract.ts`) so a drift fails the build; `web/copy-data.mjs` copies canonical artifacts.
 
 ## Standard formats end-to-end
 
-`flowdnalab/io/formats.py`: domain-standard readers/writers, CSV (sieve-series / tabular), parquet (heavy full
+`fracpta/io/formats.py`: domain-standard readers/writers, CSV (sieve-series / tabular), parquet (heavy full
 dataset, gitignored/LFS), npz/JSON (compact committed artifact), and per-product `.vtk/.vtu`, `.h5`, `.mat`,
 GeoTIFF. The compact committed artifacts in `data/artifacts/` are the standardized synthetic datasets.
 
@@ -66,7 +66,7 @@ GeoTIFF. The compact committed artifacts in `data/artifacts/` are the standardiz
 ├─ pyproject.toml · .env.example · .gitignore · .gitattributes
 ├─ requirements.txt (live) · -dev · -precompute (SOTA engines) · -gpu · -api
 ├─ scripts/  setup.{sh,ps1} · precompute.{sh,ps1} · fetch-data.{sh,ps1} · serve-api.{sh,ps1}
-├─ flowdnalab/                      # the engine + staged pipeline
+├─ fracpta/                      # the engine + staged pipeline
 │  ├─ __init__.py (version) · pipeline.py (orchestrator+CLI) · registry.py (cases, grouped by CATEGORY)
 │  ├─ io/     contract.py (ingestion contract+outliers) · formats.py (std readers/writers) · schema.py (types)
 │  ├─ core/   rng.py (seed→determinism) · trace.py (artifact) · manifest.py · gate.py (lane gate)
@@ -87,14 +87,14 @@ GeoTIFF. The compact committed artifacts in `data/artifacts/` are the standardiz
 │  ├─ cases/                        # ← CASES + CATEGORIES: README (category taxonomy + coverage matrix) + 1 md/case
 │  ├─ guides/  00_instantiate · 01_precompute-pipeline · 02_bring-your-own-data · 03_gpu-lane · 04_run-the-api
 │  └─ data-contract.md
-├─ api/                             # OPTIONAL backend (dormant): main.py · routes/ · deps over flowdnalab
+├─ api/                             # OPTIONAL backend (dormant): main.py · routes/ · deps over fracpta
 ├─ web/  src/ (App/Intro/Methodology/Implementation/Experiments/Benchmark) · contract.ts · copy-data.mjs · vite/pkg
 └─ .github/workflows/  ci.yml (install reqs · ruff · pytest · pipeline smoke · guards) · deploy-pages.yml
 ```
 
 ## Cases & categories (explicit)
 
-- Each case in `flowdnalab/cases/` declares a **`category`** (the domain taxonomy of problem types) + params +
+- Each case in `fracpta/cases/` declares a **`category`** (the domain taxonomy of problem types) + params +
   expected output band + real/synthetic flag + validation anchor.
 - `registry.py` groups cases by category; the App tab shows **one selected case**, while Experiments/Benchmark
   show **cross-case summaries grouped by category** (never mixed into App).

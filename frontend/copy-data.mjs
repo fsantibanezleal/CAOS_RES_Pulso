@@ -1,5 +1,5 @@
 // Prebuild: copy the committed CONTRACT-2 artifacts (../data/derived) into the SPA's public/ so the static site
-// replays them, and inline the flowdnalab sources for the live (Pyodide) lane. Canonical copies live in ../data
+// replays them, and check the live-lane sources written from the fracpta package. Canonical copies live in ../data
 // and ../data-pipeline, public/ is a build-time overlay (git-ignored).
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -19,30 +19,8 @@ if (existsSync(derived)) {
   console.warn('[copy-data] no data/derived, run scripts/precompute first');
 }
 
-// 2) inline the flowdnalab Python sources for the optional Pyodide live lane -> public/pyodide/sources.json
-const pkg = join(ROOT, 'data-pipeline', 'flowdnalab');
-if (existsSync(pkg)) {
-  const sources = {};
-  const walk = (dir, rel = '') => {
-    for (const e of readdirSync(dir, { withFileTypes: true })) {
-      if (e.name === '__pycache__') continue;
-      const abs = join(dir, e.name);
-      const r = rel ? `${rel}/${e.name}` : e.name;
-      if (e.isDirectory()) walk(abs, r);
-      else if (e.name.endsWith('.py')) sources[`flowdnalab/${r}`] = readFileSync(abs, 'utf-8');
-    }
-  };
-  walk(pkg);
-  mkdirSync(join(PUB, 'pyodide'), { recursive: true });
-  writeFileSync(join(PUB, 'pyodide', 'sources.json'), JSON.stringify(sources));
-  console.log(`[copy-data] inlined ${Object.keys(sources).length} flowdnalab sources -> public/pyodide/sources.json`);
+// 2) the optional Pyodide live lane reads public/pyodide/sources.json, written by
+//    data-pipeline/export_live_sources.py from the installed fracpta package (committed with the bake).
+if (!existsSync(join(PUB, 'pyodide', 'sources.json'))) {
+  console.warn('[copy-data] no public/pyodide/sources.json, run data-pipeline/export_live_sources.py');
 }
-
-// 3) models/deep -> public/models (the ONNX learned tier + reference.json for onnxruntime-web live inference)
-const deep = join(ROOT, 'models', 'deep');
-if (existsSync(deep)) {
-  mkdirSync(join(PUB, 'models'), { recursive: true });
-  cpSync(deep, join(PUB, 'models'), { recursive: true });
-  console.log('[copy-data] models/deep -> public/models');
-}
-

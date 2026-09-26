@@ -3,7 +3,7 @@
 A product is only real if data flows through two **enforced** contracts. Both are CI-checked.
 
 ## CONTRACT 1: ingestion (`raw → pipeline`), the *bring-your-own-data* gate
-`data-pipeline/flowdnalab/io/contract.py`. Declares the required schema (columns, units, ranges) + an explicit
+`fracpta/io/contract.py`. Declares the required schema (columns, units, ranges) + an explicit
 **outlier policy** (reject / clip / flag). A dataset is accepted iff it passes; bad rows are rejected **with a
 reason**, never silently coerced; suspicious-but-plausible rows are flagged (the flag is recorded in the
 manifest). This is what lets a third party point the tool at their data instead of only replaying baked cases.
@@ -12,7 +12,7 @@ Example (SIR): columns `case_id,beta,gamma,N,I0[,days]`; ranges per `RANGES`; re
 flag `R0>20`. Full table: [`data/README.md`](../../data/README.md).
 
 ## CONTRACT 2: artifact (`pipeline → web`)
-`data-pipeline/flowdnalab/core/{trace.py, manifest.py}`. Every run writes a compact trace (`example.trace/v1`) +
+`fracpta/core/trace.py and data-pipeline/pipeline/manifest.py`. Every run writes a compact trace (`example.trace/v1`) +
 a manifest (`example.manifest/v2`) recording params, seed, engine+version, the artifact byte size, the measured
 **[lane/gate](03_the-gate.md)** verdict, the Contract-1 flags, and the evaluation metrics. A flat
 `data/derived/manifests/index.json` inventories every case.

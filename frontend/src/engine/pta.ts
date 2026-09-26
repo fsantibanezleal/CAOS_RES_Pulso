@@ -1,5 +1,5 @@
 // TS analytic pressure-transient engine, the LIVE lane for the classical tools. Ports the
-// pygeotypes/flowdnalab analytic core so the browser can generate + diagnose a response live as the
+// pygeotypes/fracpta analytic core so the browser can generate + diagnose a response live as the
 // user drags omega/lambda/skin/noise. Parity-tested vs the Python (src/engine/__tests__).
 
 // Modified Bessel K0 via the Abramowitz & Stegun 9.8.5/9.8.6 rational approximations (abs err ~1e-7).

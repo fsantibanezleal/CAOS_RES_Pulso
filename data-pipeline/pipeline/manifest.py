@@ -7,7 +7,11 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any
 
-from .. import __version__
+from pathlib import Path
+
+import fracpta
+
+__version__ = (Path(__file__).resolve().parents[2] / "VERSION").read_text(encoding="utf-8").strip()
 
 MANIFEST_SCHEMA = "flowdna.manifest/v1"
 INDEX_SCHEMA = "flowdna.index/v1"
@@ -19,7 +23,7 @@ def _engine_block(extra_engines: dict[str, str] | None = None) -> dict:
         pg_ver = pygeotypes.__version__
     except ImportError:  # pragma: no cover, pipeline venv always has it
         pg_ver = "unavailable"
-    eng = {"package": "flowdnalab", "version": __version__, "pygeotypes": pg_ver}
+    eng = {"package": "fracpta", "version": fracpta.__version__, "pygeotypes": pg_ver}
     if extra_engines:
         eng.update(extra_engines)
     return eng

@@ -18,10 +18,8 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install (offline lane + dev + editable pkg)
-        run: pip install -r requirements-dev.txt -e .
-      - name: Install pygeotypes (private CAOS_GeoTypes until the PyPI release)
-        run: pip install "pygeotypes[fast,attr] @ git+https://x-access-token:${{ secrets.GH_PAT }}@github.com/fsantibanezleal/CAOS_GeoTypes.git@main"
+      - name: Install the engine and the dev tools (fracpta and pygeotypes from PyPI)
+        run: pip install -r requirements-dev.txt "fracpta==0.1.1"
       - name: Lint
         run: ruff check data-pipeline tests
       - name: CONTRACT 2, manifests <-> artifacts consistent (no drift)

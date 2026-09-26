@@ -3,6 +3,43 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.26.000] - 2026-09-26
+
+The engine leaves the product. `flowdnalab`, the internal package this repository had declared since the
+template was instantiated, is now `fracpta` (its own repository, `CAOS_FracPTA`, published on PyPI), as a
+product's engine must be: a product declares no package of its own. Pulso pins it and keeps only its build
+tooling.
+
+### Changed
+
+- `data-pipeline/requirements.txt` pins `fracpta==0.1.1` (which brings `pygeotypes>=0.1.3` from PyPI); the
+  `pyproject.toml` keeps tool configuration only (no `[project]`, no `pip install -e .`, no `python -m`).
+- The product's build tooling moved verbatim to `data-pipeline/pipeline/` (cases, registry, manifest, lane gate,
+  export, orchestrator), invoked by path through `data-pipeline/run.py`; the study core is the engine's
+  `fracpta.study.train_infer_evaluate`. Scripts, CI, README, STRUCTURE and the docs point there; CI installs the
+  engine from PyPI instead of a private git URL with a token.
+- Every manifest's engine block now names `fracpta`; the vault datasets are read from `FRACPTA_VAULT`
+  (`FLOWDNA_VAULT` still accepted).
+- Nine cases were re-baked under the engine: the six study cases, the two DFN cases and the open-DARTS anchor.
+  The study numbers are identical to the committed ones (WR01 and the anchor byte for byte; the other study
+  traces differ only in the committed-members note and count that a later code version records, plus case
+  metadata that had been edited after their last bake: `compare_methods`, `expected_band`, one category label).
+- The two DFN cases changed, and the reason is a defect, not the extraction: GeoDFN draws its spatial seed
+  positions from Python's `random` generator, which the adapter had never pinned (only numpy's), so every bake
+  of a DFN case produced different networks under the same seed; the committed DFN artifacts had never been
+  reproducible, and the trace also recorded a temporary machine path. Both are fixed in `fracpta` 0.1.1 (the pin
+  it consumes), and the re-baked DFN06 now reproduces byte for byte across two processes.
+- The three DFM cases were not re-baked: one takes longer than the six-minute budget allowed in this release,
+  and their networks come from the same unpinned generator, so they keep the provenance of the bake that
+  produced them (engine `flowdnalab 0.07.000`) until a dedicated re-bake; the same holds for the real, field and
+  benchmark cases, which need the vault datasets.
+- The frontend contract test accepts both engine names for the cases that keep their older provenance.
+- `frontend/public/pyodide/sources.json` is written by `data-pipeline/export_live_sources.py` from the installed
+  engine (the pure-Python subset the optional Pyodide lane would import) and committed; `copy-data.mjs` copies
+  data only.
+- Engine tests moved to the engine repository (32 there); the product keeps the tests of its own wiring
+  (12 pass, 6 skip without the vault or open-DARTS). Frontend: 11 tests, type-check and build green.
+
 ## [0.25.001] · 2026-09-26
 
 ### Changed

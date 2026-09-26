@@ -1,8 +1,8 @@
 """The offline pipeline orchestrator + CLI (ADR-0057). Runs the named stages per case, applies CONTRACT 1,
 writes the compact artifact + manifest (CONTRACT 2) and a flat index.json.
 
-    python -m flowdnalab.pipeline                 # all cases
-    python -m flowdnalab.pipeline WR01_baseline --seed 7
+    python data-pipeline/run.py                   # all cases
+    python data-pipeline/run.py WR01_baseline --seed 7
 
 Case kinds route through the same stage names:
 - 'study': preprocess (generate/ingest + contract) -> feature_extraction (shape space + descriptors)
@@ -20,13 +20,13 @@ from pathlib import Path
 
 import numpy as np
 
-from . import registry
-from .core.manifest import build_index
-from .core.rng import make_rng
-from .io.formats import write_json
-from .stages import evaluate, export, feature_extraction, infer, preprocess, train
+from . import export, registry
+from .manifest import build_index
+from fracpta.core.rng import make_rng
+from fracpta.io.formats import write_json
+from fracpta.stages import evaluate, feature_extraction, infer, preprocess, train
 
-# data-pipeline/flowdnalab/pipeline.py -> parents[2] = repo root (works under `pip install -e .` too)
+# data-pipeline/pipeline/pipeline.py -> parents[2] = repo root
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DERIVED = REPO_ROOT / "data" / "derived"
 MANIFESTS = DERIVED / "manifests"
@@ -35,21 +35,7 @@ MODELS = REPO_ROOT / "models"
 STAGES = ("preprocess", "feature_extraction", "train", "infer", "evaluate", "export")
 
 
-def _train_infer_evaluate(arrays, spec, seed: int, precomputed_D=None) -> dict:
-    """The shared study core: train (DTW/PAM/catalogue/conformal/attribution) -> infer (assign the
-    held-out test slice) -> evaluate (silhouette, empirical coverage, OOD, attribution gate). Returns
-    {trained, assignments, metrics}. Used by the study, real, dfm AND benchmark paths. `precomputed_D`
-    (a full-corpus DTW matrix) is passed through so the benchmark reuses the vault's DTW matrix."""
-    rng = make_rng(seed)
-    trained = train.run(arrays, spec, rng, seed, precomputed_D=precomputed_D)
-    X = np.asarray(arrays.X, dtype=float)
-    X_test = X[trained["split"]["test"]]
-    assignments = infer.run(trained["assigner"], X_test, spec)
-    metrics = evaluate.run(
-        trained["catalogue"], assignments, X_test, spec,
-        trained["k_diagnostics"], trained["attribution"], trained["dtw_backend"],
-    )
-    return {"trained": trained, "assignments": assignments, "metrics": metrics}
+from fracpta.study import train_infer_evaluate as _train_infer_evaluate  # the study core is the engine's
 
 
 def _run_study_stages(case, arrays, spec, flags: list[dict], seed: int, t0: float) -> dict:
@@ -77,9 +63,9 @@ def _precompute_benchmark(case, seed: int) -> dict:
     DTW matrix (no 4768^2 recompute). The honest full-corpus numbers feed the Benchmark page. CONTRACT-1
     filters bad curves; the precomputed DTW is sliced to the SAME kept curves before clustering, so the
     matrix and the curves stay aligned (a mismatch would silently mis-cluster)."""
-    from .io import real_data
-    from .io.contract import validate_curves
-    from .stages.feature_extraction import arrays_from_curves
+    from fracpta.io import real_data
+    from fracpta.io.contract import validate_curves
+    from fracpta.stages.feature_extraction import arrays_from_curves
 
     spec = case.spec
     t0 = time.perf_counter()
@@ -115,9 +101,9 @@ def _precompute_benchmark(case, seed: int) -> dict:
 
 
 def _precompute_real(case, seed: int) -> dict:
-    from .io import real_data
-    from .io.contract import validate_curves
-    from .stages.feature_extraction import arrays_from_curves
+    from fracpta.io import real_data
+    from fracpta.io.contract import validate_curves
+    from fracpta.stages.feature_extraction import arrays_from_curves
 
     spec = case.spec
     t0 = time.perf_counter()
@@ -146,9 +132,9 @@ def _precompute_field(case, seed: int) -> dict:
     """REAL field pumping-test study: welltestpy campaigns -> transient drawdown curves -> Bourdet
     first derivative -> the GeoType (AquiferType) pipeline. Mirrors the 4TU real path; the curves are
     RAW drawdown, so preprocessing differentiates them (derivative_order=1)."""
-    from .io import field_data
-    from .io.contract import validate_curves
-    from .stages.feature_extraction import arrays_from_curves
+    from fracpta.io import field_data
+    from fracpta.io.contract import validate_curves
+    from fracpta.stages.feature_extraction import arrays_from_curves
 
     spec = case.spec
     t0 = time.perf_counter()
@@ -173,7 +159,7 @@ def _precompute_field(case, seed: int) -> dict:
 
 
 def _precompute_darts(case, seed: int) -> dict:
-    from .dfn import darts_welltest
+    from fracpta.dfn import darts_welltest
 
     t0 = time.perf_counter()
     result = darts_welltest.run_drawdown(case.spec, seed=seed)
@@ -189,8 +175,8 @@ def _precompute_dfm(case, seed: int) -> dict:
     """Step B graduation: mesh + DFM-simulate an ensemble of GeoDFN networks, then run the GeoType
     study on the SIMULATED pressure-transient derivatives (+ the MRST fidelity gate). The `dfn`
     cases graduate from geometry-only to real simulated-physics GeoTypes."""
-    from .dfn import dfm_study
-    from .stages.feature_extraction import arrays_from_curves
+    from fracpta.dfn import dfm_study
+    from fracpta.stages.feature_extraction import arrays_from_curves
 
     spec = case.spec
     t0 = time.perf_counter()
@@ -220,7 +206,7 @@ def _precompute_dfm(case, seed: int) -> dict:
 
 
 def _precompute_dfn(case, seed: int) -> dict:
-    from .dfn import geodfn_adapter  # offline-only import (GeoDFN wheel)
+    from fracpta.dfn import geodfn_adapter  # offline-only import (GeoDFN wheel)
 
     t0 = time.perf_counter()
     result = geodfn_adapter.generate_ensemble(case.spec, seed=seed)
@@ -281,7 +267,7 @@ def _darts_available() -> bool:
 def run_all(seed: int = 42,
             kinds: tuple[str, ...] = ("study", "dfn", "real", "darts", "dfm", "field",
                                       "benchmark")) -> list[dict]:
-    from .io import field_data, real_data
+    from fracpta.io import field_data, real_data
 
     real_ok = real_data.available()
     field_ok = field_data.available()
@@ -291,13 +277,13 @@ def run_all(seed: int = 42,
         if c.kind not in kinds:
             continue
         if c.kind == "real" and not real_ok:
-            print(f"  SKIP {c.id}: 4TU vault corpus not available (FLOWDNA_VAULT/real-curves)")
+            print(f"  SKIP {c.id}: 4TU vault corpus not available (FRACPTA_VAULT/real-curves)")
             continue
         if c.kind == "benchmark" and not real_data.full_corpus_available(c.spec.dataset):
             print(f"  SKIP {c.id}: full-corpus benchmark inputs not available (Dataset_{c.spec.dataset}_DTW.npy)")
             continue
         if c.kind == "field" and not field_ok:
-            print(f"  SKIP {c.id}: field campaigns not available (FLOWDNA_VAULT/field)")
+            print(f"  SKIP {c.id}: field campaigns not available (FRACPTA_VAULT/field)")
             continue
         if c.kind in ("darts", "dfm") and not darts_ok:
             print(f"  SKIP {c.id}: open-darts not installed (offline-only heavy engine)")
@@ -309,7 +295,7 @@ def run_all(seed: int = 42,
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(prog="flowdnalab.pipeline")
+    ap = argparse.ArgumentParser(prog="data-pipeline/run.py")
     ap.add_argument("case", nargs="?", default="all",
                     help="a case id, 'all', or 'index' (rebuild index.json from existing manifests)")
     ap.add_argument("--seed", type=int, default=42)

@@ -47,7 +47,7 @@ r = pycatch22.catch22_all(series.tolist())   # {'names': [...22], 'values': [...
 
 ## Applying it here
 
-Called from `flowdnalab/methods/representations.py::compute_representations` per committed member curve,
+Called from `fracpta/methods/representations.py::compute_representations` per committed member curve,
 then aggregated to a per-cluster mean +/- std table (`representations.catch22.per_cluster`). The
 Representations tab ranks the features by between-cluster spread and shows the most discriminating ones.
 

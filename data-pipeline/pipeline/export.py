@@ -5,9 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..core.gate import classify_lane
-from ..core.manifest import build_case_manifest
-from ..core.trace import (
+from .gate import classify_lane
+from .manifest import build_case_manifest
+from fracpta.core.trace import (
     DARTS_TRACE_SCHEMA,
     DFM_TRACE_SCHEMA,
     DFN_TRACE_SCHEMA,
@@ -19,14 +19,14 @@ from ..core.trace import (
     build_study_trace,
     build_study_trace_v2,
 )
-from ..io.formats import write_json
+from fracpta.io.formats import write_json
 
 
 def _measure_live_primitive(trace: dict) -> float:
     """Measured live-lane interaction: generate one Warren-Root curve + conformally classify it."""
     import time
 
-    from ..live import classify_curve_json, generate_curve_json
+    from fracpta.live import classify_curve_json, generate_curve_json
 
     t0 = time.perf_counter()
     curve = generate_curve_json(omega=0.05, lam=1e-6, seed=1)
@@ -65,7 +65,7 @@ def run_study(
     if getattr(case.spec, "compare_methods", False) and all(
         kk in trained for kk in ("D", "labels", "X_train")
     ):
-        from ..methods.clustering import compare_clusterings
+        from fracpta.methods.clustering import compare_clusterings
         comparison = compare_clusterings(
             np.asarray(trained["X_train"], dtype=float), np.asarray(trained["D"], dtype=float),
             np.asarray(trained["labels"], dtype=int), int(trained["catalogue"].k), seed=seed,
@@ -73,7 +73,7 @@ def run_study(
         # P2e: predictability-vs-K + ROM descriptor sweep + the NOVEL dual-representation Mondrian
         # conformal (shape-space DTW conformal INTERSECT descriptor-space RF conformal). Same rich-method
         # gate. Optional/robust: any failure records an error note rather than breaking the bake.
-        from ..methods.attribution_plus import compute_attribution_plus
+        from fracpta.methods.attribution_plus import compute_attribution_plus
         try:
             attribution_plus = compute_attribution_plus(arrays, trained, case.spec, seed=seed)
         except Exception as e:  # noqa: BLE001

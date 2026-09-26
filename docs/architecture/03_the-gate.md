@@ -1,6 +1,6 @@
 # The live-vs-precompute gate
 
-`data-pipeline/flowdnalab/core/gate.py :: classify_lane()`. A case runs **live** in the browser (Pyodide) iff, 
+`data-pipeline/pipeline/gate.py :: classify_lane()`. A case runs **live** in the browser (Pyodide) iff, 
 by measurement, never by hand-wave:
 
 - it is **pure-Python**, and

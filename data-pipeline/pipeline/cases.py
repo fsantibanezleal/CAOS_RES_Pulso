@@ -1,4 +1,4 @@
-"""FlowDNA cases spanning CATEGORIES (the coverage matrix; docs/cases/README.md documents it).
+"""Pulso cases spanning CATEGORIES (the coverage matrix; docs/cases/README.md documents it).
 
 Two case kinds:
 - 'study' : a GeoType ensemble study (curves -> catalogue -> conformal -> attribution).
@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from ..io.schema import (
+from fracpta.io.schema import (
     BenchmarkSpec,
     DartsWellTestSpec,
     DfmStudySpec,
