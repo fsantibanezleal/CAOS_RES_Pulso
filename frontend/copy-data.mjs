@@ -19,8 +19,5 @@ if (existsSync(derived)) {
   console.warn('[copy-data] no data/derived, run scripts/precompute first');
 }
 
-// 2) the optional Pyodide live lane reads public/pyodide/sources.json, written by
-//    data-pipeline/export_live_sources.py from the installed fracpta package (committed with the bake).
-if (!existsSync(join(PUB, 'pyodide', 'sources.json'))) {
-  console.warn('[copy-data] no public/pyodide/sources.json, run data-pipeline/export_live_sources.py');
-}
+// 2) the optional Pyodide live lane reads /data/pyodide/sources.json, written into data/derived/pyodide by
+//    data-pipeline/export_live_sources.py from the installed fracpta package and copied above with the data.

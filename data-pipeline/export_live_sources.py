@@ -1,6 +1,7 @@
-"""Write frontend/public/pyodide/sources.json: the pure-Python subset of the installed `fracpta` the optional
+"""Write data/derived/pyodide/sources.json: the pure-Python subset of the installed `fracpta` the optional
 Pyodide lane would import (`fracpta.live` and `fracpta.model`). Run after a bake or a pin change and commit the
-result; frontend/copy-data.mjs only copies it. A real lane installs fracpta and pygeotypes through micropip;
+result with the other derived artifacts; frontend/copy-data.mjs carries data/derived to the site, so the file is
+served at /data/pyodide/sources.json (frontend/public/ is an ignored build directory). A real lane installs fracpta and pygeotypes through micropip;
 this file exists so the lane's worker can be developed against the exact engine version the product pins."""
 import json
 import pathlib
@@ -8,7 +9,7 @@ import pathlib
 import fracpta
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-OUT = ROOT / "frontend" / "public" / "pyodide" / "sources.json"
+OUT = ROOT / "data" / "derived" / "pyodide" / "sources.json"
 KEEP = ("__init__.py", "live.py", "model/__init__.py", "model/pta.py", "core/__init__.py", "core/rng.py")
 
 
