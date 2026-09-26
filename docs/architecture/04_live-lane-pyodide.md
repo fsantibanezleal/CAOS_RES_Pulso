@@ -1,7 +1,7 @@
 # The live (Pyodide) lane
 
 Optional client-side recompute, like SimLab: load Pyodide in a web worker, load the inlined engine sources
-(`frontend/public/pyodide/sources.json`, produced by `copy-data.mjs`), and call
+(`data/derived/pyodide/sources.json (served at /data/pyodide/sources.json)`, produced by `copy-data.mjs`), and call
 `fracpta.live.run_trace_json(case_id|params, seed)`, which uses only `fracpta/model/` (pure-Python,
 Pyodide-safe), so the live engine shares the offline code path.
 

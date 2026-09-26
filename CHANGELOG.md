@@ -3,6 +3,15 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.26.001] - 2026-09-26
+
+### Fixed
+
+- The live-lane sources file (`sources.json`, the pure-Python subset of the pinned engine) was written into
+  `frontend/public/pyodide/`, an ignored build directory, so 0.26.000 never committed it and the site answered 404.
+  It now lives in `data/derived/pyodide/` with the other derived artifacts and reaches the site through the data
+  copy at `/data/pyodide/sources.json`.
+
 ## [0.26.000] - 2026-09-26
 
 The engine leaves the product. `flowdnalab`, the internal package this repository had declared since the
