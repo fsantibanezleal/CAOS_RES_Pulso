@@ -1,6 +1,6 @@
-"""Stage 4 — infer: conformally assign the held-out TEST curves against the trained catalogue.
+"""Stage 4, infer: conformally assign the held-out TEST curves against the trained catalogue.
 
-This is exactly what the live lane does for a user's curve — run here offline over the test slice
+This is exactly what the live lane does for a user's curve, run here offline over the test slice
 so the committed artifact carries real, reproducible assignment examples (point prediction,
 p-values, prediction set, out-of-catalogue verdicts).
 """

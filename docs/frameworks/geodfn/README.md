@@ -1,4 +1,4 @@
-# GeoDFN — geologically consistent DFN generation (the paper authors' engine)
+# GeoDFN: geologically consistent DFN generation (the paper authors' engine)
 
 **What / why.** [GeoDFN](https://github.com/kamelelahe/GeoDFN) (MIT, `pip install GeoDFN`) is the
 2-D stochastic discrete-fracture-network generator by the Pulso source-paper group (Kamel Targhi
@@ -9,7 +9,7 @@ sub-linear) **apertures**. The paper's 4,850-network corpus was generated with i
 same engine rather than a hand-rolled Poisson generator.
 
 **Install.** `pip install GeoDFN==2.0.0` (Python ≥3.11; pulls matplotlib + streamlit for its own UI).
-Offline lane only — never imported by the live lane (enforced by the gate's LIVE_WHEELS).
+Offline lane only, never imported by the live lane (enforced by the gate's LIVE_WHEELS).
 
 **How Pulso calls it.** `data-pipeline/flowdnalab/dfn/geodfn_adapter.py`:
 
@@ -31,16 +31,16 @@ DFNGeneratorWithSeed(domain_x, domain_y, [set1, set2], APERTURE_PARAMS, case_id,
 
 **Determinism (measured).** With the global seed pinned, repeated runs reproduce identical
 realizations for a fixed GeoDFN version. The 'seed' key inside a set config is a spatial seed
-FRACTURE position (the geological conditioning), not an RNG seed — do not confuse them.
+FRACTURE position (the geological conditioning), not an RNG seed, do not confuse them.
 
 **Gotchas.**
 - `DFNGeneratorWithSeed` generates in `__init__` (no separate `.run()`); realizations are also
   retained in memory (`gen.realizations`) but the adapter reads the published text files (the
   stable public format).
-- `savePic=True` (default) renders matplotlib PNGs per realization — keep it `False` in the
+- `savePic=True` (default) renders matplotlib PNGs per realization: keep it `False` in the
   pipeline (slow, unneeded).
 - Set intensities are per-set areal intensity `I` (P21-like); the measured P21 descriptor lands
   within ~10-20% of the requested totals on 100 m domains (truncation + rejection effects).
 
 **Next phase.** These networks are the input geometry for the open-DARTS transient simulation
-(the artifact carries `transient_simulation: pending` until that lands — no fake curves).
+(the artifact carries `transient_simulation: pending` until that lands, no fake curves).

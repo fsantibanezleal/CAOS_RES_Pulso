@@ -1,4 +1,4 @@
-"""Stage 6 — export (CONTRACT 2): write the compact trace artifact + the case manifest. The manifest records the
+"""Stage 6, export (CONTRACT 2): write the compact trace artifact + the case manifest. The manifest records the
 measured lane/gate verdict, the artifact byte size, the CONTRACT-1 flags, and the evaluation metrics."""
 from __future__ import annotations
 

@@ -94,7 +94,7 @@ function Dual({ ap }: { ap: AttributionPlus }) {
             </tr>
             <tr>
               <td>{t.app.attrplus.caught}</td>
-              <td className="tag">—</td>
+              <td className="tag">–</td>
               <td><span className="badge ok">{d.caught_by_physics} / {d.n_test}</span></td>
             </tr>
           </tbody>

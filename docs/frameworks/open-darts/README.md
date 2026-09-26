@@ -1,4 +1,4 @@
-# open-DARTS — transient flow simulation on DFNs (the SOTA offline engine)
+# open-DARTS: transient flow simulation on DFNs (the SOTA offline engine)
 
 **What / why.** [open-DARTS](https://gitlab.com/open-darts/open-darts) (GPL-3, TU Delft) is the
 selected simulator for pressure transients ON the GeoDFN networks: the only real DFN-capable flow
@@ -9,7 +9,7 @@ the same TU Delft group as the source paper. Alternatives assessed in the SOTA d
 an optional cross-check), dfnWorks (Docker, the future 3-D path), MRST (MATLAB, dataset
 provenance only).
 
-**License posture.** GPL-3: open-DARTS is an offline engine dependency of the precompute lane —
+**License posture.** GPL-3: open-DARTS is an offline engine dependency of the precompute lane, 
 never vendored into this repo, never shipped to the web artifact. Pipeline outputs (data) are not
 derivative code; the Pulso repo stays non-GPL.
 
@@ -28,17 +28,17 @@ confirmed available in the installed 1.5.0:
 
 **Integration plan (two steps, both real, gated):**
 
-*Step A — structured analytical anchor (de-risks the engine):* a `StructReservoir` homogeneous
+*Step A, structured analytical anchor (de-risks the engine):* a `StructReservoir` homogeneous
 single-phase drawdown at a rate-controlled centre well; compare the simulated BHP transient to the
 analytical homogeneous-radial solution `pygeotypes.synthetic.homogeneous_pd` (late-time
 `0.5(ln tD + 0.80907)`, derivative plateau 0.5). This proves open-DARTS produces correct transients
 before any DFN complexity.
 
-*Step B — the DFN model (the payoff):* mesh the GeoDFN 2-D networks (gmsh, in the DARTS toolchain)
+*Step B, the DFN model (the payoff):* mesh the GeoDFN 2-D networks (gmsh, in the DARTS toolchain)
 into an `UnstructReservoir` with discrete fractures (DFM), single-phase drawdown, BHP recorded on a
 log grid; fidelity-gated against the paper's MRST reference curves (4TU corpus in the vault).
 
-**Integration status — Step A DONE (2026-07-04), Step B pending.**
+**Integration status, Step A DONE (2026-07-04), Step B pending.**
 
 *Step A (DONE, v0.04.000):* `dfn/darts_welltest.py` builds a real `StructReservoir` + `Geothermal`
 (single-phase water, isothermal) homogeneous drawdown with a rate-controlled centre well, run
@@ -53,7 +53,7 @@ full `GeothermalIAPWSFluidProps` evaluators + custom rock evaluators; BHP is rea
 `output.store_well_time_data()['well_<name>_BHP']`; a large domain + short test keep the response
 infinite-acting.
 
-*Step B — foundation DONE (2026-07-04): DFN conformal meshing works.* `dfn/dfn_mesh.py` turns a
+*Step B, foundation DONE (2026-07-04): DFN conformal meshing works.* `dfn/dfn_mesh.py` turns a
 GeoDFN network (`[[x1,y1,x2,y2], ...]` segments) into a conformal DFM `.msh` mesh via open-DARTS'
 `frac_preprocessing` (MIT, de Hoop & Voskov) + gmsh: it cleans the network (intersections, merging),
 writes a `.geo`, and meshes it. The GeoDFN output format matches `frac_preprocessing`'s input, so the
@@ -63,15 +63,15 @@ two engines compose directly. Verified end-to-end in `tests/test_dfn_mesh.py` (a
 `frac_preprocessing` never passes `input_data`; we inject a single-reservoir-layer default (the 2-D
 DFN → 1-layer 2.5-D reservoir a single-phase areal well test needs).
 
-*Step B — DONE (2026-07-04): the UnstructReservoir DFM drawdown + the MRST fidelity gate + the
+*Step B, DONE (2026-07-04): the UnstructReservoir DFM drawdown + the MRST fidelity gate + the
 GeoType graduation.* `dfn/darts_dfm.py` loads the conformal `.msh` into an `UnstructReservoir`
 (matrix perm via `permx/y/z`; fracture perm via `frac_aper` and the discretizer's cubic law
 `perm_frac = (aper**2/12)*1e15` mD), categorizes every gmsh physical tag (matrix 9991-9995,
-fractures >= 90000, box sides/caps otherwise — `read_physical_tags`, else `load_mesh` raises), places
+fractures >= 90000, box sides/caps otherwise, `read_physical_tags`, else `load_mesh` raises), places
 a rate-controlled well on the nearest MATRIX cell at the domain centre (the `[frac, matrix]` cell
 ordering), runs the exact Step A geothermal single-phase drawdown, and extracts (t_D, p_wD) + the
 Bourdet derivative. **Result: a valid DFN drawdown (verified on the probe network in ~18 s: 64
-fracture + 952 matrix cells, ~6 bar drawdown) with the characteristic morphology — a suppressed early
+fracture + 952 matrix cells, ~6 bar drawdown) with the characteristic morphology, a suppressed early
 derivative from the conductive fracture network rising to a closed-domain late-time signature.**
 
 `dfn/dfm_fidelity.py` gates the simulated derivative against the paper's MRST reference ensemble
@@ -103,5 +103,5 @@ engine run on a freshly-meshed network, skipped without open-darts).
    geometry+descriptors to full GeoType studies on simulated physics).
 
 Until then, every `flowdna.dfn/v1` artifact carries
-`"transient_simulation": "pending (open-DARTS phase; ...)"` — the viewer must show that state,
+`"transient_simulation": "pending (open-DARTS phase; ...)"`, the viewer must show that state,
 never fake curves.

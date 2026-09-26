@@ -1,4 +1,4 @@
-"""Typed objects passed between pipeline stages — the inter-stage contract. Plain dataclasses (Pyodide-safe)."""
+"""Typed objects passed between pipeline stages, the inter-stage contract. Plain dataclasses (Pyodide-safe)."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -45,7 +45,7 @@ class DFNSpec:
     """One validated GeoDFN network-ensemble operating point (a FlowDNA *case* of kind 'dfn').
 
     Generates geologically consistent 2-D discrete fracture networks with the REAL GeoDFN engine
-    (Kamel Targhi et al., MIT) — the fields mirror GeoDFN's own vocabulary (Log-Normal lengths,
+    (Kamel Targhi et al., MIT), the fields mirror GeoDFN's own vocabulary (Log-Normal lengths,
     Von-Mises orientations, power-law spatial clustering, stress-shadow buffer zones, a spatial
     seed fracture per set). Two conjugate sets by default, like the companion paper's setups.
     Transient simulation on these networks is the open-DARTS phase; until then the artifact is
@@ -85,7 +85,7 @@ class DartsWellTestSpec:
 
     case_id: str
     # grid (square areal, single layer). A large domain keeps the response infinite-acting (the
-    # pressure front stays far from the boundary) over the whole test — validated 2026-07-04.
+    # pressure front stays far from the boundary) over the whole test: validated 2026-07-04.
     nx: int = 101
     ny: int = 101
     nz: int = 1

@@ -1,10 +1,10 @@
-# pygeotypes — the shape-catalogue engine
+# pygeotypes: the shape-catalogue engine
 
 **What / why.** `pygeotypes` (repo [CAOS_GeoTypes](https://github.com/fsantibanezleal/CAOS_GeoTypes),
 Apache-2.0) is the research-chosen core for everything shape-related in Pulso: Bourdet
 derivative + p'' preprocessing, Sakoe-Chiba banded DTW, PAM k-medoids on precomputed distance
 matrices, the persistent `Catalogue` artifact, **class-conditional split-conformal assignment**
-(p-values, prediction sets, out-of-catalogue flag — Pulso's novel-beyond-SOTA layer) and the
+(p-values, prediction sets, out-of-catalogue flag, Pulso's novel-beyond-SOTA layer) and the
 gated RF + TreeSHAP attribution. It was created for Pulso because no maintained, permissively
 licensed, Pyodide-safe package couples those pieces (scikit-learn-extra unmaintained; the Rust
 `kmedoids` is GPL-3; tslearn/aeon require numba). Decision dossier:

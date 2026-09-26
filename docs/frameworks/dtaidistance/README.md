@@ -1,4 +1,4 @@
-# dtaidistance — C-accelerated DTW matrices (offline backend)
+# dtaidistance: C-accelerated DTW matrices (offline backend)
 
 **What / why.** [dtaidistance](https://github.com/wannesm/dtaidistance) (Apache-2.0, KU Leuven) is
 the offline accelerator behind `pygeotypes.distance.dtw_matrix(backend="auto")`: full pairwise DTW

@@ -26,7 +26,7 @@ def test_scaling_self_consistency():
 
 
 def test_skin_offset_is_corrected():
-    """A constant skin offset must be absorbed (shape still matches) — the well-test convention."""
+    """A constant skin offset must be absorbed (shape still matches), the well-test convention."""
     from pygeotypes.synthetic import homogeneous_pd
 
     tD = np.logspace(1, 7, 80)

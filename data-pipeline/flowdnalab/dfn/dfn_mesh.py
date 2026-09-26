@@ -4,7 +4,7 @@ This is the hard, novel part of the transient-on-DFN phase: turning a stochastic
 network into a conformal discrete-fracture-matrix (DFM) mesh that a reservoir simulator can use.
 open-DARTS ships `frac_preprocessing` (MIT, de Hoop & Voskov, TU Delft) which cleans the network
 (intersections, merging), writes a `.geo`, and runs gmsh to produce the `.msh`. Its input format is
-`[[x1,y1,x2,y2], ...]` — exactly what `geodfn_adapter` produces, so the two engines compose directly.
+`[[x1,y1,x2,y2], ...]`, exactly what `geodfn_adapter` produces, so the two engines compose directly.
 
 Offline-only (native gmsh + heavy). The produced mesh is the input to the open-DARTS UnstructReservoir
 DFM drawdown (the remaining Step-B sub-step; see docs/frameworks/open-darts).
@@ -12,7 +12,7 @@ DFM drawdown (the remaining Step-B sub-step; see docs/frameworks/open-darts).
 Package inconsistency worked around (documented): in open-darts 1.5.0, `graph_code.create_geo_file`
 reads `input_data['rsv_layers']` (+ over/under-burden layer fields) but `frac_preprocessing` does not
 pass `input_data`, so the default path crashes. We inject a single-reservoir-layer default (no
-over/under-burden) via a narrow wrapper — the 2-D DFN maps to a 1-layer 2.5-D reservoir, which is
+over/under-burden) via a narrow wrapper, the 2-D DFN maps to a 1-layer 2.5-D reservoir, which is
 exactly what a single-phase areal well test needs.
 """
 from __future__ import annotations

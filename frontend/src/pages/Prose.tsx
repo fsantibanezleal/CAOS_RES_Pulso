@@ -259,7 +259,7 @@ export function Experiments() {
   );
   const num = (m: CaseManifest, k: string) => {
     const v = (m.metrics as Record<string, unknown>)[k];
-    return typeof v === 'number' ? v.toFixed(3) : '—';
+    return typeof v === 'number' ? v.toFixed(3) : '–';
   };
   return (
     <div className="page-body prose">
@@ -286,8 +286,8 @@ export function Experiments() {
                     <td className="tag">{LANE[m.real_or_synthetic] ?? m.real_or_synthetic}</td>
                     <td>{num(m, 'k')}</td>
                     <td>{num(m, 'silhouette_train')}</td>
-                    <td>{conf.empirical_coverage_test?.toFixed(2) ?? '—'}</td>
-                    <td>{conf.ood_rate?.toFixed(2) ?? '—'}</td>
+                    <td>{conf.empirical_coverage_test?.toFixed(2) ?? '–'}</td>
+                    <td>{conf.ood_rate?.toFixed(2) ?? '–'}</td>
                   </tr>
                 );
               })}

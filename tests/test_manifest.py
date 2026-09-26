@@ -19,7 +19,7 @@ TINY = Case(
 
 @pytest.fixture(autouse=True)
 def _isolated_derived(tmp_path, monkeypatch):
-    """Test bakes go to tmp — the committed data/derived holds only the registry cases."""
+    """Test bakes go to tmp, the committed data/derived holds only the registry cases."""
     monkeypatch.setattr(pipeline, "DERIVED", tmp_path)
     monkeypatch.setattr(pipeline, "MANIFESTS", tmp_path / "manifests")
 

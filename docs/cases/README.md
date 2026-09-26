@@ -1,10 +1,10 @@
-# Cases — the category taxonomy + coverage matrix
+# Cases: the category taxonomy + coverage matrix
 
 A Pulso case is a **study** (an ensemble of pressure-transient responses turned into a GeoType
 catalogue with conformal assignment + attribution), a **dfn** ensemble (GeoDFN network generation +
 fracture descriptors), a **darts** anchor (one open-DARTS drawdown validated vs the analytical
 solution), or a **dfm** study (a GeoType study on open-DARTS DFM transients simulated over a GeoDFN
-ensemble — the graduation of the `dfn` cases from geometry to simulated physics).
+ensemble, the graduation of the `dfn` cases from geometry to simulated physics).
 `registry.list_categories()` groups them; the **App shows one selected case**;
 **Experiments/Benchmark show cross-case summaries by category** (never mixed into the App).
 
@@ -28,29 +28,29 @@ ensemble — the graduation of the `dfn` cases from geometry to simulated physic
 
 | Case | Catalogue | Conformal (coverage/OOD) | Attribution | GeoDFN engine | Real data |
 |---|---|---|---|---|---|
-| WR01_baseline | ✔ | ✔ | ✔ (continuum: gate may honestly fail) | — | — |
-| WR02_depth_families | ✔ | ✔ | ✔ target `log10_omega` | — | — |
-| WR03_timing_families | ✔ | ✔ | ✔ target `log10_lam` | — | — |
-| MIX04_homog_vs_dp | ✔ | ✔ | ✔ target `is_homogeneous` | — | — |
-| WR05_noisy | ✔ | ✔ | ✔ under noise | — | — |
-| CTRL_single_regime | ✔ (degenerate) | ✔ (stress) | gate must FAIL | — | — |
-| REAL_A_lowperm | ✔ | ✔ | ✔ real DFN descriptors | — | ✔ 4TU |
-| REAL_B_midperm | ✔ | ✔ | ✔ real DFN descriptors | — | ✔ 4TU |
-| REAL_C_highperm | ✔ | ✔ | ✔ real DFN descriptors | — | ✔ 4TU |
-| DFN06_sparse | — | — | descriptor table | ✔ | — |
-| DFN07_dense | — | — | descriptor table | ✔ | — |
-| DARTS_homog_anchor | — | — | — | — | simulated (validated vs analytic) |
+| WR01_baseline | ✔ | ✔ | ✔ (continuum: gate may honestly fail) | – | – |
+| WR02_depth_families | ✔ | ✔ | ✔ target `log10_omega` | – | – |
+| WR03_timing_families | ✔ | ✔ | ✔ target `log10_lam` | – | – |
+| MIX04_homog_vs_dp | ✔ | ✔ | ✔ target `is_homogeneous` | – | – |
+| WR05_noisy | ✔ | ✔ | ✔ under noise | – | – |
+| CTRL_single_regime | ✔ (degenerate) | ✔ (stress) | gate must FAIL | – | – |
+| REAL_A_lowperm | ✔ | ✔ | ✔ real DFN descriptors | – | ✔ 4TU |
+| REAL_B_midperm | ✔ | ✔ | ✔ real DFN descriptors | – | ✔ 4TU |
+| REAL_C_highperm | ✔ | ✔ | ✔ real DFN descriptors | – | ✔ 4TU |
+| DFN06_sparse | – | – | descriptor table | ✔ | – |
+| DFN07_dense | – | – | descriptor table | ✔ | – |
+| DARTS_homog_anchor | – | – | – | – | simulated (validated vs analytic) |
 | DFM01_geotypes | ✔ (200 nets) | ✔ | ✔ over descriptors + `log_frac_aper` | ✔ | simulated (MRST-gated) |
 | DFM02_dense | ✔ (200 nets) | ✔ | ✔ | ✔ | simulated (MRST-gated) |
 | DFM03_sparse | ✔ (200 nets) | ✔ | ✔ | ✔ | simulated (MRST-gated) |
-| FIELD_horkheim | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
-| FIELD_lauswiesen | ✔ | ✔ | withheld (one dominant type) | — | ✔ field (welltestpy) |
-| FIELD_combined | ✔ | ✔ | withheld (honest null: no controlling factor) | — | ✔ field (welltestpy) |
-| BENCH_A | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3800 curves) |
-| BENCH_B | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3600 curves) |
-| BENCH_C | ✔ (full corpus) | ✔ | ✔ | — | ✔ 4TU full (~3800 curves) |
+| FIELD_horkheim | ✔ | ✔ | withheld (one dominant type) | – | ✔ field (welltestpy) |
+| FIELD_lauswiesen | ✔ | ✔ | withheld (one dominant type) | – | ✔ field (welltestpy) |
+| FIELD_combined | ✔ | ✔ | withheld (honest null: no controlling factor) | – | ✔ field (welltestpy) |
+| BENCH_A | ✔ (full corpus) | ✔ | ✔ | – | ✔ 4TU full (~3800 curves) |
+| BENCH_B | ✔ (full corpus) | ✔ | ✔ | – | ✔ 4TU full (~3600 curves) |
+| BENCH_C | ✔ (full corpus) | ✔ | ✔ | – | ✔ 4TU full (~3800 curves) |
 
-## Full-corpus benchmark — the whole 4TU corpus (2026-07-07)
+## Full-corpus benchmark: the whole 4TU corpus (2026-07-07)
 
 The `benchmark` cases (BENCH_A/B/C) cluster the entire ~4768-curve 4TU corpus per dataset, reusing the
 corpus's own **precomputed DTW matrix** (`Dataset_X_DTW.npy`, ~90 MB, vault-only) so it does not
@@ -68,7 +68,7 @@ the full-corpus numbers are the paper's regime (K=4, silhouette ~0.37-0.46).
 - These feed the Benchmark PAGE (P5): full-corpus silhouette/K/attribution + the cross-dataset
   retention (the Sankey, P3) computed from the aligned A/B/C labels.
 
-## Real field data — welltestpy aquifer pumping tests (2026-07-04)
+## Real field data: welltestpy aquifer pumping tests (2026-07-04)
 
 The `field` cases run real transient pumping-test drawdown from two aquifer field sites
 (Horkheimer Insel, Heilbronn; Lauswiesen, Tuebingen) via the GeoStat-Framework welltestpy campaigns
@@ -90,7 +90,7 @@ only the shape diagnostic transfers, and T/S are unknown so clustering is on sha
   aquifers are hydraulically similar in their transient diagnostic signature. The methodology
   transfers and honestly reports "no strong controlling factor here" rather than manufacturing one.
 
-## Real data — the paper's own 4TU corpus (2026-07-03)
+## Real data: the paper's own 4TU corpus (2026-07-03)
 
 The `real` cases run the **source paper's actual pressure-transient curves** (4TU DOI
 10.4121/8291d285, Datasets A/B/C = three matrix-fracture permeability configs) through the exact
@@ -109,7 +109,7 @@ derivative, preprocessing uses `derivative_order=0`.
 - **Real transients cluster far more cleanly than the analytic ensembles** (silhouette 0.58–0.86 vs
   0.13–0.25 synthetic): real reservoir responses carry sharper behavioural structure than
   Warren-Root analytic curves. (Note: these are 400-curve subsamples; the paper reports 0.37–0.46
-  over the full corpus at K=4 — the subsample + K choice inflates silhouette, so this is a
+  over the full corpus at K=4, the subsample + K choice inflates silhouette, so this is a
   *relative* not absolute claim, resolved in the Benchmark.)
 - **The controlling descriptor is config-dependent**: aperture (low-perm A), fracture length
   exponent (mid-perm B), fracture **intensity + permeability** (high-perm C). REAL_C's top control
@@ -154,7 +154,7 @@ study cases (seed 42) gives a clean sensitivity ranking of what DTW+PAM can attr
 | CTRL | one regime | 0.14 | **FAIL** (by design) | none |
 
 Valley **timing** (a phase feature) and **family** (valley vs no-valley) are cleanly recovered;
-valley **depth** (a pure amplitude feature) is not, even with amplitude-preserving `norm=max` — DTW
+valley **depth** (a pure amplitude feature) is not, even with amplitude-preserving `norm=max`, DTW
 is a shape-*alignment* metric, less sensitive to amplitude than to phase/topology. WR02 is kept as
 the honest hard case: the RF accuracy gate correctly withholds a false attribution rather than
 reporting depth-noise as a finding. This is exactly why the attribution stage has a gate.

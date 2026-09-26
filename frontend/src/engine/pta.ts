@@ -1,4 +1,4 @@
-// TS analytic pressure-transient engine — the LIVE lane for the classical tools. Ports the
+// TS analytic pressure-transient engine, the LIVE lane for the classical tools. Ports the
 // pygeotypes/flowdnalab analytic core so the browser can generate + diagnose a response live as the
 // user drags omega/lambda/skin/noise. Parity-tested vs the Python (src/engine/__tests__).
 

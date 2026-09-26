@@ -1,7 +1,7 @@
-"""Stage 1 — preprocess: produce the validated CurveSet for a case.
+"""Stage 1, preprocess: produce the validated CurveSet for a case.
 
 For analytic cases the ensemble is GENERATED here (seeded, via the shared model core) and then run
-through CONTRACT 1 exactly like external data would be — the contract is exercised on every run,
+through CONTRACT 1 exactly like external data would be, the contract is exercised on every run,
 not only on the bring-your-own-data path. For real-data cases (4TU corpus / field campaigns) this
 stage READS the vault files instead and the same contract gates them.
 """

@@ -3,6 +3,12 @@
 All notable changes to Pulso (renamed from FlowDNA 2026-07-04). Format: `X.XX.XXX` (display). Keep
 `0.x` during the rebuild to the product bar (plan `_CAOS_MANAGE/plans/pulso/`). Tag every release.
 
+## [0.25.001] · 2026-09-26
+
+### Changed
+
+- No em-dash in the product's content (ADR-0067); the archetype's content guard runs in CI.
+
 ## [0.25.000] · 2026-07-30
 
 ### Fixed
@@ -280,7 +286,7 @@ Two views were rendering nowhere despite the artifact committing their data:
 - Frameworks: `docs/frameworks/tslearn`, `docs/frameworks/hdbscan` cards; `requirements.txt` pins
   `tslearn>=0.9.0`, `hdbscan>=0.8.0`. Methods landing `docs/methods.md` + ladder note.
 
-## [0.13.000] — 2026-07-07
+## [0.13.000]: 2026-07-07
 
 ### Added: rebuild phase P1c, full-corpus benchmark cases (BENCH_A/B/C)
 - **`benchmark` case kind**: clusters the ENTIRE ~4768-curve 4TU corpus per dataset (A/B/C), reusing
@@ -300,7 +306,7 @@ Two views were rendering nowhere despite the artifact committing their data:
 - Docs: `docs/cases` full-corpus benchmark section. Tests: `test_contract3` benchmark case
   (caps members, reports full n, byte budget).
 
-## [0.12.000] — 2026-07-04
+## [0.12.000]: 2026-07-04
 
 ### Changed: rebuild phase P1b, scale the DFM ensembles + DFM CONTRACT-3
 - **DFM ensembles scaled 34 -> 200 networks/case** across an intensity sweep: `DFM03_sparse`
@@ -315,7 +321,7 @@ Two views were rendering nowhere despite the artifact committing their data:
 - The crash-safe isolated worker + result caching make the overnight bakes tractable; honest n_ok/n_fail
   recorded per case (dense networks that hit gmsh/Newton failures are skipped, not hidden).
 
-## [0.11.001] — 2026-07-04
+## [0.11.001]: 2026-07-04
 
 ### Added: rebuild phase P1a, the GPU training lane (`.venv-train`)
 - Isolated **`.venv-train`** with **torch 2.6.0+cu124** for the learned tier (P2), verified on the
@@ -327,7 +333,7 @@ Two views were rendering nowhere despite the artifact committing their data:
   1D-conv forward/backward on the GPU (exits non-zero if the GPU is unusable). `.venv-train` gitignored.
 - Docs: `docs/guides/03_gpu-lane.md` (recreate + verify the lane).
 
-## [0.11.000] — 2026-07-04
+## [0.11.000]: 2026-07-04
 
 ### Added: rebuild phase P0.2, CONTRACT-3 full-ensemble study artifact (kills the 2-medoid toy)
 - **`pulso.study/v2`**: the study artifact now commits the WHOLE ensemble per case, not the medoids +
@@ -348,7 +354,7 @@ Two views were rendering nowhere despite the artifact committing their data:
 > Note: the RICH visualizations that CONSUME these fields (ensemble explorer, DTW heatmap, shape-space
 > scatter, box-whisker, Sankey) are phase P3. P0.2 produces + validates the data.
 
-## [0.10.000] — 2026-07-04
+## [0.10.000]: 2026-07-04
 
 ### Changed: rebuild phase P0.1, adopt the shared shell (was hand-rolled, no footer)
 - **Product renamed FlowDNA to Pulso.** The old name was the source paper's "geological DNA" metaphor;
@@ -369,18 +375,18 @@ Two views were rendering nowhere despite the artifact committing their data:
 > Note: this phase adopts the SHELL only. The App workbench, the ~22-method ladder, the
 > rubric-compliant visualizations and the graduate-level page content are rebuilt in phases P2-P4.
 
-## [0.07.000] — 2026-07-04 (as FlowDNA)
+## [0.07.000]: 2026-07-04 (as FlowDNA)
 
-### Added — bringing FlowDNA to the product bar (deeper SOTA + live web)
+### Added: bringing FlowDNA to the product bar (deeper SOTA + live web)
 - **The learned tier (deep-learning SOTA, the missing piece)**: three real deep models trained
   offline with PyTorch on the GeoType curves and exported to self-contained ONNX (opset 18,
-  parity-checked < 1e-4) — a 1D-CNN GeoType classifier (test acc ~0.85), a convolutional autoencoder
+  parity-checked < 1e-4), a 1D-CNN GeoType classifier (test acc ~0.85), a convolutional autoencoder
   (latent + reconstruction-error OOD, MSE ~0.48), and a contrastive triplet encoder (retrieval@1
   ~0.91). `flowdnalab/deep/` + `scripts/train-deep.*`; models committed under `models/deep/` +
   `reference.json` (medoids + calibration + embedding/latent clouds). Offline hard-processing lane;
   torch is never shipped to the browser.
 - **The live method-ladder web** (the bar's live + play-with-controls): the App's **Live lab** lands
-  the user in a workbench — drag ω/λ/skin/noise and every tool recomputes on the tuned curve.
+  the user in a workbench, drag ω/λ/skin/noise and every tool recomputes on the tuned curve.
   - `frontend/src/engine/` TS live lane, parity-tested vs Python (< 2e-3): Warren-Root / homogeneous
     via Gaver-Stehfest + Bessel K0, Bourdet derivative, Sakoe-Chiba banded DTW, split-conformal.
     Classical diagnostics, SOTA DTW-to-medoid, and the novel conformal assignment run instantly.
@@ -394,12 +400,12 @@ Two views were rendering nowhere despite the artifact committing their data:
 - Methodology page gains the learned-tier section; `docs/frameworks/torch` + `docs/frameworks/onnxruntime-web`.
 - Deploy target confirmed **GitHub Pages** (ADR-0055/0057); LICENSE (Apache-2.0) added.
 
-## [0.06.000] — 2026-07-04
+## [0.06.000]: 2026-07-04
 
 ### Added
 - **open-DARTS Step B foundation** (issue #13): DFN conformal meshing works. `dfn/dfn_mesh.py`
   turns a GeoDFN network (`[[x1,y1,x2,y2], ...]` segments) into a conformal discrete-fracture-matrix
-  (DFM) `.msh` mesh via open-DARTS' `frac_preprocessing` (MIT, de Hoop & Voskov) + gmsh — the hard,
+  (DFM) `.msh` mesh via open-DARTS' `frac_preprocessing` (MIT, de Hoop & Voskov) + gmsh, the hard,
   novel part of the transient-on-DFN phase. The GeoDFN output format matches `frac_preprocessing`'s
   input, so the two engines compose directly; verified end-to-end in `tests/test_dfn_mesh.py`
   (GeoDFN network → conformal `.msh`). A package-inconsistency in open-darts 1.5.0 is worked around
@@ -409,7 +415,7 @@ Two views were rendering nowhere despite the artifact committing their data:
   documented in `docs/frameworks/open-darts` with the concrete API path; the `dfn` cases keep
   `transient_simulation: pending` until it lands.
 
-## [0.05.000] — 2026-07-04
+## [0.05.000]: 2026-07-04
 
 ### Added
 - **The full ADR-0016 six-page web shell + ADR-0058 architecture modal** (issue #10), replacing the
@@ -420,16 +426,16 @@ Two views were rendering nowhere despite the artifact committing their data:
     (not card grids).
   - **App = a real workbench** (ADR-0016, never meta-tabs): a first-level SOURCE selector
     (Synthetic ensemble / Real 4TU sample / open-DARTS anchor), then a case, then genuine domain
-    views — GeoType catalogue (live cursor read-out), Classify-a-curve (conformal p-values +
+    views, GeoType catalogue (live cursor read-out), Classify-a-curve (conformal p-values +
     prediction set + OOD, stepping the baked assignments), Attribution (RF/SHAP importances, gated),
     Fracture network, DARTS validation, and Context. Every view runs on the committed artifact.
   - i18n EN (source) + ES translation (react-i18next; the permitted app-i18n Spanish per ADR-0066),
     light/dark theming (zustand + CSS variables, persisted), KaTeX, lucide icons, per-panel error
     boundary, zero internal repo paths in UI text.
   - Screenshot-verified across pages and both themes/languages (App workbench, Attribution,
-    Methodology KaTeX, Experiments table, architecture modal, light+ES) — 0 console errors.
+    Methodology KaTeX, Experiments table, architecture modal, light+ES), 0 console errors.
 
-## [0.04.000] — 2026-07-04
+## [0.04.000]: 2026-07-04
 
 ### Added
 - **open-DARTS transient simulation, Step A** (issue #7): a REAL single-phase drawdown validated
@@ -443,15 +449,15 @@ Two views were rendering nowhere despite the artifact committing their data:
     (`pygeotypes.synthetic.homogeneous_pd`). A grid-block well's apparent skin is fit + removed
     (expected physics, not error).
   - **Validated:** derivative plateau error 0.041, skin-corrected rel-L2 0.011, apparent skin ~0.4
-    — the SOTA simulator produces correct pressure transients. New `darts` case kind +
+   , the SOTA simulator produces correct pressure transients. New `darts` case kind +
     `DartsWellTestSpec` + `DARTS_homog_anchor` case + `flowdna.darts/v1` artifact (sim vs analytical
     overlay). `tests/test_darts.py` (pure-numpy scaling tests always; the full engine run skipped
     without open-darts). Frontend `DartsChart` overlays simulated vs analytical p_wD + derivatives.
   - This de-risks the whole DARTS integration; **Step B** (mesh the GeoDFN networks into an
-    `UnstructReservoir` + MRST fidelity gate) is the next phase — the `dfn` cases keep
+    `UnstructReservoir` + MRST fidelity gate) is the next phase, the `dfn` cases keep
     `transient_simulation: pending` until then.
 
-## [0.03.000] — 2026-07-03
+## [0.03.000]: 2026-07-03
 
 ### Added
 - **Real-data integration** (issue #4): the source paper's ACTUAL 4TU corpus runs through the
@@ -474,7 +480,7 @@ Two views were rendering nowhere despite the artifact committing their data:
 - Real compact curve files extracted to the vault (`E:\_Datos\flowdna\real-curves`, GPL-3,
   never committed); `tests/test_real_data.py` (skipped without the corpus).
 
-## [0.02.000] — 2026-07-03
+## [0.02.000]: 2026-07-03
 
 ### Added
 - **The real FlowDNA engine core** (replaces the template's SIR example, issue #1):
@@ -500,15 +506,15 @@ Two views were rendering nowhere despite the artifact committing their data:
   - docs/: frameworks (pygeotypes, GeoDFN, dtaidistance, open-DARTS status), cases taxonomy +
     coverage matrix (+ the honest p' vs p'' finding), data contract + vault manifest.
 - **open-DARTS 1.5.0 verified installed** on Windows/py3.12 (`.venv-pipeline`); transient-on-DFN
-  simulation is the explicit next phase — DFN artifacts carry `transient_simulation: pending`.
+  simulation is the explicit next phase, DFN artifacts carry `transient_simulation: pending`.
 
 ### Fixed
 - Segment-intersection orientation test had a sign error on the `u` parameter (all crossings
   rejected → connectivity ≡ 0); fixed + pinned by `tests/test_descriptors.py`. Note: GeoDFN
   stress-shadow networks still measure LOW connectivity (engine's own `connectivity=3.6e-3` on the
-  dense case) — that is the physics of buffer-zone placement, now stated in the expected bands.
+  dense case), that is the physics of buffer-zone placement, now stated in the expected bands.
 
-## [0.01.000] — 2026-07-03
+## [0.01.000]: 2026-07-03
 
 ### Added
 - Initial instantiation from the CAOS product-repo template (ADR-0057): offline `data-pipeline/`
