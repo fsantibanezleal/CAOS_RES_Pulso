@@ -1,4 +1,4 @@
-// P2c — well-test DIAGNOSTICS (live, TS). Extends the Bourdet-derivative engine (pta.ts) with the
+// P2c, well-test DIAGNOSTICS (live, TS). Extends the Bourdet-derivative engine (pta.ts) with the
 // interpretive layer a reservoir engineer reads off a pressure transient:
 //   - flow-regime auto-detection + marking on the log-log derivative (wellbore storage, radial,
 //     linear, bilinear, dual-porosity transition, boundary) - Bourdet 1989.
@@ -43,7 +43,7 @@ function loglogSlope(lt: number[], y: number[], i: number, win: number): number 
   return dlt !== 0 ? (Math.log(yb) - Math.log(ya)) / dlt : 0;
 }
 
-/** p'' — the second logarithmic derivative (Bourdet derivative of the Bourdet derivative). */
+/** p'', the second logarithmic derivative (Bourdet derivative of the Bourdet derivative). */
 export function secondLogDerivative(tD: number[], dp: number[], L = 0.3): number[] {
   return bourdet(tD, dp, L);
 }

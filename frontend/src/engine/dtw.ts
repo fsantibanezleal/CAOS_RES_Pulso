@@ -1,8 +1,8 @@
-// TS DTW + conformal assignment — the LIVE lane for the SOTA (DTW-to-medoid) + NOVEL (conformal)
+// TS DTW + conformal assignment, the LIVE lane for the SOTA (DTW-to-medoid) + NOVEL (conformal)
 // tools. Ports pygeotypes.distance.dtw_banded + assign. Runs on the tuned curve against the baked
 // catalogue medoids + calibration scores in the browser.
 
-// Sakoe-Chiba banded DTW distance (sqrt of accumulated squared cost) — matches pygeotypes.
+// Sakoe-Chiba banded DTW distance (sqrt of accumulated squared cost), matches pygeotypes.
 export function dtwBanded(x: number[], y: number[], window: number): number {
   const n = x.length;
   const m = y.length;

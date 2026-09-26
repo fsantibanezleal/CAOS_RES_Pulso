@@ -1,4 +1,4 @@
-"""Real-data path tests. Skipped when the 4TU vault corpus is absent (CI / core-only envs) — the
+"""Real-data path tests. Skipped when the 4TU vault corpus is absent (CI / core-only envs), the
 loader's availability gate keeps the suite green without the ~25 GB corpus."""
 import json
 

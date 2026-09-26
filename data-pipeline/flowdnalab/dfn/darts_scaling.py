@@ -1,4 +1,4 @@
-"""Dimensionless well-test scaling + analytical validation (pure numpy — offline lane helper).
+"""Dimensionless well-test scaling + analytical validation (pure numpy, offline lane helper).
 
 Converts a PHYSICAL drawdown transient (BHP vs time from open-DARTS, field units) into the
 dimensionless (t_D, p_wD) pair so it can be compared to the analytical line-source solution
@@ -11,7 +11,7 @@ combination matters):
     p_wD = (2 · pi · k · h / (q · mu)) · (p_init - p_wf)
 
 The homogeneous infinite-acting solution has p_wD ≈ 0.5·(ln t_D + 0.80907) at late time and a
-Bourdet derivative plateau at 0.5 — the two invariants the validation checks.
+Bourdet derivative plateau at 0.5, the two invariants the validation checks.
 """
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def validate_against_analytic(tD: np.ndarray, pwD_sim: np.ndarray, tol_rel_l2: f
     p_wD is the analytical one plus a near-constant offset S over the infinite-acting window. That is
     expected physics, not an error, so validation is:
 
-    1. **Derivative plateau at 0.5** over the infinite-acting window — the engine-agnostic radial-flow
+    1. **Derivative plateau at 0.5** over the infinite-acting window: the engine-agnostic radial-flow
        signature (the invariant well-test analysis actually uses).
     2. **Skin-corrected rel-L2**: fit the apparent skin S = median(p_wD_sim - p_wD_ana), then compare
        (p_wD_sim - S) to the analytical curve. This isolates the SHAPE match from the skin offset.

@@ -1,4 +1,4 @@
-"""Stage 2 — feature extraction: curves -> shape space + descriptor table.
+"""Stage 2, feature extraction: curves -> shape space + descriptor table.
 
 Shape space: pygeotypes preprocessing (common log grid -> Bourdet derivative(s) -> normalization),
 exactly the transform the live lane must replicate (the catalogue stores it as metadata).

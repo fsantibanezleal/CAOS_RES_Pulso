@@ -1,4 +1,4 @@
-"""CONTRACT 2 — artifact (pipeline -> web). The manifest is the authoritative, versioned record of a baked case:
+"""CONTRACT 2, artifact (pipeline -> web). The manifest is the authoritative, versioned record of a baked case:
 its params, seed, engine+versions, the compact artifact pointer + byte size, the lane/gate verdict, flags from
 CONTRACT 1, and the evaluation metrics. The web loads ONLY manifests + artifacts; frontend/src/lib/contract.types.ts
 mirrors this schema so a drift fails the build. A flat index.json inventories every case (ADR-0057 default)."""
@@ -17,7 +17,7 @@ def _engine_block(extra_engines: dict[str, str] | None = None) -> dict:
     try:
         import pygeotypes
         pg_ver = pygeotypes.__version__
-    except ImportError:  # pragma: no cover — pipeline venv always has it
+    except ImportError:  # pragma: no cover, pipeline venv always has it
         pg_ver = "unavailable"
     eng = {"package": "flowdnalab", "version": __version__, "pygeotypes": pg_ver}
     if extra_engines:
@@ -37,7 +37,7 @@ def build_case_manifest(
     metrics: dict,
     extra_engines: dict[str, str] | None = None,
 ) -> dict:
-    # Deterministic: a pure function of (params, seed). No wall-clock here (would dirty git on re-run) — the
+    # Deterministic: a pure function of (params, seed). No wall-clock here (would dirty git on re-run): the
     # lane/gate verdict + budgets carry the lane decision; live timing is measured in the browser, not committed.
     return {
         "schema": MANIFEST_SCHEMA,

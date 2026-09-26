@@ -1,8 +1,8 @@
 """FlowDNA cases spanning CATEGORIES (the coverage matrix; docs/cases/README.md documents it).
 
 Two case kinds:
-- 'study'  — a GeoType ensemble study (curves -> catalogue -> conformal -> attribution).
-- 'dfn'    — a GeoDFN 2-D network ensemble (real generation engine + descriptors; transient
+- 'study' : a GeoType ensemble study (curves -> catalogue -> conformal -> attribution).
+- 'dfn'   : a GeoDFN 2-D network ensemble (real generation engine + descriptors; transient
              simulation on these networks is the open-DARTS phase, and that pending status is
              carried honestly in the artifact).
 
@@ -48,12 +48,12 @@ CASES: list[Case] = [
         "synthetic-analytic",
     ),
     Case(
-        "WR02_depth_families", "dual-porosity: valley depth (omega) — the HARD case", "study",
+        "WR02_depth_families", "dual-porosity: valley depth (omega), the HARD case", "study",
         EnsembleSpec(case_id="WR02_depth_families", kind="warren_root", n_curves=120,
                      omega_range=(0.006, 0.35), lam_range=(1e-6, 1e-6), noise_sd=0.01,
                      derivative_order=1, norm="max"),
         "lambda constant, only omega (valley DEPTH) varies. HONEST FINDING: DTW+clustering separates "
-        "depth far less cleanly than timing (WR03) or family (MIX04) — the RF gate correctly reports "
+        "depth far less cleanly than timing (WR03) or family (MIX04), the RF gate correctly reports "
         "low attributability. depth is an amplitude feature; DTW is a shape-alignment metric. This "
         "sensitivity contrast is a real result, not a tuning failure (see docs/cases).",
         "synthetic-analytic",
@@ -90,10 +90,10 @@ CASES: list[Case] = [
         EnsembleSpec(case_id="CTRL_single_regime", kind="warren_root", n_curves=60,
                      omega_range=(0.049, 0.051), lam_range=(9.5e-7, 1.05e-6), noise_sd=0.02,
                      derivative_order=1),
-        "one true behaviour: silhouette collapses (~<0.2), K unstable — must run without crashing",
+        "one true behaviour: silhouette collapses (~<0.2), K unstable, must run without crashing",
         "synthetic-analytic",
     ),
-    # REAL DATA — the source paper's actual 4TU corpus (Datasets A/B/C = 3 matrix-fracture
+    # REAL DATA: the source paper's actual 4TU corpus (Datasets A/B/C = 3 matrix-fracture
     # permeability configs). The parquet is already the dimensionless Bourdet first derivative, so
     # derivative_order=0. Vault-only; skipped when FLOWDNA_VAULT/real-curves is absent.
     Case(
@@ -131,7 +131,7 @@ CASES: list[Case] = [
         "DFN06_sparse", "geodfn: sparse network ensemble", "dfn",
         DFNSpec(case_id="DFN06_sparse", n_networks=30, intensity_set1=0.025, intensity_set2=0.02),
         "stress-shadowed sparse nets: P21 ~0.045, near-zero intersections/backbone (GeoDFN buffer "
-        "zones repel crossings at these intensities — measured, matches GeoDFN's own connectivity)",
+        "zones repel crossings at these intensities, measured, matches GeoDFN's own connectivity)",
         "synthetic-geodfn",
     ),
     Case(

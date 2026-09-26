@@ -1,7 +1,7 @@
 """Build a labeled training set for the deep models from a study ensemble.
 
 Generates a large analytic ensemble (Warren-Root + homogeneous mixture), preprocesses it into shape
-space (pygeotypes), and labels each curve by DTW k-medoids GeoType — so the CNN learns to reproduce
+space (pygeotypes), and labels each curve by DTW k-medoids GeoType, so the CNN learns to reproduce
 the paper's GeoType assignment, the AE learns the curve manifold, and the contrastive encoder learns
 a metric where same-GeoType curves are close. Deterministic (seeded).
 """
@@ -16,7 +16,7 @@ from ..model.pta import TD_GRID, homogeneous_pd, warren_root_pd
 
 # Discrete behaviour ARCHETYPES (the GeoTypes a reservoir engineer would name): a homogeneous
 # no-valley response, and dual-porosity responses whose valley appears early / mid / late (lambda) at
-# shallow / deep depth (omega). Each training curve is one archetype with small log-jitter — so the
+# shallow / deep depth (omega). Each training curve is one archetype with small log-jitter: so the
 # catalogue is genuinely discrete and separable, and the learned classifier can be strong (not a toy)
 # without faking anything: these are real analytic responses.
 _ARCHETYPES = [

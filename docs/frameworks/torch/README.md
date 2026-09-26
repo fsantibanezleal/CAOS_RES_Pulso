@@ -1,4 +1,4 @@
-# PyTorch — the learned tier (offline hard-processing)
+# PyTorch: the learned tier (offline hard-processing)
 
 **What / why.** The deep-learning tier of the method ladder is trained with **PyTorch** in the offline
 `.venv-pipeline` (the hard-processing lane) and exported to ONNX for live in-browser inference. This
@@ -7,12 +7,12 @@ Three models on the GeoType curves:
 
 | Model | Architecture | What it gives | Live viz |
 |---|---|---|---|
-| `GeoTypeCNN` | 1D-CNN (dilated Conv1d ×3 + global average pool + head) | class probabilities per GeoType — a fast learned accelerator of the DTW k-medoids assignment | class-probability bars |
+| `GeoTypeCNN` | 1D-CNN (dilated Conv1d ×3 + global average pool + head) | class probabilities per GeoType, a fast learned accelerator of the DTW k-medoids assignment | class-probability bars |
 | `CurveAutoencoder` | conv encoder → latent (8-D) → conv-transpose decoder | a latent embedding of behaviour + a reconstruction-error anomaly / OOD score | latent-space scatter + anomaly read-out |
 | `ContrastiveEncoder` | conv encoder + projection, triplet loss | an L2-normalized embedding where same-GeoType curves are close | embedding scatter + nearest-neighbour retrieval |
 
 **Install.** `pip install --index-url https://download.pytorch.org/whl/cpu torch` (CPU wheel;
-`.venv-pipeline` only — torch is never shipped to the browser). Pinned in
+`.venv-pipeline` only, torch is never shipped to the browser). Pinned in
 `data-pipeline/requirements.txt` (torch 2.12.1). Also `onnx`, `onnxscript` (the torch≥2.9 exporter),
 `onnxruntime` (parity check).
 

@@ -1,14 +1,14 @@
 """The REAL GeoDFN engine adapter (offline lane only).
 
-Calls `GeoDFN.DFNGeneratorWithSeed` — the paper authors' geologically consistent 2-D DFN generator
+Calls `GeoDFN.DFNGeneratorWithSeed`, the paper authors' geologically consistent 2-D DFN generator
 (stress-shadow buffer zones, spatial seed fractures, Von-Mises orientations, Log-Normal lengths,
-stress-aware apertures) — and turns its realizations into (a) decimated network geometries for the
+stress-aware apertures), and turns its realizations into (a) decimated network geometries for the
 web trace and (b) the descriptor table the attribution layer consumes.
 
 Determinism note (documented, measured): GeoDFN 2.0.0 draws from numpy's GLOBAL legacy RNG, so we
 pin `np.random.seed(seed)` immediately before generation; the adapter is deterministic for a fixed
 (spec, seed, GeoDFN version). Raw engine outputs land in the DATA VAULT (E:\\_Datos\\flowdna, via
-the FLOWDNA_VAULT env var) or a temp dir — never in git; the repo commits only the compact trace.
+the FLOWDNA_VAULT env var) or a temp dir, never in git; the repo commits only the compact trace.
 """
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ def generate_ensemble(spec: DFNSpec, seed: int = 42) -> dict:
 
     out_root = _vault_dir(spec.case_id)
     out_root.mkdir(parents=True, exist_ok=True)
-    np.random.seed(int(seed))  # GeoDFN 2.0.0 uses the global legacy RNG — pin it for determinism
+    np.random.seed(int(seed))  # GeoDFN 2.0.0 uses the global legacy RNG, pin it for determinism
 
     gen = DFNGeneratorWithSeed(
         spec.domain_x, spec.domain_y, _sets_from_spec(spec), dict(APERTURE_PARAMS),

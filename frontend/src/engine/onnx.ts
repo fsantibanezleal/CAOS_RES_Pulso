@@ -1,4 +1,4 @@
-// onnxruntime-web wrapper — the LIVE lane for the LEARNED tools. Loads the committed SOTA ONNX models
+// onnxruntime-web wrapper, the LIVE lane for the LEARNED tools. Loads the committed SOTA ONNX models
 // (trained offline on the GPU in .venv-train, exported to ONNX with parity<1e-4) + reference.json, and
 // runs live inference on the user's tuned curve in the browser. WASM backend, no server. P2d models:
 // InceptionTime + PatchTST-lite (classifiers), a deep conv-AE (OOD), a TS2Vec-style encoder (retrieval).

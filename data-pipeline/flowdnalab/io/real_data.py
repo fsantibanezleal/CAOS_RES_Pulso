@@ -4,10 +4,10 @@ Source: 4TU.ResearchData DOI 10.4121/8291d285-025d-4724-988d-fc747a578c0a (Kamel
 GPL-3). Vault-only (never committed). Compact per-dataset files are extracted to
 `$FLOWDNA_VAULT/real-curves/`:
 
-- `Dataset_<X>_FirstDerivativeDimensionless.parquet` — 310 time-sample rows × (t_D_NNNN, p_D_prime_NNNN)
+- `Dataset_<X>_FirstDerivativeDimensionless.parquet`: 310 time-sample rows × (t_D_NNNN, p_D_prime_NNNN)
   column pairs for ~4768 valid curves (dimensionless time + dimensionless Bourdet first derivative;
   NaN-padded to 310). The curve id NNNN == the DFN SimulationNumber.
-- `Dataset_<X>_DFNProperties.xlsx` — 5000 rows of real fracture-network descriptors, matched by
+- `Dataset_<X>_DFNProperties.xlsx`: 5000 rows of real fracture-network descriptors, matched by
   SimulationNumber.
 
 Because the parquet is ALREADY the first derivative, the pipeline preprocesses it with

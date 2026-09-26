@@ -1,7 +1,7 @@
-// The LIVE LAB — the real workbench: drag ω/λ/skin/noise, and every tool in the ladder recomputes
+// The LIVE LAB, the real workbench: drag ω/λ/skin/noise, and every tool in the ladder recomputes
 // LIVE on the tuned curve. Classical (Bourdet diagnostics) · SOTA (DTW-to-medoid) · novel (conformal)
 // run in the TS engine; the LEARNED tools (1D-CNN, autoencoder, contrastive) run live via
-// onnxruntime-web on the committed ONNX. No server, no replay — genuine in-browser compute.
+// onnxruntime-web on the committed ONNX. No server, no replay, genuine in-browser compute.
 import { useEffect, useMemo, useState } from 'react';
 import { SubTabs, Tabs, type SubTabDef, type TabDef } from '@fasl-work/caos-app-shell';
 import { useT } from '../i18n/useT';

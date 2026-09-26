@@ -1,10 +1,10 @@
-"""LIVE lane entrypoint (Pyodide-safe): what the browser runs — nothing else.
+"""LIVE lane entrypoint (Pyodide-safe): what the browser runs, nothing else.
 
 Two interactions, both pure numpy/scipy + pygeotypes core (no dtaidistance/sklearn/shap/GeoDFN):
 
-1. `generate_curve_json` — tune (omega, lambda, skin, noise) and get a Warren-Root response +
+1. `generate_curve_json`: tune (omega, lambda, skin, noise) and get a Warren-Root response +
    its Bourdet derivative, live.
-2. `classify_curve_json` — preprocess a curve EXACTLY as the baked catalogue prescribes and
+2. `classify_curve_json`: preprocess a curve EXACTLY as the baked catalogue prescribes and
    conformally assign it (p-values, prediction set, out-of-catalogue flag) against the committed
    trace artifact. Guarantees carry into the browser because the calibration scores ship in the
    trace and the math is the same pygeotypes code path the offline pipeline used.

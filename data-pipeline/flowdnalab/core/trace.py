@@ -2,11 +2,11 @@
 frontend/src/lib/contract.types.ts, so a drift fails the web build. Schema ids are versioned.
 
 Two artifact kinds:
-- flowdna.trace/v1  — a GeoType STUDY: grid, medoid curves, K diagnostics, per-GeoType sample
+- flowdna.trace/v1 : a GeoType STUDY: grid, medoid curves, K diagnostics, per-GeoType sample
   curves, the conformal calibration scores (what the live lane needs to classify a user's curve
   with guarantees), assignment examples, attribution table.
-- flowdna.dfn/v1    — a GeoDFN NETWORK ensemble: decimated 2-D fracture geometries + descriptor
-  table (the transient-simulation phase plugs into these networks later — honestly labeled).
+- flowdna.dfn/v1   : a GeoDFN NETWORK ensemble: decimated 2-D fracture geometries + descriptor
+  table (the transient-simulation phase plugs into these networks later, honestly labeled).
 """
 from __future__ import annotations
 
@@ -258,7 +258,7 @@ def build_darts_trace(
 ) -> dict:
     """open-DARTS well-test artifact: the SIMULATED dimensionless response next to the ANALYTICAL
     homogeneous solution, plus the Bourdet derivative of each and the validation verdict. The web
-    overlays sim vs analytic on a log-log plot — the honesty proof that the engine is correct."""
+    overlays sim vs analytic on a log-log plot, the honesty proof that the engine is correct."""
     return {
         "schema": DARTS_TRACE_SCHEMA,
         "case_id": case_id,

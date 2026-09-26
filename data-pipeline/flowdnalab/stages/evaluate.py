@@ -1,4 +1,4 @@
-"""Stage 5 — evaluate (the TEST stage): honest, leakage-safe quality numbers for the manifest.
+"""Stage 5, evaluate (the TEST stage): honest, leakage-safe quality numbers for the manifest.
 
 - Clustering quality: silhouette (train), the full K-selection table.
 - Conformal validity: EMPIRICAL coverage on the held-out test slice (does the prediction set

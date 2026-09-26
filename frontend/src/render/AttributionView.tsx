@@ -15,7 +15,7 @@ export function AttributionView({ trace }: { trace: StudyTrace }) {
       <p className="muted">{t.app.attribution.desc}</p>
       <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', margin: '.5rem 0' }}>
         <span className="readout">
-          {t.app.attribution.gate}: {attr.gate ? attr.gate.accuracy.toFixed(2) : '—'}
+          {t.app.attribution.gate}: {attr.gate ? attr.gate.accuracy.toFixed(2) : '–'}
         </span>
         <span className={`badge ${ok ? 'ok' : 'bad'}`}>{ok ? t.app.attribution.passed : t.app.attribution.withheld}</span>
       </div>

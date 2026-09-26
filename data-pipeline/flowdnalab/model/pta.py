@@ -1,8 +1,8 @@
-"""The shared pure-Python analytic PTA core (Pyodide-safe) — the ONLY code used by more than one lane.
+"""The shared pure-Python analytic PTA core (Pyodide-safe), the ONLY code used by more than one lane.
 
 Thin domain layer over `pygeotypes.synthetic` (Warren-Root / homogeneous radial via Gaver-Stehfest):
 ensemble generation for the analytic cases, shared by the offline stages and the live browser lane.
-Heavy engines (GeoDFN, open-DARTS) NEVER appear here — they live in stages/ and dfn/ (offline only).
+Heavy engines (GeoDFN, open-DARTS) NEVER appear here, they live in stages/ and dfn/ (offline only).
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def generate_ensemble(
 
     kind='warren_root': all dual-porosity (log-uniform ω, λ; uniform skin).
     kind='mixture': a homogeneous_fraction of curves are homogeneous radial (the null behaviour);
-    the rest dual-porosity — the catalogue must separate the two families.
+    the rest dual-porosity, the catalogue must separate the two families.
     """
     curves: list[np.ndarray] = []
     params: list[dict] = []

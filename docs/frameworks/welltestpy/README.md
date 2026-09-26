@@ -1,4 +1,4 @@
-# welltestpy — real field pumping-test campaigns (the field-data lane)
+# welltestpy: real field pumping-test campaigns (the field-data lane)
 
 **What / why.** [welltestpy](https://github.com/GeoStat-Framework/welltestpy) (MIT, GeoStat-Framework)
 is the loader for Pulso's real field-data lane: transient pumping-test drawdown from two aquifer
