@@ -1,4 +1,4 @@
-"""Stage 3 — train (OFFLINE): build the GeoType catalogue + conformal calibration + attribution.
+"""Stage 3, train (OFFLINE): build the GeoType catalogue + conformal calibration + attribution.
 
 The research-chosen engines run here for real:
 - pairwise DTW matrix over the training slice (pygeotypes; dtaidistance C backend when installed),
@@ -7,7 +7,7 @@ The research-chosen engines run here for real:
 - RF + TreeSHAP attribution of GeoType labels to descriptors (accuracy-gated; skipped with an
   honest note when the [attr] extra is unavailable).
 
-The split (train/calibration/test) is a seeded permutation — leakage-safe by construction:
+The split (train/calibration/test) is a seeded permutation, leakage-safe by construction:
 the catalogue never sees calibration or test curves.
 """
 from __future__ import annotations

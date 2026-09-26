@@ -52,7 +52,7 @@ def test_geodfn_lane_generates_geometry_and_descriptors(tmp_path, monkeypatch):
     monkeypatch.setenv("FLOWDNA_VAULT", str(tmp_path))
     monkeypatch.setattr(pipeline, "DERIVED", tmp_path / "derived")
     monkeypatch.setattr(pipeline, "MANIFESTS", tmp_path / "derived" / "manifests")
-    # NOTE: keep the default 100x100 domain — GeoDFN's placement retry loop effectively hangs when
+    # NOTE: keep the default 100x100 domain: GeoDFN's placement retry loop effectively hangs when
     # length_max (40) approaches the domain size (observed on a 60x60 attempt, 2026-07-03).
     tiny = Case(
         "T02_dfn_tiny", "test: tiny dfn", "dfn",

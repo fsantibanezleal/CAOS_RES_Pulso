@@ -1,4 +1,4 @@
-"""flowdnalab — the FlowDNA offline+live engine (ADR-0057 product core).
+"""flowdnalab, the FlowDNA offline+live engine (ADR-0057 product core).
 
 FlowDNA builds catalogues of GeoTypes (recurring fluid-flow behaviours of fractured reservoirs)
 from pressure-transient response shapes, with conformal assignment and RF/SHAP attribution of the

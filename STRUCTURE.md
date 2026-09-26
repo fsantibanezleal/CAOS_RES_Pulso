@@ -1,36 +1,36 @@
-# Template blueprint — the authoritative structure (align here BEFORE mass-generating)
+# Template blueprint: the authoritative structure (align here BEFORE mass-generating)
 
 This is the agreed shape of a real product repo. Every requirement Felipe raised is captured here. Nothing is
 built against it until the shape is approved, so we don't build-then-redo.
 
-## Three execution lanes + a replay fallback — separate dependencies and implementation
+## Three execution lanes + a replay fallback: separate dependencies and implementation
 
 A product can run in up to three lanes. They do **not** share one engine by default: the offline engine is the
 heavy SOTA one; the live engine is often a **reduced / surrogate / small-Pyodide** model; the web always has a
 **replay fallback** (the baked artifact). The clean separation of *dependencies* and *implementation* per lane is
-mandatory — never let a heavy native dep leak into the live lane, never let the live toy masquerade as the SOTA.
+mandatory, never let a heavy native dep leak into the live lane, never let the live toy masquerade as the SOTA.
 
 | Lane | Dependencies | Implementation | Notes |
 |---|---|---|---|
 | **Offline (precompute)** | `requirements-precompute.txt` (+ `-gpu`) | `flowdnalab/stages/` (heavy SOTA engine) | bakes the committed artifacts; native libs OK (Yade/OR-Tools/…) |
-| **Live (client-side)** | `requirements.txt` (Pyodide-safe wheels) **or** web npm deps | `flowdnalab/live/` (Pyodide-safe Python) **or** `web/src/engine/` (TS) | small sims / surrogate / analytic core — runs in the browser, like SimLab's Pyodide live lane. **May be a DIFFERENT, lighter model than offline.** |
+| **Live (client-side)** | `requirements.txt` (Pyodide-safe wheels) **or** web npm deps | `flowdnalab/live/` (Pyodide-safe Python) **or** `web/src/engine/` (TS) | small sims / surrogate / analytic core, runs in the browser, like SimLab's Pyodide live lane. **May be a DIFFERENT, lighter model than offline.** |
 | **API / backend** *(optional)* | `requirements-api.txt` | `api/` (FastAPI) over `flowdnalab/model/` | only on an ADR-0002 trigger; thin layer over the shared core, never a re-implementation |
-| **Replay fallback** | — (none) | `web/src/engine/replay` loads `data/artifacts` + manifest | always present; first paint + when live unavailable |
+| **Replay fallback** |, (none) | `web/src/engine/replay` loads `data/artifacts` + manifest | always present; first paint + when live unavailable |
 
-- **`flowdnalab/model/`** — the pure-Python analytic/physics core that is **shared and Pyodide-safe**, usable by the
+- **`flowdnalab/model/`**: the pure-Python analytic/physics core that is **shared and Pyodide-safe**, usable by the
   offline stages, the live lane, and the api. The *only* code that may run in more than one lane.
-- **`flowdnalab/stages/`** — the offline pipeline (heavy engines), never imported by the live lane.
-- **`flowdnalab/live/`** — the live-lane engine (reduced/surrogate/small), importing only `model/` + Pyodide-safe deps.
-- **`web/`** — the app; runs the live lane (Pyodide importing `flowdnalab.live`, or a TS engine in `src/engine/`) and
+- **`flowdnalab/stages/`**: the offline pipeline (heavy engines), never imported by the live lane.
+- **`flowdnalab/live/`**: the live-lane engine (reduced/surrogate/small), importing only `model/` + Pyodide-safe deps.
+- **`web/`**: the app; runs the live lane (Pyodide importing `flowdnalab.live`, or a TS engine in `src/engine/`) and
   always falls back to **replaying** committed artifacts.
-- **`api/`** *(optional, dormant)* — a thin FastAPI layer over `flowdnalab/model/`; imports it, never re-implements.
+- **`api/`** *(optional, dormant)*: a thin FastAPI layer over `flowdnalab/model/`; imports it, never re-implements.
 
 The lane each case actually uses is decided by `flowdnalab/core/gate.py` (pure-python ∧ runtime ∧ trace-size gate,
-ADR-0054) — exactly SimLab's `classify_lane`.
+ADR-0054), exactly SimLab's `classify_lane`.
 
 ## The pipeline is SEPARATED BY NAMED STAGES
 
-`flowdnalab/stages/` — each stage is a pure, deterministic, **seeded**, typed, independently-tested function with an
+`flowdnalab/stages/`, each stage is a pure, deterministic, **seeded**, typed, independently-tested function with an
 explicit **input→output contract** to the next stage. Not a monolith.
 
 | Order | Stage module | Input | Output | Notes |
@@ -40,21 +40,21 @@ explicit **input→output contract** to the next stage. Not a monolith.
 | 3 | `train.py` | features (+ engine labels) | fitted model artifact → `models/` | offline; e.g. surrogate / CNN → ONNX |
 | 4 | `infer.py` | model + case params | predictions / emergent outputs | runs the **research-chosen SOTA engine** + the model |
 | 5 | `evaluate.py` | predictions vs held-out | metrics (R²/MAPE/AUC, parity) | the **TEST / validation** stage (held-out, leakage-safe) |
-| 6 | `export.py` | predictions + metrics | compact standard-format **web artifact** + `manifests/<case>.json` | the **export pipeline** — the processing→web contract |
+| 6 | `export.py` | predictions + metrics | compact standard-format **web artifact** + `manifests/<case>.json` | the **export pipeline**, the processing→web contract |
 
 `pipeline.py` orchestrates these (an ordered `STAGES` list); `python -m flowdnalab.pipeline <case>` runs them and
-persists artifact + manifest. Add domain stages as needed (e.g. `calibrate.py`, `decimate.py`) — same rules.
+persists artifact + manifest. Add domain stages as needed (e.g. `calibrate.py`, `decimate.py`), same rules.
 
 ## The TWO data contracts (were missing everywhere)
 
-1. **Ingestion `raw → processing`** — `flowdnalab/io/contract.py`: required schema (columns, units, ranges) + an
+1. **Ingestion `raw → processing`**: `flowdnalab/io/contract.py`: required schema (columns, units, ranges) + an
    explicit outlier policy (reject/clip/flag). The *bring-your-own-data* gate. Doc: `docs/data-contract.md`.
-2. **Artifact `processing → web`** — `manifests/<case>.json` + the compact artifact schema; the web has a TS type
+2. **Artifact `processing → web`**: `manifests/<case>.json` + the compact artifact schema; the web has a TS type
    mirroring it (`web/src/contract.ts`) so a drift fails the build; `web/copy-data.mjs` copies canonical artifacts.
 
 ## Standard formats end-to-end
 
-`flowdnalab/io/formats.py`: domain-standard readers/writers — CSV (sieve-series / tabular), parquet (heavy full
+`flowdnalab/io/formats.py`: domain-standard readers/writers, CSV (sieve-series / tabular), parquet (heavy full
 dataset, gitignored/LFS), npz/JSON (compact committed artifact), and per-product `.vtk/.vtu`, `.h5`, `.mat`,
 GeoTIFF. The compact committed artifacts in `data/artifacts/` are the standardized synthetic datasets.
 
@@ -70,9 +70,9 @@ GeoTIFF. The compact committed artifacts in `data/artifacts/` are the standardiz
 │  ├─ __init__.py (version) · pipeline.py (orchestrator+CLI) · registry.py (cases, grouped by CATEGORY)
 │  ├─ io/     contract.py (ingestion contract+outliers) · formats.py (std readers/writers) · schema.py (types)
 │  ├─ core/   rng.py (seed→determinism) · trace.py (artifact) · manifest.py · gate.py (lane gate)
-│  ├─ model/  shared pure-Python analytic core — Pyodide-safe; used by stages + live + api (the ONLY shared code)
+│  ├─ model/  shared pure-Python analytic core, Pyodide-safe; used by stages + live + api (the ONLY shared code)
 │  ├─ stages/ OFFLINE pipeline (heavy SOTA engine): preprocess · features · train · infer · evaluate · export
-│  ├─ live/   LIVE-lane engine (reduced/surrogate/small) — imports model/ + Pyodide-safe deps only; ≠ offline
+│  ├─ live/   LIVE-lane engine (reduced/surrogate/small), imports model/ + Pyodide-safe deps only; ≠ offline
 │  └─ cases/  one module per case; each carries id, CATEGORY, params, expected band, real/synthetic, anchor
 ├─ models/                          # trained model artifacts (small→committed e.g. .onnx; heavy→gitignored)
 ├─ data/

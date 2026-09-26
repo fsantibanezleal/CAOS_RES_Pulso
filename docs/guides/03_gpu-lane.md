@@ -1,4 +1,4 @@
-# Guide — the GPU training lane (`.venv-train`)
+# Guide: the GPU training lane (`.venv-train`)
 
 Pulso's learned tier (the 1D-CNN / autoencoder / contrastive / patch-transformer models of the method
 ladder, phase P2) is trained on the GPU in a dedicated **isolated** environment, then exported to ONNX

@@ -14,7 +14,7 @@ except ImportError:
 
 
 def test_fidelity_gate_is_honest_without_corpus(tmp_path, monkeypatch):
-    """With no MRST corpus reachable the gate must report `reference: none` and NOT pass — a DFM
+    """With no MRST corpus reachable the gate must report `reference: none` and NOT pass, a DFM
     curve is never silently 'validated' against a missing reference."""
     monkeypatch.setenv("FLOWDNA_VAULT", str(tmp_path))  # empty -> available() is False
     tD = np.logspace(0, 5, 60)

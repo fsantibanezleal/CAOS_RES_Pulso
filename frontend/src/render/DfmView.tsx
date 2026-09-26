@@ -51,7 +51,7 @@ function FidelityChart({ trace }: { trace: DfmTrace }) {
     return (
       <p className="muted">
         MRST fidelity: <b>{f.reference}</b>
-        {f.note ? ` — ${f.note}` : ''}
+        {f.note ? `, ${f.note}` : ''}
       </p>
     );
   }

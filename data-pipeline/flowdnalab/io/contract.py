@@ -1,13 +1,13 @@
-"""CONTRACT 1 — ingestion (raw -> pipeline). The *bring-your-own-data* gate.
+"""CONTRACT 1, ingestion (raw -> pipeline). The *bring-your-own-data* gate.
 
-Two entry doors, each with an EXPLICIT outlier policy (reject / flag — never silent coercion):
+Two entry doors, each with an EXPLICIT outlier policy (reject / flag, never silent coercion):
 
-1. **Curve sets** (`validate_curves`) — the real-data door. A pressure-transient record is a pair
+1. **Curve sets** (`validate_curves`): the real-data door. A pressure-transient record is a pair
    of arrays (t, Δp). Requirements per curve: strictly increasing t > 0, finite values, at least
    MIN_POINTS samples, at least MIN_DECADES of log-time span (the Bourdet derivative and DTW are
    meaningless on a shorter window). Suspicious-but-usable curves are FLAGGED (short span, heavy
    derivative sign-flipping = noise) and accepted; broken curves are REJECTED with a reason.
-2. **Ensemble specs** (`validate_spec`) — the synthetic/analytic door. Parameter ranges must be
+2. **Ensemble specs** (`validate_spec`): the synthetic/analytic door. Parameter ranges must be
    physical (ω ∈ (0,1], λ > 0, noise bounded, fractions coherent) so a case cannot silently ask
    the engine for nonsense.
 
@@ -78,7 +78,7 @@ def validate_curves(curves: list[dict[str, Any]]) -> ContractReport:
             flagged.append({"curve_id": cid, "flag": f"short span: {decades:.2f} decades < {FLAG_DECADES}"})
         pf = [float(x) for x in p]
         # noise heuristic: sign flips of first differences, counting only MATERIAL differences
-        # (>0.1% of the curve's range) — tiny early-time wiggles are not noise evidence
+        # (>0.1% of the curve's range): tiny early-time wiggles are not noise evidence
         rng_p = max(pf) - min(pf)
         thr = 1e-3 * rng_p if rng_p > 0 else 0.0
         diffs = [b - a for a, b in zip(pf, pf[1:])]
