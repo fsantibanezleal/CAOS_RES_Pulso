@@ -4,20 +4,20 @@ import json
 
 import pytest
 
-from flowdnalab import pipeline
-from flowdnalab.cases.flowdna_cases import Case
-from flowdnalab.io import field_data
-from flowdnalab.io.schema import FieldDataSpec
+from pipeline import pipeline
+from pipeline.cases import Case
+from fracpta.io import field_data
+from fracpta.io.schema import FieldDataSpec
 
 
 def test_availability_is_honest_without_the_vault(tmp_path, monkeypatch):
     """With no field dir reachable, available() is False (so the suite + run_all skip field cases)."""
-    monkeypatch.setenv("FLOWDNA_VAULT", str(tmp_path))  # empty -> no campaigns
+    monkeypatch.setenv("FRACPTA_VAULT", str(tmp_path))  # empty -> no campaigns
     assert field_data.available() is False
 
 
 @pytest.mark.skipif(not field_data.available(),
-                    reason="welltestpy field campaigns not available (FLOWDNA_VAULT/field)")
+                    reason="welltestpy field campaigns not available (FRACPTA_VAULT/field)")
 class TestWithVault:
     @pytest.fixture(autouse=True)
     def _isolated_derived(self, tmp_path, monkeypatch):

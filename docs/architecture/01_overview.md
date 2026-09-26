@@ -7,8 +7,8 @@ re-litigated); per-product rework lives only in the **core**, models/algorithms,
 ## The lanes (and what runs where)
 | Lane | Where | Deps | Notes |
 |---|---|---|---|
-| **Offline (precompute)** | `data-pipeline/` (`flowdnalab`), `.venv-pipeline` | `data-pipeline/requirements.txt` (SOTA engines) | bakes the committed artifacts |
-| **Live (client-side)** | `frontend/src/pyodide` + `flowdnalab/live.py` | Pyodide-safe wheels (`requirements.txt`) | optional small recompute in the browser; may be a reduced model |
+| **Offline (precompute)** | `data-pipeline/` (`fracpta`), `.venv-pipeline` | `data-pipeline/requirements.txt` (SOTA engines) | bakes the committed artifacts |
+| **Live (client-side)** | `frontend/src/pyodide` + `fracpta/live.py` | Pyodide-safe wheels (`requirements.txt`) | optional small recompute in the browser; may be a reduced model |
 | **Replay** | `frontend/` | – | always present; the fallback (ADR-0054) |
 | **API (backend)** | `app/` (FastAPI) | `requirements-api.txt` | DORMANT; activate only on an ADR-0002 trigger |
 

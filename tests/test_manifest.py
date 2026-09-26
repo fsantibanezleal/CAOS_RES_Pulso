@@ -5,9 +5,9 @@ import json
 
 import pytest
 
-from flowdnalab import pipeline
-from flowdnalab.cases.flowdna_cases import Case
-from flowdnalab.io.schema import EnsembleSpec
+from pipeline import pipeline
+from pipeline.cases import Case
+from fracpta.io.schema import EnsembleSpec
 
 TINY = Case(
     "T01_tiny", "test: tiny study", "study",
@@ -36,7 +36,7 @@ def test_manifest_matches_artifact_and_gate():
     # a study case's live primitive (generate one curve + classify) is numpy/scipy pure and its
     # trace is compact => must classify LIVE
     assert m["lane"] == "live", f"expected live lane, got {m['lane']} ({m['gate']['reasons']})"
-    assert m["engine"]["package"] == "flowdnalab"
+    assert m["engine"]["package"] == "fracpta"
     assert "pygeotypes" in m["engine"]
 
 

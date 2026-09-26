@@ -25,9 +25,9 @@ pip install -e ../CAOS_GeoTypes                # runtime venv (core only)
 | `feature_extraction` | `preprocess.prepare_curves` (log grid → Bourdet/p'' → z-score) |
 | `train` | `distance.dtw_matrix` (dtaidistance backend offline) · `cluster.select_k` + `pam_kmedoids` · `catalogue.build_catalogue` · `assign.ConformalAssigner.fit` · `attribute.attribute_geotypes` |
 | `infer` | `assign.ConformalAssigner.predict` over the held-out test slice |
-| live lane (`flowdnalab/live.py`) | `synthetic.warren_root_pd` (generate) · `Catalogue.from_*` + `ConformalAssigner.from_dict` + `predict` (classify-my-curve, pure numpy/scipy) |
+| live lane (`fracpta/live.py`) | `synthetic.warren_root_pd` (generate) · `Catalogue.from_*` + `ConformalAssigner.from_dict` + `predict` (classify-my-curve, pure numpy/scipy) |
 
-**Runnable example.** See `data-pipeline/flowdnalab/stages/train.py` (the real call site) and the
+**Runnable example.** See `fracpta/stages/train.py` (the real call site) and the
 package's own `docs/quickstart.md`. The committed study traces under `data/derived/` are its
 outputs.
 

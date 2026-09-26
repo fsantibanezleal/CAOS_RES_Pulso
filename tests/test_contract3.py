@@ -6,9 +6,9 @@ import json
 import numpy as np
 import pytest
 
-from flowdnalab import pipeline
-from flowdnalab.core.trace import DISPLAY_COLS, MAX_MEMBERS, STUDY_V2_SCHEMA, _decimate_minmax
-from flowdnalab.io import real_data
+from pipeline import pipeline
+from fracpta.core.trace import DISPLAY_COLS, MAX_MEMBERS, STUDY_V2_SCHEMA, _decimate_minmax
+from fracpta.io import real_data
 
 
 def test_decimation_preserves_extrema():

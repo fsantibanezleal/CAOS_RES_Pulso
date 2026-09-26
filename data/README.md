@@ -14,7 +14,7 @@ Governed by the **two data contracts** of ADR-0057.
 
 ## The local data vault (outside git)
 
-Heavy data lives in `E:\_Datos\flowdna\` (set `FLOWDNA_VAULT=E:\_Datos\flowdna` for the pipeline);
+Heavy data lives in `E:\_Datos\flowdna\` (set `FRACPTA_VAULT=E:\_Datos\flowdna` for the pipeline);
 trained models in `E:\_Models\flowdna\`. Current inventory (2026-07-03):
 
 | Vault path | What | Size | License |
@@ -26,7 +26,7 @@ Fetch script for the corpus: `_CAOS_MANAGE/wip/flowdna/fetch-4tu-dataset.ps1`.
 
 ## CONTRACT 1: ingestion (raw → pipeline), the *bring-your-own-data* gate
 
-Defined in `data-pipeline/flowdnalab/io/contract.py`, two doors:
+Defined in `fracpta/io/contract.py`, two doors:
 
 **Curves** (`validate_curves`), a record is `{curve_id, t[], p[]}`:
 
@@ -48,7 +48,7 @@ k-range sane; a calibration slice too small for the requested α (OOD unreachabl
 
 Each run writes a compact trace (`derived/<case>/trace.json`) and a manifest
 (`derived/manifests/<case>.json`, schema `flowdna.manifest/v1`) recording the spec, seed,
-engine versions (flowdnalab + pygeotypes + dtw backend / GeoDFN), artifact byte size, the measured
+engine versions (fracpta + pygeotypes + dtw backend / GeoDFN), artifact byte size, the measured
 **lane/gate** verdict (the gate times the LIVE primitive: generate one curve + conformally
 classify it), Contract-1 flags, and the honest evaluation metrics (silhouette, K table, EMPIRICAL
 conformal coverage vs target, OOD rate, attribution gate). Trace schemas:

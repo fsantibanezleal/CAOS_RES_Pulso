@@ -21,7 +21,9 @@ describe('CONTRACT 2 mirror matches the committed artifacts', () => {
       expect(m.schema.startsWith('flowdna.manifest/')).toBe(true);
       expect(m.artifact.bytes).toBeGreaterThan(0);
       expect(['live', 'precompute']).toContain(m.lane);
-      expect(m.engine.package).toBe('flowdnalab');
+      // The engine is the fracpta package since 0.26.000; cases the vault-only or open-DARTS lanes could not
+      // re-bake keep the provenance of the bake that produced them (the former internal package).
+      expect(['fracpta', 'flowdnalab']).toContain(m.engine.package);
       const tr = read<Trace>(...m.artifact.path.split('/'));
       if (isStudyTrace(tr)) {
         expect(tr.medoids.length).toBe(tr.k);

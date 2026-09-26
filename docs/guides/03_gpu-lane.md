@@ -55,7 +55,7 @@ is not usable, so setup/CI fails loudly instead of silently training on the CPU.
 
 ## Training + export (phase P2)
 
-`data-pipeline/flowdnalab/deep/train.py` runs under `.venv-train` with `device='cuda'`, trains each
+`fracpta/deep/train.py` runs under `.venv-train` with `device='cuda'`, trains each
 model on the curve corpus (our simulated ensembles + the 4TU corpus), and exports self-contained ONNX
 (opset 18, weights embedded, parity-checked < 1e-4) to `models/deep/`. The browser loads those via
 onnxruntime-web (WASM); torch is never shipped. See `docs/frameworks/torch`.

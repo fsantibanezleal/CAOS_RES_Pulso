@@ -32,7 +32,7 @@ GeoDFN ensembles ──► pressure-transient simulation ──► Bourdet deriv
         (what controls what)       (medoids + membership)
 ```
 
-- **Offline lane** (`data-pipeline/flowdnalab`, `.venv-pipeline`): the research-chosen SOTA engines,
+- **Offline lane** (`data-pipeline/fracpta`, `.venv-pipeline`): the research-chosen SOTA engines,
   staged pipeline `preprocess → feature_extraction → train → infer → evaluate → export`, committed
   compact artifacts + manifests (deterministic, seeded).
 - **Live lane** (Pyodide, browser): pure-Python analytical PTA core (Bourdet derivative +

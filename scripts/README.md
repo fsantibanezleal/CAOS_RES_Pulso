@@ -8,7 +8,7 @@ Local scripts so **anyone** can configure the env and run the flow. Provide ever
 | Script | What it must do |
 |---|---|
 | `setup.sh` / `setup.ps1` | create `.venv`, upgrade pip, install `requirements.txt -r requirements-dev.txt -r requirements-precompute.txt`; print the next commands. GPU/API lanes installed only on demand. |
-| `precompute.sh` / `precompute.ps1` | run the staged pipeline: `python -m flowdnalab.pipeline "$@"` (all cases, or one). |
+| `precompute.sh` / `precompute.ps1` | run the staged pipeline: `python data-pipeline/run.py "$@"` (all cases, or one). |
 | `fetch-data.sh` / `fetch-data.ps1` | (optional) stage raw inputs into `data/raw/` (gitignored). Never commit raw. |
 | `serve-api.sh` / `serve-api.ps1` | (optional, only if `api/` is active) `uvicorn api.main:app --reload`. |
 

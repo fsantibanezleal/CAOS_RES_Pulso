@@ -11,7 +11,7 @@ same engine rather than a hand-rolled Poisson generator.
 **Install.** `pip install GeoDFN==2.0.0` (Python ≥3.11; pulls matplotlib + streamlit for its own UI).
 Offline lane only, never imported by the live lane (enforced by the gate's LIVE_WHEELS).
 
-**How Pulso calls it.** `data-pipeline/flowdnalab/dfn/geodfn_adapter.py`:
+**How Pulso calls it.** `fracpta/dfn/geodfn_adapter.py`:
 
 ```python
 np.random.seed(seed)                       # GeoDFN 2.0.0 draws from numpy's GLOBAL legacy RNG
@@ -26,7 +26,7 @@ DFNGeneratorWithSeed(domain_x, domain_y, [set1, set2], APERTURE_PARAMS, case_id,
   (`dfn/descriptors.py`: P21, length stats, orientation dispersion R, intersections graph,
   largest-cluster / backbone fractions, spanning flag, well distance) and bakes the decimated
   geometries into the `flowdna.dfn/v1` trace.
-- Raw engine output lands in the vault (`FLOWDNA_VAULT=E:\_Datos\flowdna` → `geodfn/<case>/`),
+- Raw engine output lands in the vault (`FRACPTA_VAULT=E:\_Datos\flowdna` → `geodfn/<case>/`),
   never in git.
 
 **Determinism (measured).** With the global seed pinned, repeated runs reproduce identical

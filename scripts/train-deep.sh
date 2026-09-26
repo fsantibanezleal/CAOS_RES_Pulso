@@ -3,4 +3,4 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PY="${PYTHON:-.venv-pipeline/bin/python}"; [ -x "$PY" ] || PY=".venv-pipeline/Scripts/python.exe"
-PYTHONUTF8=1 "$PY" -c "from flowdnalab.deep.train import train_all; print(train_all('models/deep'))"
+PYTHONUTF8=1 "$PY" -c "from fracpta.deep.train import train_all; print(train_all('models/deep'))"

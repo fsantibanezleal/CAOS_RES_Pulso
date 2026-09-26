@@ -1,5 +1,5 @@
 // CONTRACT 2 mirror (frontend side). MUST stay in lock-step with the Python schemas in
-// data-pipeline/flowdnalab/core/{trace.py, manifest.py}. A drift here makes `tsc` fail -> the contract is
+// fracpta/core/trace.py (the engine's trace) and data-pipeline/pipeline/manifest.py (this product's manifest). A drift here makes `tsc` fail -> the contract is
 // enforced at BUILD time (the web cannot ship reading a shape the pipeline does not produce).
 
 export interface KTable {

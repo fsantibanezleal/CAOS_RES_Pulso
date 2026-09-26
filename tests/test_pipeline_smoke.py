@@ -5,10 +5,10 @@ import json
 
 import pytest
 
-from flowdnalab import pipeline, registry
-from flowdnalab.cases.flowdna_cases import Case
-from flowdnalab.core.manifest import build_index
-from flowdnalab.io.schema import DFNSpec
+from pipeline import pipeline, registry
+from pipeline.cases import Case
+from pipeline.manifest import build_index
+from fracpta.io.schema import DFNSpec
 
 
 def test_degenerate_control_runs_and_reports_low_quality(tmp_path, monkeypatch):
@@ -49,7 +49,7 @@ def test_index_builder():
 
 def test_geodfn_lane_generates_geometry_and_descriptors(tmp_path, monkeypatch):
     pytest.importorskip("GeoDFN")
-    monkeypatch.setenv("FLOWDNA_VAULT", str(tmp_path))
+    monkeypatch.setenv("FRACPTA_VAULT", str(tmp_path))
     monkeypatch.setattr(pipeline, "DERIVED", tmp_path / "derived")
     monkeypatch.setattr(pipeline, "MANIFESTS", tmp_path / "derived" / "manifests")
     # NOTE: keep the default 100x100 domain: GeoDFN's placement retry loop effectively hangs when

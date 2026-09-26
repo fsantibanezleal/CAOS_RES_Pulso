@@ -36,7 +36,7 @@ labels = HDBSCAN(min_cluster_size=min_size, metric="precomputed").fit_predict(D.
 
 ## Applying it here
 
-Called from `flowdnalab/methods/clustering.py::compare_clusterings` on the **precomputed DTW distance
+Called from `fracpta/methods/clustering.py::compare_clusterings` on the **precomputed DTW distance
 matrix** directly (`metric="precomputed"`), so it clusters in the same shape geometry as the reference.
 The silhouette drops the -1 noise points before scoring; the reported k is the count of non-noise clusters.
 Result appears per-method in the trace `method_comparison` block. In the baked benchmark HDBSCAN agrees

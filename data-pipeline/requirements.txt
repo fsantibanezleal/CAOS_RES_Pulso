@@ -1,6 +1,7 @@
 # PRECOMPUTE lane: the heavy, research-chosen SOTA engines, in the .venv-pipeline (local-only, never deployed).
 # THIS is where the deep research becomes binding: every engine pinned here is documented in docs/frameworks/<tool>/
-# and actually used by data-pipeline/flowdnalab/. Verified install: Python 3.12, 2026-07-03.
+# and actually used by the fracpta engine and data-pipeline/pipeline/. Verified install: Python 3.12, 2026-07-03.
+fracpta==0.1.1                 # the engine (PyPI, trusted publishing); it pins pygeotypes>=0.1.3
 numpy==2.4.6
 scipy==1.17.1
 networkx==3.6.1
