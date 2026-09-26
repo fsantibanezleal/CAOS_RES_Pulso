@@ -24,7 +24,8 @@ from . import export, registry
 from .manifest import build_index
 from fracpta.core.rng import make_rng
 from fracpta.io.formats import write_json
-from fracpta.stages import evaluate, feature_extraction, infer, preprocess, train
+from fracpta.stages import feature_extraction, preprocess
+from fracpta.study import train_infer_evaluate as _train_infer_evaluate  # the study core is the engine's
 
 # data-pipeline/pipeline/pipeline.py -> parents[2] = repo root
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -33,9 +34,6 @@ MANIFESTS = DERIVED / "manifests"
 MODELS = REPO_ROOT / "models"
 
 STAGES = ("preprocess", "feature_extraction", "train", "infer", "evaluate", "export")
-
-
-from fracpta.study import train_infer_evaluate as _train_infer_evaluate  # the study core is the engine's
 
 
 def _run_study_stages(case, arrays, spec, flags: list[dict], seed: int, t0: float) -> dict:
